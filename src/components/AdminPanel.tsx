@@ -1208,7 +1208,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
               {selectedOrder ? (
                 <div 
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-5 w-full max-w-lg shadow-2xl lg:shadow-none max-h-[90vh] overflow-y-auto animate-scale-in"
+                  className="bg-white p-4.5 sm:p-5 rounded-2xl border border-neutral-200 h-fit space-y-4.5 sm:space-y-5 w-full max-w-md shadow-2xl lg:shadow-none max-h-[85vh] overflow-y-auto animate-scale-in"
                 >
 
                   {/* Title & Status Controls */}
@@ -1574,7 +1574,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             >
               <div 
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col max-h-[90vh]"
+                className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-4.5 sm:p-7 flex flex-col max-h-[85vh]"
               >
                 <div className="flex justify-between items-center pb-4 border-b border-neutral-100 mb-5">
                   <h3 className="text-lg font-black text-neutral-900 tracking-tight uppercase">
