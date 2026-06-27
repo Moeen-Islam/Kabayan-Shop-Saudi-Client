@@ -1429,7 +1429,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           </div>
 
           {/* Product manager list */}
-          <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+          {/* Desktop Table View: Visible on md screens and larger */}
+          <div className="hidden md:block bg-white rounded-xl border border-neutral-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
@@ -1495,6 +1496,65 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Mobile Cards Stack View: Visible on screen widths below md */}
+          <div className="md:hidden divide-y divide-neutral-100 bg-white rounded-xl border border-neutral-200 overflow-hidden">
+            {products.map((prod) => (
+              <div key={prod.id} className="p-4 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-16 rounded overflow-hidden bg-neutral-100 flex items-center justify-center relative border border-neutral-200 shrink-0">
+                    <img
+                      src={prod.images[0]}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover blur-[2px] opacity-40 scale-110 pointer-events-none"
+                    />
+                    <img
+                      src={prod.images[0]}
+                      alt=""
+                      className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                    />
+                  </div>
+                  <div className="flex-grow min-w-0">
+                    <span className="font-bold text-neutral-900 block truncate">{prod.name}</span>
+                    <span className="text-[10px] text-neutral-400 block mt-0.5 font-mono">Category: {prod.category}</span>
+                    <span className="text-[10px] text-neutral-400 block font-mono">Stock level: {prod.stock} left</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-neutral-50 pt-2.5">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Base Price</span>
+                    <span className="font-mono font-bold text-neutral-800">{prod.price} SAR</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Offer Price</span>
+                    <span className="font-mono font-bold text-amber-600">{prod.offerPrice ? `${prod.offerPrice} SAR` : "No Offer"}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mb-0.5">Status</span>
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase ${prod.status === "active" ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-500"}`}>
+                      {prod.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 border-t border-neutral-50 pt-2.5">
+                  <button
+                    onClick={() => handleOpenEditProduct(prod)}
+                    className="flex-grow py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold rounded-lg text-center transition flex items-center justify-center gap-1.5"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                    <span>Edit Item</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProduct(prod.id)}
+                    className="py-2 px-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg transition"
+                    title="Delete Product"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* ADD / EDIT PRODUCT MODAL FORM */}
@@ -2005,7 +2065,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 />
                 <button
                   type="submit"
-                  className="bg-black hover:bg-neutral-900 text-amber-400 font-bold px-4 rounded-lg transition"
+                  className="bg-black hover:bg-neutral-900 text-amber-400 font-bold px-4 rounded-lg transition shrink-0"
                 >
                   Create
                 </button>
@@ -2331,7 +2391,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       });
                     }
                   }}
-                  className="bg-black text-amber-400 font-bold px-4 rounded-lg text-[10px] uppercase tracking-widest"
+                  className="bg-black text-amber-400 font-bold px-4 rounded-lg text-[10px] uppercase tracking-widest shrink-0"
                 >
                   Add URL
                 </button>
@@ -2373,7 +2433,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-neutral-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100">
               <div>
                 <label className="text-xs font-bold text-neutral-700 block mb-1">
                   Contact Email
