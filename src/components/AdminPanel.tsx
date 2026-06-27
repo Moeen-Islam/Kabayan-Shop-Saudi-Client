@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { 
-  BarChart3, ShoppingCart, FolderHeart, Truck, Key, 
-  Search, Plus, Edit, Trash2, Check, X, Eye, 
-  TrendingUp, CircleDollarSign, CalendarDays, ExternalLink, 
+import {
+  BarChart3, ShoppingCart, FolderHeart, Truck, Key,
+  Search, Plus, Edit, Trash2, Check, X, Eye,
+  TrendingUp, CircleDollarSign, CalendarDays, ExternalLink,
   MapPin, Sliders, ChevronRight, RefreshCw, MessageSquare,
   UploadCloud
 } from "lucide-react";
@@ -96,7 +96,7 @@ export default function AdminPanel({
   const [editingArea, setEditingArea] = useState<DeliveryArea | null>(null);
   const [areaForm, setAreaForm] = useState({ name: "", charge: "", freeDeliveryAbove: "", minOrderValue: "" });
   const [isAddingArea, setIsAddingArea] = useState(false);
-  
+
   // Coupon State
   const [isAddingCoupon, setIsAddingCoupon] = useState(false);
   const [couponForm, setCouponForm] = useState({
@@ -273,10 +273,10 @@ export default function AdminPanel({
   // Send Delivery details to customer via WhatsApp
   const handleSendWhatsAppDispatch = (order: Order) => {
     let cleanPhone = order.whatsapp.replace(/[^0-9]/g, "");
-    
+
     let itemsText = order.items.map((item) => {
-      const imgUrl = item.productImage.startsWith("http") 
-        ? item.productImage 
+      const imgUrl = item.productImage.startsWith("http")
+        ? item.productImage
         : `${window.location.origin}${item.productImage}`;
       return `• *${item.quantity}x* ${item.productName}\n  Size: ${item.selectedSize} | Color: ${item.selectedColor} | Type: ${item.selectedPackageType}\n  🖼️ Image: ${imgUrl}`;
     }).join("\n\n");
@@ -311,7 +311,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
     const encodedText = encodeURIComponent(msg);
     const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
-    
+
     window.open(waUrl, "_blank");
   };
 
@@ -532,8 +532,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           "Content-Type": "application/json",
           "Authorization": token || ""
         },
-        body: JSON.stringify({ 
-          name: areaForm.name, 
+        body: JSON.stringify({
+          name: areaForm.name,
           charge: Number(areaForm.charge),
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
@@ -560,8 +560,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           "Content-Type": "application/json",
           "Authorization": token || ""
         },
-        body: JSON.stringify({ 
-          name: areaForm.name, 
+        body: JSON.stringify({
+          name: areaForm.name,
           charge: Number(areaForm.charge),
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
@@ -724,13 +724,13 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
   // Filter Orders list
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = 
+    const matchesSearch =
       order.orderNumber.toLowerCase().includes(orderSearch.toLowerCase()) ||
       order.customerName.toLowerCase().includes(orderSearch.toLowerCase()) ||
       order.whatsapp.includes(orderSearch);
-    
+
     const matchesStatus = orderStatusFilter === "All" || order.status === orderStatusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -759,7 +759,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 required
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="admin@kabayanshopksa.com"
+                placeholder="[EMAIL_ADDRESS]"
                 className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm bg-neutral-50 focus:outline-none focus:border-neutral-900"
               />
             </div>
@@ -804,7 +804,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
-      
+
       {/* Header operations */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-neutral-200 mb-8">
         <div>
@@ -855,11 +855,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider shrink-0 transition border-b-2 -mb-[1px] ${
-                isActive 
-                  ? "border-amber-500 text-black font-black" 
-                  : "border-transparent text-neutral-400 hover:text-neutral-700"
-              }`}
+              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider shrink-0 transition border-b-2 -mb-[1px] ${isActive
+                ? "border-amber-500 text-black font-black"
+                : "border-transparent text-neutral-400 hover:text-neutral-700"
+                }`}
             >
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
@@ -873,7 +872,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "overview" && (
         <div className="space-y-8 animate-fade-in">
-          
+
           {/* Stats Cards Row */}
           {statsLoading || !stats ? (
             <div className="text-center py-20 text-neutral-400 font-semibold flex items-center justify-center gap-2">
@@ -883,7 +882,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           ) : (
             <>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                
+
                 {/* Total Orders Card */}
                 <div className="bg-white p-5 rounded-2xl border border-neutral-200/70 shadow-sm flex flex-col justify-between">
                   <div className="flex items-start justify-between">
@@ -952,14 +951,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
               {/* Graphical Visualizations (Custom SVG Charting Area) */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
+
                 {/* 1. Daily Sales SVG Bar/Area Chart */}
                 <div className="bg-white rounded-2xl border border-neutral-200 p-5">
                   <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-4 flex items-center gap-1.5">
                     <CircleDollarSign className="w-4 h-4 text-amber-600" />
                     <span>DAILY SALES GRAPH (LAST 7 DAYS)</span>
                   </h4>
-                  
+
                   {stats.salesByDay.length === 0 ? (
                     <div className="h-48 flex items-center justify-center text-neutral-400 text-xs">
                       No sales data captured yet.
@@ -976,7 +975,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                                 {new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                               </span>
                               <div className="flex-grow bg-neutral-100 h-6 rounded overflow-hidden mr-3">
-                                <div 
+                                <div
                                   className="bg-black text-amber-400 h-full flex items-center justify-end pr-2 text-[10px] font-bold transition-all duration-500 rounded"
                                   style={{ width: barWidth }}
                                 >
@@ -1043,7 +1042,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "orders" && (
         <div className="space-y-6 animate-fade-in">
-          
+
           {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200">
             <div className="relative flex-grow max-w-md">
@@ -1062,11 +1061,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 <button
                   key={st}
                   onClick={() => setOrderStatusFilter(st)}
-                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition border ${
-                    orderStatusFilter === st 
-                      ? "bg-black text-amber-400 border-black" 
-                      : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:text-black"
-                  }`}
+                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition border ${orderStatusFilter === st
+                    ? "bg-black text-amber-400 border-black"
+                    : "bg-neutral-50 text-neutral-500 border-neutral-200 hover:text-black"
+                    }`}
                 >
                   {st}
                 </button>
@@ -1076,7 +1074,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
           {/* Orders Grid/Table split with Selected Order details modal */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Orders list (2/3 width) */}
             <div className="lg:col-span-2 space-y-3.5">
               {filteredOrders.length === 0 ? (
@@ -1088,11 +1086,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   <div
                     key={order.id}
                     onClick={() => setSelectedOrder(order)}
-                    className={`bg-white p-4.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                      selectedOrder?.id === order.id
-                        ? "border-amber-400 ring-2 ring-amber-400/10 shadow-md"
-                        : "border-neutral-200 hover:border-neutral-400"
-                    }`}
+                    className={`bg-white p-4.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${selectedOrder?.id === order.id
+                      ? "border-amber-400 ring-2 ring-amber-400/10 shadow-md"
+                      : "border-neutral-200 hover:border-neutral-400"
+                      }`}
                   >
                     <div className="flex-grow space-y-1">
                       <div className="flex items-center gap-2">
@@ -1102,18 +1099,17 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         <span className="text-[10px] text-neutral-400 font-mono">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </span>
-                        <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded ${
-                          order.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
+                        <span className={`text-[9px] font-extrabold uppercase px-2 py-0.5 rounded ${order.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
                           order.status === "Confirmed" ? "bg-blue-100 text-blue-800" :
-                          order.status === "Packed" ? "bg-purple-100 text-purple-800" :
-                          order.status === "Shipped" ? "bg-indigo-100 text-indigo-800" :
-                          order.status === "Delivered" ? "bg-green-100 text-green-800" :
-                          "bg-red-100 text-red-800"
-                        }`}>
+                            order.status === "Packed" ? "bg-purple-100 text-purple-800" :
+                              order.status === "Shipped" ? "bg-indigo-100 text-indigo-800" :
+                                order.status === "Delivered" ? "bg-green-100 text-green-800" :
+                                  "bg-red-100 text-red-800"
+                          }`}>
                           {order.status}
                         </span>
                       </div>
-                      
+
                       <h4 className="text-sm font-bold text-neutral-900 font-sans mt-1">
                         {order.customerName}
                       </h4>
@@ -1139,7 +1135,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             <div className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-6">
               {selectedOrder ? (
                 <div className="space-y-5 animate-fade-in">
-                  
+
                   {/* Title & Status Controls */}
                   <div className="border-b border-neutral-100 pb-4">
                     <div className="flex justify-between items-start">
@@ -1171,7 +1167,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     </h4>
                     <div className="bg-neutral-50 rounded-xl p-3.5 border border-neutral-200/50 space-y-2 text-xs">
                       <div>Name: <strong className="text-neutral-900 font-bold">{selectedOrder.customerName}</strong></div>
-                      
+
                       {/* WhatsApp trigger link */}
                       <div className="flex items-center justify-between">
                         <span>WhatsApp Contact:</span>
@@ -1349,7 +1345,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "products" && (
         <div className="space-y-6 animate-fade-in">
-          
+
           <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-neutral-200">
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">
               Active Inventory catalog ({products.length} Items)
@@ -1404,9 +1400,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <td className="p-4 font-mono font-bold text-amber-600">{prod.offerPrice ? `${prod.offerPrice} SAR` : "No Offer"}</td>
                       <td className="p-4 font-mono">{prod.stock}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                          prod.status === "active" ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-500"
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${prod.status === "active" ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-500"
+                          }`}>
                           {prod.status}
                         </span>
                       </td>
@@ -1452,11 +1447,11 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   </button>
                 </div>
 
-                <form 
-                  onSubmit={isAddingProduct ? handleAddProduct : handleEditProductSubmit} 
+                <form
+                  onSubmit={isAddingProduct ? handleAddProduct : handleEditProductSubmit}
                   className="space-y-4 overflow-y-auto pr-1 flex-grow text-xs"
                 >
-                  
+
                   {/* Name */}
                   <div>
                     <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
@@ -1569,9 +1564,9 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block">
                       Product Images
                     </label>
-                    
+
                     {/* File Dropzone */}
-                    <div 
+                    <div
                       onDragOver={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -1590,15 +1585,15 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       }}
                       className="border-2 border-dashed border-neutral-300 hover:border-amber-500 bg-neutral-50 hover:bg-neutral-100/50 rounded-xl p-5 text-center transition cursor-pointer flex flex-col items-center justify-center gap-2 group relative"
                     >
-                      <input 
-                        type="file" 
-                        accept="image/*" 
+                      <input
+                        type="file"
+                        accept="image/*"
                         onChange={(e) => {
                           if (e.target.files && e.target.files.length > 0) {
                             uploadImageFile(e.target.files[0]);
                           }
                         }}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                       <UploadCloud className="w-8 h-8 text-neutral-400 group-hover:text-amber-500 group-hover:scale-105 transition duration-200" />
                       <div className="text-xs font-bold text-neutral-700">
@@ -1921,7 +1916,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "shipping-coupons" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in text-xs font-medium">
-          
+
           {/* Categories Management & Delivery Area Setup */}
           <div className="space-y-8">
             {/* A. CATEGORIES CRUD */}
@@ -1929,7 +1924,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-100 pb-2">
                 Category Manager
               </h3>
-              
+
               <form onSubmit={handleAddCategory} className="flex gap-2">
                 <input
                   type="text"
@@ -1985,8 +1980,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
               {/* Area Form Addition/Edition */}
               {(isAddingArea || editingArea) && (
-                <form 
-                  onSubmit={isAddingArea ? handleAddArea : handleEditAreaSave} 
+                <form
+                  onSubmit={isAddingArea ? handleAddArea : handleEditAreaSave}
                   className="bg-neutral-50 p-4 border border-neutral-200 rounded-xl space-y-3"
                 >
                   <h4 className="font-bold text-neutral-800 uppercase text-[10px]">
@@ -2068,8 +2063,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <button
                         onClick={() => {
                           setEditingArea(area);
-                          setAreaForm({ 
-                            name: area.name, 
+                          setAreaForm({
+                            name: area.name,
                             charge: String(area.charge),
                             freeDeliveryAbove: area.freeDeliveryAbove !== undefined && area.freeDeliveryAbove !== null ? String(area.freeDeliveryAbove) : "",
                             minOrderValue: area.minOrderValue !== undefined && area.minOrderValue !== null ? String(area.minOrderValue) : ""

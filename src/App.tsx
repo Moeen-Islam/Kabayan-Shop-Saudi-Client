@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { 
-  ShoppingBag, Search, Sparkles, Star, ChevronLeft, ChevronRight, 
+import {
+  ShoppingBag, Search, Sparkles, Star, ChevronLeft, ChevronRight,
   MapPin, Phone, Heart, ArrowRight, ShieldCheck, Instagram, Mail, Info, RefreshCw,
   MessageCircle, Facebook, ThumbsUp, ExternalLink, CheckCircle
 } from "lucide-react";
@@ -184,7 +184,7 @@ export default function App() {
     setIsCartOpen(false);
     setIsAdminMode(false);
     window.history.pushState(null, "", "/product");
-    
+
     setTimeout(() => {
       const element = document.getElementById("all-products-section");
       if (element) {
@@ -286,12 +286,12 @@ export default function App() {
     if (prod.status !== "active") return false;
 
     // Filter by Category
-    const matchesCategory = 
-      selectedCategory === "" || 
+    const matchesCategory =
+      selectedCategory === "" ||
       prod.category.toLowerCase() === selectedCategory.toLowerCase();
 
     // Filter by Search Query
-    const matchesSearch = 
+    const matchesSearch =
       prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prod.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       prod.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -306,7 +306,7 @@ export default function App() {
 
     if (sortBy === "price-low") return aPrice - bPrice;
     if (sortBy === "price-high") return bPrice - aPrice;
-    
+
     // Default: newest
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -330,7 +330,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-between selection:bg-amber-400 selection:text-black">
-      
+
       {/* 1. Brand Header */}
       <Header
         categories={categories}
@@ -361,7 +361,7 @@ export default function App() {
         ) : (
           /* Render Customer-facing shop website storefront */
           <div className="space-y-12 pb-16 md:pb-24">
-            
+
             {/* A. Dynamic Promo Banner Hero Section */}
             {settings.bannerImages && settings.bannerImages.length > 0 && (
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
@@ -448,7 +448,7 @@ export default function App() {
 
             {/* C. Product Listing Grid & Sorting */}
             <section id="all-products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-              
+
               {/* Product Filter Section placed down with the products */}
               {categories.length > 0 && (
                 <div className="flex flex-col gap-2 border-b border-neutral-100 pb-4">
@@ -458,11 +458,10 @@ export default function App() {
                   <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     <button
                       onClick={() => setSelectedCategory("")}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${
-                        selectedCategory === ""
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${selectedCategory === ""
                           ? "bg-neutral-950 text-white border-neutral-950 shadow-sm"
                           : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
-                      }`}
+                        }`}
                     >
                       {t("all_arrivals")}
                     </button>
@@ -470,11 +469,10 @@ export default function App() {
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.slug)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${
-                          selectedCategory.toLowerCase() === cat.slug.toLowerCase()
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${selectedCategory.toLowerCase() === cat.slug.toLowerCase()
                             ? "bg-amber-500 text-black border-amber-500 shadow-sm"
                             : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
-                        }`}
+                          }`}
                       >
                         {cat.name}
                       </button>
@@ -539,7 +537,7 @@ export default function App() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                   {sortedProducts.map((product) => (
                     <div key={product.id} className="relative group">
-                      
+
                       {/* Interactive Product Listing Card */}
                       <ProductCard
                         product={product}
@@ -549,11 +547,10 @@ export default function App() {
                       {/* Wishlist Heart Icon Toggle Overlay */}
                       <button
                         onClick={(e) => toggleWishlist(product.id, e)}
-                        className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${
-                          wishlist.includes(product.id)
+                        className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${wishlist.includes(product.id)
                             ? "bg-amber-400 text-black scale-110"
                             : "bg-white/80 hover:bg-white text-neutral-400 hover:text-red-500 hover:scale-110"
-                        }`}
+                          }`}
                         title="Add to wishlist"
                       >
                         <Heart className={`w-3.5 h-3.5 ${wishlist.includes(product.id) ? "fill-current" : ""}`} />
@@ -727,15 +724,15 @@ export default function App() {
                           <feComposite in="SourceGraphic" in2="blur" operator="over" />
                         </filter>
                       </defs>
-                      
+
                       <rect width="200" height="200" rx="16" fill="url(#bg-grad)" />
-                      
+
                       {/* Royal Wreath / Crown Emblem */}
                       <g transform="translate(100, 80) scale(0.85)" filter="url(#gold-glow)">
                         {/* Outer Dotted/Floral Circle */}
                         <circle cx="0" cy="0" r="40" fill="none" stroke="url(#gold-grad)" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8" />
                         <circle cx="0" cy="0" r="36" fill="none" stroke="url(#gold-grad)" strokeWidth="0.75" />
-                        
+
                         {/* Crown Peak on top */}
                         <path d="M -12 -38 L -6 -48 L 0 -42 L 6 -48 L 12 -38 Z" fill="url(#gold-grad)" />
                         <circle cx="-12" cy="-38" r="2" fill="url(#gold-grad)" />
@@ -747,15 +744,15 @@ export default function App() {
                         {/* Symmetrical Laurel Leaves / Wreath */}
                         <path d="M -30 0 C -40 -20 -15 -35 -5 -30 C -15 -25 -25 -10 -30 0" fill="url(#gold-grad)" />
                         <path d="M 30 0 C 40 -20 15 -35 5 -30 C 15 -25 25 -10 30 0" fill="url(#gold-grad)" />
-                        
+
                         {/* Elegant Ribbon / Symmetrical Swoosh inside */}
                         <path d="M -25 15 C -10 25 10 25 25 15 C 15 15 -15 15 -25 15" fill="url(#gold-grad)" />
-                        
+
                         {/* Center stylized symbol */}
                         <path d="M -15 5 C -15 -15 -5 -15 -2 -5 L 0 -15 L 2 -5 C 5 -15 15 -15 15 5 C 10 5 5 -5 0 5 C -5 -5 -10 5 -15 5 Z" fill="url(#gold-grad)" />
                         <path d="M -8 10 C -4 5 4 5 8 10 C 4 8 -4 8 -8 10" fill="url(#gold-grad)" />
                       </g>
-                      
+
                       {/* Typography */}
                       <text x="100" y="145" textAnchor="middle" fill="url(#gold-grad)" fontSize="11" fontWeight="bold" fontFamily="Cinzel, Georgia, serif" letterSpacing="1.5">KABAYAN SHOP</text>
                       <line x1="50" y1="156" x2="150" y2="156" stroke="url(#gold-grad)" strokeWidth="0.5" opacity="0.6" />
@@ -793,7 +790,7 @@ export default function App() {
       {!isAdminMode && (
         <footer className="bg-neutral-900 text-neutral-300 pt-16 pb-8 border-t border-neutral-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            
+
             {/* Column 1: Store Intro */}
             <div className="space-y-4">
               <h4 className="text-white text-base font-black tracking-widest font-sans uppercase">
@@ -821,7 +818,7 @@ export default function App() {
               <ul className="space-y-1.5 text-neutral-400">
                 {categories.slice(0, 5).map((cat) => (
                   <li key={cat.id}>
-                    <button 
+                    <button
                       onClick={() => setSelectedCategory(cat.slug)}
                       className="hover:text-white transition uppercase text-[10px] font-semibold"
                     >
@@ -852,11 +849,11 @@ export default function App() {
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>+{settings.whatsappContact || "966501234567"}</span>
+                  <span>+{settings.whatsappContact || "8801765865757"}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>{settings.contactEmail || "info@kabayanshopksa.com"}</span>
+                  <span>{settings.contactEmail || "moeenislam8089@gmail.com"}</span>
                 </li>
               </ul>
             </div>
@@ -875,7 +872,7 @@ export default function App() {
       )}
 
       {/* 4. CLIENT INTERACTION MODALS & DRAWERS */}
-      
+
       {/* A. PRODUCT DETAILS MODAL VIEW */}
       {selectedProduct && (
         <ProductDetailsModal
