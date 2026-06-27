@@ -881,7 +881,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {/* Total Orders Card */}
                 <div className="bg-white p-5 rounded-2xl border border-neutral-200/70 shadow-sm flex flex-col justify-between">
@@ -1132,9 +1132,12 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </div>
 
             {/* Selected Order Detailed Inspector Sideboard (1/3 width) */}
-            <div className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-6">
+            <div className={selectedOrder
+              ? "fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 lg:relative lg:inset-auto lg:z-0 lg:bg-transparent lg:backdrop-blur-none lg:flex-none lg:p-0"
+              : "hidden lg:block bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-6"
+            }>
               {selectedOrder ? (
-                <div className="space-y-5 animate-fade-in">
+                <div className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-5 w-full max-w-lg shadow-2xl lg:shadow-none max-h-[90vh] overflow-y-auto animate-scale-in">
 
                   {/* Title & Status Controls */}
                   <div className="border-b border-neutral-100 pb-4">
