@@ -1198,12 +1198,18 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </div>
 
             {/* Selected Order Detailed Inspector Sideboard (1/3 width) */}
-            <div className={selectedOrder
-              ? "fixed inset-0 z-[100] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 lg:relative lg:inset-auto lg:z-0 lg:bg-transparent lg:backdrop-blur-none lg:flex-none lg:p-0"
-              : "hidden lg:block bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-6"
-            }>
+            <div 
+              onClick={() => setSelectedOrder(null)}
+              className={selectedOrder
+                ? "fixed inset-0 z-[100] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 lg:relative lg:inset-auto lg:z-0 lg:bg-transparent lg:backdrop-blur-none lg:flex-none lg:p-0"
+                : "hidden lg:block bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-6"
+              }
+            >
               {selectedOrder ? (
-                <div className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-5 w-full max-w-lg shadow-2xl lg:shadow-none max-h-[90vh] overflow-y-auto animate-scale-in">
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white p-5 rounded-2xl border border-neutral-200 h-fit space-y-5 w-full max-w-lg shadow-2xl lg:shadow-none max-h-[90vh] overflow-y-auto animate-scale-in"
+                >
 
                   {/* Title & Status Controls */}
                   <div className="border-b border-neutral-100 pb-4">
@@ -1559,8 +1565,17 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
           {/* ADD / EDIT PRODUCT MODAL FORM */}
           {(isAddingProduct || editingProduct) && (
-            <div className="fixed inset-0 z-[100] overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col max-h-[90vh]">
+            <div 
+              onClick={() => {
+                setIsAddingProduct(false);
+                setEditingProduct(null);
+              }}
+              className="fixed inset-0 z-[100] overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            >
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col max-h-[90vh]"
+              >
                 <div className="flex justify-between items-center pb-4 border-b border-neutral-100 mb-5">
                   <h3 className="text-lg font-black text-neutral-900 tracking-tight uppercase">
                     {isAddingProduct ? "Add New Fashion Product" : "Edit Fashion Product"}
