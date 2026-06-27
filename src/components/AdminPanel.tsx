@@ -53,6 +53,9 @@ export default function AdminPanel({
     }
   }, [activeTab]);
 
+  // Mobile Tab Menu State
+  const [isTabMenuOpen, setIsTabMenuOpen] = useState(false);
+
   // Dashboard Stats State
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -841,7 +844,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       </div>
 
       {/* Primary Tab Bar */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-8 border-b border-neutral-200/80 scrollbar-hide">
+      {/* Desktop Tabs View: Visible on md screens and larger */}
+      <div className="hidden md:flex items-center gap-1.5 overflow-x-auto pb-1 mb-8 border-b border-neutral-200/80 scrollbar-hide">
         {[
           { id: "overview", label: "Stats Overview", icon: BarChart3 },
           { id: "orders", label: `Customer Orders (${orders.length})`, icon: ShoppingCart },
@@ -865,6 +869,68 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </button>
           );
         })}
+      </div>
+
+      {/* Mobile Tab Selector Dropdown: Visible on screen widths below md */}
+      <div className="md:hidden relative mb-8">
+        <button
+          type="button"
+          onClick={() => setIsTabMenuOpen(!isTabMenuOpen)}
+          className="w-full bg-white border border-neutral-200 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider flex items-center justify-between text-neutral-800 shadow-sm"
+        >
+          <span className="flex items-center gap-2">
+            {(() => {
+              const activeInfo = [
+                { id: "overview", label: "Stats Overview", icon: BarChart3 },
+                { id: "orders", label: `Customer Orders (${orders.length})`, icon: ShoppingCart },
+                { id: "products", label: `Product Manager (${products.length})`, icon: Sliders },
+                { id: "shipping-coupons", label: "Shipping & Coupons", icon: Truck },
+                { id: "settings", label: "Shop Customizer", icon: FolderHeart }
+              ].find((t) => t.id === activeTab) || { label: "Select Section", icon: Sliders };
+              const ActiveIcon = activeInfo.icon;
+              return (
+                <>
+                  <ActiveIcon className="w-4 h-4 text-amber-500" />
+                  <span>{activeInfo.label}</span>
+                </>
+              );
+            })()}
+          </span>
+          <ChevronRight className={`w-4 h-4 text-neutral-400 transition-transform ${isTabMenuOpen ? "rotate-90" : ""}`} />
+        </button>
+
+        {isTabMenuOpen && (
+          <div className="absolute top-[105%] left-0 right-0 bg-white border border-neutral-200 rounded-xl shadow-xl z-30 p-1.5 flex flex-col gap-1 divide-y divide-neutral-50 animate-scale-in">
+            {[
+              { id: "overview", label: "Stats Overview", icon: BarChart3 },
+              { id: "orders", label: `Customer Orders (${orders.length})`, icon: ShoppingCart },
+              { id: "products", label: `Product Manager (${products.length})`, icon: Sliders },
+              { id: "shipping-coupons", label: "Shipping & Coupons", icon: Truck },
+              { id: "settings", label: "Shop Customizer", icon: FolderHeart }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setIsTabMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4.5 py-3.5 text-xs font-bold uppercase tracking-wider transition rounded-lg text-left ${
+                    isActive
+                      ? "bg-amber-50 text-black"
+                      : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? "text-amber-500" : "text-neutral-400"}`} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ---------------------------------------------------------------------- */}
