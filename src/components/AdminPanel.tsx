@@ -118,7 +118,11 @@ export default function AdminPanel({
     bannerImages: [] as string[],
     aboutUs: "",
     contactEmail: "",
-    contactAddress: ""
+    contactAddress: "",
+    metaPixelId: "",
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: ""
   });
 
   // Verify previous session
@@ -144,7 +148,11 @@ export default function AdminPanel({
         bannerImages: settings.bannerImages || [],
         aboutUs: settings.aboutUs || "",
         contactEmail: settings.contactEmail || "",
-        contactAddress: settings.contactAddress || ""
+        contactAddress: settings.contactAddress || "",
+        metaPixelId: settings.metaPixelId || "",
+        metaTitle: settings.metaTitle || "",
+        metaDescription: settings.metaDescription || "",
+        metaKeywords: settings.metaKeywords || ""
       });
     }
   }, [isLoggedIn, settings]);
@@ -660,7 +668,11 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           bannerImages: shopSettingsForm.bannerImages,
           aboutUs: shopSettingsForm.aboutUs,
           contactEmail: shopSettingsForm.contactEmail,
-          contactAddress: shopSettingsForm.contactAddress
+          contactAddress: shopSettingsForm.contactAddress,
+          metaPixelId: shopSettingsForm.metaPixelId,
+          metaTitle: shopSettingsForm.metaTitle,
+          metaDescription: shopSettingsForm.metaDescription,
+          metaKeywords: shopSettingsForm.metaKeywords
         })
       });
       if (response.ok) {
@@ -2446,6 +2458,70 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 rows={3}
                 className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs resize-none"
               />
+            </div>
+
+            {/* SEO & Analytics Config */}
+            <div className="space-y-4 pt-4 border-t border-neutral-100">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-neutral-400">
+                SEO & Analytics Configuration
+              </h4>
+              
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  Meta (Facebook) Pixel ID
+                </label>
+                <input
+                  type="text"
+                  value={shopSettingsForm.metaPixelId}
+                  onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, metaPixelId: e.target.value })}
+                  placeholder="e.g. 123456789012345"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs font-mono"
+                />
+                <span className="text-[10px] text-neutral-400 mt-1 block">
+                  Track events like PageView, AddToCart, and Purchase automatically on Meta Ads Manager.
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-neutral-700 block mb-1">
+                    Meta Title (SEO)
+                  </label>
+                  <input
+                    type="text"
+                    value={shopSettingsForm.metaTitle}
+                    onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, metaTitle: e.target.value })}
+                    placeholder="Enter main page title"
+                    className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-neutral-700 block mb-1">
+                    Meta Keywords (SEO)
+                  </label>
+                  <input
+                    type="text"
+                    value={shopSettingsForm.metaKeywords}
+                    onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, metaKeywords: e.target.value })}
+                    placeholder="e.g. abayas, modest clothing, riyadh"
+                    className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  Meta Description (SEO)
+                </label>
+                <textarea
+                  value={shopSettingsForm.metaDescription}
+                  onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, metaDescription: e.target.value })}
+                  rows={2}
+                  placeholder="Enter shop description shown in search results..."
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs resize-none"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-neutral-100">

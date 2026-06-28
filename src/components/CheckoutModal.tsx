@@ -4,6 +4,7 @@ import { useCart } from "../lib/cartStore";
 import { DeliveryArea, Coupon, Order, ShopSettings } from "../types";
 import L from "leaflet";
 import { useLanguage } from "../lib/translationStore";
+import { trackPixelEvent } from "../lib/metaPixel";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api";
 
@@ -118,7 +119,18 @@ interface CheckoutModalProps {
 export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess, onSelectProductById, onBackToCart }: CheckoutModalProps) {
   const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart();
   const { t, lang } = useLanguage();
-  
+
+  // Track InitiateCheckout on mount
+  useEffect(() => {
+    trackPixelEvent("InitiateCheckout", {
+      content_ids: items.map(item => item.productId),
+      content_type: "product",
+      value: subtotal,
+      currency: "SAR",
+      num_items: items.reduce((acc, item) => acc + item.quantity, 0)
+    });
+  }, []);
+
   // Form fields
   const [fullName, setFullName] = useState("");
   const [countryCode, setCountryCode] = useState("+966");
@@ -128,7 +140,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   const [houseNo, setHouseNo] = useState("");
   const [fullAddress, setFullAddress] = useState("");
   const [notes, setNotes] = useState("");
-  
+
   // Geolocation states
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -252,7 +264,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     setIsValidatingCoupon(true);
     setCouponError("");
     setCouponSuccess("");
-    
+
     try {
       const response = await fetch(`${API_URL}/coupons/validate/${couponCode.trim().toUpperCase()}`);
       if (!response.ok) {
@@ -321,8 +333,18 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       }
 
       const data = await response.json();
-      clearCart(); // Wipe client cart
       
+      // Track Purchase in Meta Pixel
+      trackPixelEvent("Purchase", {
+        content_ids: items.map(item => item.productId),
+        content_type: "product",
+        value: data.finalBill || subtotal,
+        currency: "SAR",
+        num_items: items.reduce((acc, item) => acc + item.quantity, 0)
+      });
+
+      clearCart(); // Wipe client cart
+
       // Notify the customer with a beautiful non-blocking toast
       alert(t("order_success"));
 
@@ -339,13 +361,13 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   // Helper to format and trigger WhatsApp for an order
   const triggerWhatsApp = (order: Order) => {
     const contactNumber = order.whatsapp.replace(/\D/g, "");
-    
+
     // Format text beautifully and cleanly
     let msg = `*🛍️ KABAYAN SHOP SAUDI - NEW ORDER CONFIRMED*\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
     msg += `*Order Number:* #${order.orderNumber}\n`;
     msg += `*Date/Time:* ${new Date(order.createdAt).toLocaleString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}\n\n`;
-    
+
     msg += `👤 *CUSTOMER INFO:*\n`;
     msg += `• *Name:* ${order.customerName}\n`;
     msg += `• *WhatsApp:* +${contactNumber}\n`;
@@ -367,7 +389,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       msg += `  Package: ${item.selectedPackageType}\n`;
       msg += `  Price: ${item.price} SAR each (Total: ${item.price * item.quantity} SAR)\n\n`;
     });
-    
+
     msg += `💳 *BILLING SUMMARY:*\n`;
     msg += `• Items Subtotal: ${order.productTotal} SAR\n`;
     if (order.discountAmount) {
@@ -484,7 +506,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
               className="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold text-sm uppercase py-4 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-green-500/20 text-center tracking-wider scale-102 hover:scale-105"
             >
               <MessageSquare className="w-5 h-5 fill-current" />
-              <span>SEND ORDER RECEIPT TO WHATSAPP NOW</span>
+              <span>ORDER CONFIRMED</span>
             </button>
             <button
               onClick={() => {
@@ -505,7 +527,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-scale-in">
-        
+
         {/* Header bar */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-neutral-100 bg-white shrink-0">
           <div className="flex items-center gap-3">
@@ -523,7 +545,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <h3 className="text-sm font-black uppercase tracking-wider text-neutral-900">
-                No-Login Premium Checkout
+
               </h3>
             </div>
           </div>
@@ -537,7 +559,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
         {/* Content body split into left form and right summary */}
         <form onSubmit={handleSubmitOrder} className="flex-grow overflow-y-auto grid grid-cols-1 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
-          
+
           {/* Left Column: Input Form (3/5ths) */}
           <div className="md:col-span-3 p-6 sm:p-8 space-y-5">
             <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-widest border-b border-neutral-100 pb-2">
@@ -578,7 +600,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                     <option value="+254">🇰🇪 +254 (Kenya)</option>
                     <option value="custom">Other</option>
                   </select>
-                  
+
                   {countryCode === "custom" && (
                     <input
                       type="text"
@@ -703,7 +725,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                     setLongitude(newLng);
                   }}
                 />
-                
+
                 {/* Floating Helper Overlay */}
                 {latitude === null && (
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-neutral-900/90 text-amber-400 font-bold px-3 py-1.5 rounded-full text-[10px] tracking-wider uppercase shadow-md flex items-center gap-1 animate-pulse pointer-events-none z-[1000]">
@@ -772,7 +794,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
               <div className="divide-y divide-neutral-200/60 max-h-48 overflow-y-auto pr-1">
                 {items.map((item, idx) => (
                   <div key={idx} className="py-2.5 flex gap-3 text-xs items-center">
-                    <div 
+                    <div
                       onClick={() => onSelectProductById?.(item.productId)}
                       className="w-10 h-13 rounded border border-neutral-200/80 overflow-hidden shrink-0 cursor-pointer hover:border-amber-400 hover:opacity-90 transition duration-150 flex items-center justify-center relative bg-white"
                       title="Click to edit options"
@@ -791,7 +813,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                       />
                     </div>
                     <div className="flex-grow min-w-0">
-                      <h5 
+                      <h5
                         onClick={() => onSelectProductById?.(item.productId)}
                         className="font-semibold text-neutral-900 truncate cursor-pointer hover:text-amber-600 hover:underline transition duration-150"
                         title="Click to edit options"
@@ -892,7 +914,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                   <span>{t("subtotal")}:</span>
                   <span className="font-bold">{subtotal} SAR</span>
                 </div>
-                
+
                 {appliedCoupon && (
                   <div className="flex justify-between text-green-600 font-bold">
                     <span>{t("discount")} ({appliedCoupon.code}):</span>
@@ -935,10 +957,10 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                 </span>
               </button>
               <span className="text-[9px] text-center text-neutral-400 mt-2 block font-medium leading-snug">
-                {lang === "ar" 
-                  ? "من خلال تقديم هذا الطلب، فإنك توافق على الدفع عند الاستلام (COD) عند استلام الطرد." 
-                  : lang === "fil" 
-                    ? "Sa pag-order nito, sumasang-ayon ka na magbayad sa pamamagitan ng Cash on Delivery (COD) kapag natanggap ang package." 
+                {lang === "ar"
+                  ? "من خلال تقديم هذا الطلب، فإنك توافق على الدفع عند الاستلام (COD) عند استلام الطرد."
+                  : lang === "fil"
+                    ? "Sa pag-order nito, sumasang-ayon ka na magbayad sa pamamagitan ng Cash on Delivery (COD) kapag natanggap ang package."
                     : "By placing this order, you agree to pay via Cash on Delivery (COD) on package receipt."}
               </span>
             </div>

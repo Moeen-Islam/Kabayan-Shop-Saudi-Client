@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Check, ShoppingCart, ArrowRight, Minus, Plus, RefreshCw, ZoomIn } from "lucide-react";
 import { Product } from "../types";
 import { cartStore } from "../lib/cartStore";
+import { trackPixelEvent } from "../lib/metaPixel";
 
 export function getPackageMultiplierAndDiscount(pkgName: string): { multiplier: number; discount: number } {
   const name = (pkgName || "").toLowerCase();
@@ -220,6 +221,14 @@ export default function ProductDetailsModal({
       packagePrices: product.packagePrices
     });
 
+    trackPixelEvent("AddToCart", {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: "product",
+      value: unitPrice * quantity,
+      currency: "SAR"
+    });
+
     onAddToCartSuccess();
   };
 
@@ -245,6 +254,21 @@ export default function ProductDetailsModal({
       basePrice,
       packageTypes: product.packageTypes,
       packagePrices: product.packagePrices
+    });
+
+    trackPixelEvent("AddToCart", {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: "product",
+      value: unitPrice * quantity,
+      currency: "SAR"
+    });
+
+    trackPixelEvent("InitiateCheckout", {
+      content_ids: [product.id],
+      content_type: "product",
+      value: unitPrice * quantity,
+      currency: "SAR"
     });
 
     onBuyNowSuccess();

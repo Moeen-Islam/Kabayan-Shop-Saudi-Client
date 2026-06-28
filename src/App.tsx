@@ -14,6 +14,7 @@ import { Product, Category, DeliveryArea, Coupon, ShopSettings } from "./types";
 import { useCart } from "./lib/cartStore";
 import { safeStorage } from "./lib/safeStorage";
 import { useLanguage } from "./lib/translationStore";
+import { initMetaPixel } from "./lib/metaPixel";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api";
 
@@ -88,6 +89,43 @@ export default function App() {
       console.error(e);
     }
   }, []);
+
+  // Initialize Meta Pixel & SEO tags dynamically
+  useEffect(() => {
+    if (settings) {
+      if (settings.metaPixelId) {
+        initMetaPixel(settings.metaPixelId);
+      }
+      
+      // Update page titles
+      if (settings.metaTitle) {
+        document.title = settings.metaTitle;
+      } else if (settings.shopName) {
+        document.title = settings.shopName;
+      }
+      
+      // Update meta tags
+      if (settings.metaDescription) {
+        let metaDescEl = document.querySelector('meta[name="description"]');
+        if (!metaDescEl) {
+          metaDescEl = document.createElement('meta');
+          metaDescEl.setAttribute('name', 'description');
+          document.head.appendChild(metaDescEl);
+        }
+        metaDescEl.setAttribute('content', settings.metaDescription);
+      }
+      
+      if (settings.metaKeywords) {
+        let metaKeyEl = document.querySelector('meta[name="keywords"]');
+        if (!metaKeyEl) {
+          metaKeyEl = document.createElement('meta');
+          metaKeyEl.setAttribute('name', 'keywords');
+          document.head.appendChild(metaKeyEl);
+        }
+        metaKeyEl.setAttribute('content', settings.metaKeywords);
+      }
+    }
+  }, [settings]);
 
   // Slide rotation interval
   useEffect(() => {
