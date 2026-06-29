@@ -6,8 +6,8 @@ import {
 } from "lucide-react";
 import Header from "./components/Header";
 import ProductCard from "./components/ProductCard";
-import ProductDetailsModal from "./components/ProductDetailsModal";
-import CartDrawer from "./components/CartDrawer";
+const ProductDetailsModal = React.lazy(() => import("./components/ProductDetailsModal"));
+const CartDrawer = React.lazy(() => import("./components/CartDrawer"));
 const CheckoutModal = React.lazy(() => import("./components/CheckoutModal"));
 const AdminPanel = React.lazy(() => import("./components/AdminPanel"));
 import { Product, Category, DeliveryArea, Coupon, ShopSettings } from "./types";
@@ -48,6 +48,9 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isMessengerChatOpen, setIsMessengerChatOpen] = useState(false);
+
+  // Catalog pagination state
+  const [visibleCount, setVisibleCount] = useState(12);
 
   // Client-side Wishlist persistence
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -127,6 +130,11 @@ export default function App() {
       }
     }
   }, [settings]);
+
+  // Reset visibleCount whenever category, search, or sort changes
+  useEffect(() => {
+    setVisibleCount(12);
+  }, [selectedCategory, searchQuery, sortBy]);
 
   // Slide rotation interval
   useEffect(() => {
@@ -211,6 +219,7 @@ export default function App() {
   const handleGoHome = () => {
     setSelectedCategory("");
     setSearchQuery("");
+    setSelectedProduct(null);
     setIsCartOpen(false);
     setIsAdminMode(false);
     window.history.pushState(null, "", "/");
@@ -220,6 +229,7 @@ export default function App() {
   const handleGoToProduct = () => {
     setSelectedCategory("");
     setSearchQuery("");
+    setSelectedProduct(null);
     setIsCartOpen(false);
     setIsAdminMode(false);
     window.history.pushState(null, "", "/product");
@@ -263,8 +273,19 @@ export default function App() {
             element.scrollIntoView({ behavior: "smooth" });
           }
         }, 500);
+      } else if (path.startsWith("/product/")) {
+        const slug = path.replace("/product/", "");
+        const prod = products.find(p => p.slug === slug);
+        if (prod) {
+          setSelectedProduct(prod);
+        } else {
+          setSelectedProduct(null);
+        }
+        setIsCartOpen(false);
+        setIsAdminMode(false);
       } else if (path === "/product") {
         setSelectedCategory("");
+        setSelectedProduct(null);
         setIsCartOpen(false);
         setIsAdminMode(false);
         setTimeout(() => {
@@ -404,6 +425,38 @@ export default function App() {
               onRefreshAll={fetchAllData}
             />
           </React.Suspense>
+        ) : selectedProduct ? (
+          /* Render dedicated full-page Product detail page */
+          <React.Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-32 gap-3">
+              <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
+              <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest font-mono">Loading Product Details...</span>
+            </div>
+          }>
+            <ProductDetailsModal
+              product={selectedProduct}
+              allProducts={products}
+              onClose={() => {
+                setSelectedProduct(null);
+                window.history.pushState(null, "", "/");
+              }}
+              onAddToCartSuccess={() => {
+                setSelectedProduct(null);
+                window.history.pushState(null, "", "/");
+                setIsCartOpen(true);
+              }}
+              onBuyNowSuccess={() => {
+                setSelectedProduct(null);
+                window.history.pushState(null, "", "/");
+                setIsCheckoutOpen(true);
+              }}
+              onSelectRelated={(prod) => {
+                setSelectedProduct(prod);
+                window.history.pushState(null, "", `/product/${prod.slug}`);
+              }}
+              isFullPage={true}
+            />
+          </React.Suspense>
         ) : (
           /* Render Customer-facing shop website storefront */
           <div className="space-y-12 pb-16 md:pb-24">
@@ -416,6 +469,7 @@ export default function App() {
                     src={settings.bannerImages[currentHeroIdx]}
                     alt="Shop Luxury Banner"
                     referrerPolicy="no-referrer"
+                    fetchPriority="high"
                     className="absolute inset-0 w-full h-full object-cover object-center brightness-50 transition-all duration-1000"
                   />
 
@@ -434,17 +488,12 @@ export default function App() {
                       </p>
                       <div className="flex flex-wrap items-center gap-2.5 pt-1.5">
                         <button
-                          onClick={() => handleSetSelectedCategory("abaya")}
-                          className="bg-white hover:bg-amber-400 hover:text-black text-black font-extrabold text-[10px] sm:text-xs uppercase tracking-widest px-4 py-2.5 sm:px-5 sm:py-3 rounded-full transition shadow-lg shadow-black/15 flex items-center gap-1.5"
+                          onClick={() => handleGoToProduct()}
+                          className="relative overflow-hidden bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-full transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 flex items-center gap-2 group cursor-pointer border border-amber-400/20 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)]"
                         >
-                          <span>{t("shop_abayas")}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleSetSelectedCategory("terno")}
-                          className="border border-white hover:border-amber-400 text-white hover:text-amber-400 font-extrabold text-[10px] sm:text-xs uppercase tracking-widest px-4 py-2.5 sm:px-5 sm:py-3 rounded-full transition"
-                        >
-                          {t("view_terno_sets")}
+                          <Sparkles className="w-4 h-4 text-black shrink-0 animate-pulse" />
+                          <span>{t("explore_products")}</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </div>
@@ -492,7 +541,53 @@ export default function App() {
               </div>
             </section>
 
-            {/* C. Product Listing Grid & Sorting */}
+            {/* C. Trending Now Showcase (Admin Highlighted) */}
+            {products.some((p) => p.isTrending && p.status === "active") && (
+              <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+                <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-2.5 w-2.5 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                    </span>
+                    <h3 className="text-lg font-black uppercase text-neutral-900 tracking-wider flex items-center gap-1">
+                      {t("trending_now") || "Trending Now"}
+                    </h3>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded">
+                    Admin's Choice
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                  {products
+                    .filter((p) => p.isTrending && p.status === "active")
+                    .slice(0, 4)
+                    .map((product) => (
+                      <div key={product.id} className="relative group">
+                        <ProductCard
+                          product={product}
+                          onSelect={(prod) => {
+                            setSelectedProduct(prod);
+                            window.history.pushState(null, "", `/product/${prod.slug}`);
+                          }}
+                        />
+                        <button
+                          onClick={(e) => toggleWishlist(product.id, e)}
+                          className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${wishlist.includes(product.id)
+                              ? "bg-amber-400 text-black scale-110"
+                              : "bg-white/80 hover:bg-white text-neutral-400 hover:text-red-500 hover:scale-110"
+                            }`}
+                          title="Add to wishlist"
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${wishlist.includes(product.id) ? "fill-current" : ""}`} />
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              </section>
+            )}
+
+            {/* D. Product Listing Grid & Sorting */}
             <section id="all-products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
               {/* Product Filter Section placed down with the products */}
@@ -580,30 +675,47 @@ export default function App() {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                  {sortedProducts.map((product) => (
-                    <div key={product.id} className="relative group">
+                <div className="space-y-8">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {sortedProducts.slice(0, visibleCount).map((product) => (
+                      <div key={product.id} className="relative group">
 
-                      {/* Interactive Product Listing Card */}
-                      <ProductCard
-                        product={product}
-                        onSelect={(prod) => setSelectedProduct(prod)}
-                      />
+                        {/* Interactive Product Listing Card */}
+                        <ProductCard
+                          product={product}
+                          onSelect={(prod) => {
+                            setSelectedProduct(prod);
+                            window.history.pushState(null, "", `/product/${prod.slug}`);
+                          }}
+                        />
 
-                      {/* Wishlist Heart Icon Toggle Overlay */}
+                        {/* Wishlist Heart Icon Toggle Overlay */}
+                        <button
+                          onClick={(e) => toggleWishlist(product.id, e)}
+                          className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${wishlist.includes(product.id)
+                              ? "bg-amber-400 text-black scale-110"
+                              : "bg-white/80 hover:bg-white text-neutral-400 hover:text-red-500 hover:scale-110"
+                            }`}
+                          title="Add to wishlist"
+                        >
+                          <Heart className={`w-3.5 h-3.5 ${wishlist.includes(product.id) ? "fill-current" : ""}`} />
+                        </button>
+
+                      </div>
+                    ))}
+                  </div>
+
+                  {visibleCount < sortedProducts.length && (
+                    <div className="flex justify-center pt-6">
                       <button
-                        onClick={(e) => toggleWishlist(product.id, e)}
-                        className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${wishlist.includes(product.id)
-                            ? "bg-amber-400 text-black scale-110"
-                            : "bg-white/80 hover:bg-white text-neutral-400 hover:text-red-500 hover:scale-110"
-                          }`}
-                        title="Add to wishlist"
+                        onClick={() => setVisibleCount((prev) => prev + 12)}
+                        className="bg-neutral-900 hover:bg-amber-500 hover:text-neutral-950 text-white font-extrabold text-[11px] uppercase tracking-widest px-8 py-3.5 rounded-full transition-all duration-300 shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
                       >
-                        <Heart className={`w-3.5 h-3.5 ${wishlist.includes(product.id) ? "fill-current" : ""}`} />
+                        <span>{t("load_more") || "Load More Designs"}</span>
+                        <RefreshCw className="w-3.5 h-3.5" />
                       </button>
-
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
 
@@ -920,39 +1032,26 @@ export default function App() {
       {/* 4. CLIENT INTERACTION MODALS & DRAWERS */}
 
       {/* A. PRODUCT DETAILS MODAL VIEW */}
-      {selectedProduct && (
-        <ProductDetailsModal
-          product={selectedProduct}
-          allProducts={products}
-          onClose={() => setSelectedProduct(null)}
-          onAddToCartSuccess={() => {
-            setSelectedProduct(null);
-            setIsCartOpen(true); // Pop open cart sidebar to show added item
-          }}
-          onBuyNowSuccess={() => {
-            setSelectedProduct(null);
-            setIsCheckoutOpen(true); // Directly launch no-login checkout flow
-          }}
-          onSelectRelated={(prod) => setSelectedProduct(prod)}
-        />
-      )}
+      {/* ProductDetailsModal is now rendered inline above inside main workspace flow as a proper full-page product detail page */}
 
       {/* B. CART DRAWER COMPONENT */}
       {isCartOpen && (
-        <CartDrawer
-          onClose={handleCloseCart}
-          onOpenCheckout={() => {
-            setIsCartOpen(false);
-            setIsCheckoutOpen(true);
-          }}
-          onSelectProductById={(id) => {
-            const prod = products.find(p => p.id === id);
-            if (prod) {
-              setSelectedProduct(prod);
+        <React.Suspense fallback={null}>
+          <CartDrawer
+            onClose={handleCloseCart}
+            onOpenCheckout={() => {
               setIsCartOpen(false);
-            }
-          }}
-        />
+              setIsCheckoutOpen(true);
+            }}
+            onSelectProductById={(id) => {
+              const prod = products.find(p => p.id === id);
+              if (prod) {
+                setSelectedProduct(prod);
+                setIsCartOpen(false);
+              }
+            }}
+          />
+        </React.Suspense>
       )}
 
       {/* C. CHECKOUT MODAL FORM */}

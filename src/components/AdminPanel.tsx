@@ -86,6 +86,7 @@ export default function AdminPanel({
     packageTypesInput: "",
     packagePrices: {} as Record<string, number>,
     status: "active" as "active" | "draft",
+    isTrending: false,
     hasDualSizes: false,
     dualSizesTitle1: "Jacket Size",
     dualSizesTitle2: "Jeans Waist Size",
@@ -370,48 +371,96 @@ Thank you for shopping with Kabayan Shop! ❤️`;
     window.open(waUrl, "_blank");
   };
 
+  // Helper to compress image client-side before uploading
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            const MAX_WIDTH = 1000;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              // Compress to JPEG with 82% quality
+              const compressedBase64 = canvas.toDataURL("image/jpeg", 0.82);
+              resolve(compressedBase64);
+            } else {
+              resolve(event.target?.result as string);
+            }
+          } catch (e) {
+            console.error("Canvas compression failed, using original base64:", e);
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = () => {
+          resolve(event.target?.result as string);
+        };
+      };
+      reader.onerror = () => {
+        resolve("");
+      };
+    });
+  };
+
   // Upload local image file
   const uploadImageFile = async (file: File) => {
     setIsUploading(true);
     setUploadError("");
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Data = reader.result as string;
-        const token = adminToken || localStorage.getItem("kabayan_admin_token");
-        const response = await fetch(API_URL + "/admin/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": token || ""
-          },
-          body: JSON.stringify({
-            filename: file.name,
-            data: base64Data
-          })
-        });
-
-        if (response.ok) {
-          const resData = await response.json();
-          if (resData.success && resData.imageUrl) {
-            setProductForm(prev => ({
-              ...prev,
-              images: [...prev.images, resData.imageUrl]
-            }));
-          } else {
-            setUploadError("Failed to upload image. Unexpected server response.");
-          }
-        } else {
-          const err = await response.json();
-          setUploadError(err.error || "Failed to upload image.");
-        }
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
+      const base64Data = await compressImage(file);
+      if (!base64Data) {
         setUploadError("Failed to read file.");
         setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+        return;
+      }
+
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      // Change filename extension to .jpg since we convert to JPEG
+      const baseName = file.name.replace(/\.[^/.]+$/, "");
+      const finalFilename = `${baseName || "upload"}.jpg`;
+
+      const response = await fetch(API_URL + "/admin/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token || ""
+        },
+        body: JSON.stringify({
+          filename: finalFilename,
+          data: base64Data
+        })
+      });
+
+      if (response.ok) {
+        const resData = await response.json();
+        if (resData.success && resData.imageUrl) {
+          setProductForm(prev => ({
+            ...prev,
+            images: [...prev.images, resData.imageUrl]
+          }));
+        } else {
+          setUploadError("Failed to upload image. Unexpected server response.");
+        }
+      } else {
+        const err = await response.json();
+        setUploadError(err.error || "Failed to upload image.");
+      }
+      setIsUploading(false);
     } catch (err: any) {
       console.error("Upload error:", err);
       setUploadError(err.message || "An error occurred during file upload.");
@@ -440,6 +489,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         packageTypes: productForm.packageTypesInput.split(",").map(p => p.trim()).filter(Boolean),
         packagePrices: productForm.packagePrices,
         status: productForm.status,
+        isTrending: !!productForm.isTrending,
         hasDualSizes: productForm.hasDualSizes,
         dualSizesTitle1: productForm.dualSizesTitle1,
         dualSizesTitle2: productForm.dualSizesTitle2,
@@ -492,6 +542,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         packageTypes: productForm.packageTypesInput.split(",").map(p => p.trim()).filter(Boolean),
         packagePrices: productForm.packagePrices,
         status: productForm.status,
+        isTrending: !!productForm.isTrending,
         hasDualSizes: productForm.hasDualSizes,
         dualSizesTitle1: productForm.dualSizesTitle1,
         dualSizesTitle2: productForm.dualSizesTitle2,
@@ -762,6 +813,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       packageTypesInput: "Single Piece, 3pcs Combo Pack, 12pcs Combo",
       packagePrices: {},
       status: "active",
+      isTrending: false,
       hasDualSizes: false,
       dualSizesTitle1: "Jacket Size",
       dualSizesTitle2: "Jeans Waist Size",
@@ -794,6 +846,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       packageTypesInput: prod.packageTypes.join(", "),
       packagePrices: prod.packagePrices || {},
       status: prod.status,
+      isTrending: !!prod.isTrending,
       hasDualSizes: !!prod.hasDualSizes,
       dualSizesTitle1: prod.dualSizesTitle1 || "Jacket Size",
       dualSizesTitle2: prod.dualSizesTitle2 || "Jeans Waist Size",
@@ -1778,6 +1831,25 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         <option value="draft">Draft (Hidden)</option>
                       </select>
                     </div>
+                  </div>
+
+                  {/* Trending Product Toggle */}
+                  <div className="flex items-center justify-between p-3.5 bg-amber-500/5 rounded-xl border border-amber-500/10">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider flex items-center gap-1">
+                        Trending Product KSA
+                      </span>
+                      <span className="text-[10px] text-neutral-400">Features this design in the highlighted "Trending Now" showcase row.</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={productForm.isTrending || false}
+                        onChange={(e) => setProductForm({ ...productForm, isTrending: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-50 peer-checked:bg-amber-500"></div>
+                    </label>
                   </div>
 
                   {/* Cloth Shop Owner (Admin Only) */}

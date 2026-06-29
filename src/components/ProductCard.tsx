@@ -103,12 +103,14 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         <img
           src={displayImage}
           alt=""
+          loading="lazy"
           referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover blur-lg opacity-40 scale-110 select-none pointer-events-none"
         />
         <img
           src={displayImage}
           alt={product.name}
+          loading="lazy"
           referrerPolicy="no-referrer"
           className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition-transform duration-500"
         />

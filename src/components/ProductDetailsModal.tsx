@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Check, ShoppingCart, ArrowRight, Minus, Plus, RefreshCw, ZoomIn } from "lucide-react";
+import { X, Check, ShoppingCart, ArrowRight, Minus, Plus, RefreshCw, ZoomIn, ChevronRight } from "lucide-react";
 import { Product } from "../types";
 import { cartStore } from "../lib/cartStore";
 import { trackPixelEvent } from "../lib/metaPixel";
@@ -57,6 +57,7 @@ interface ProductDetailsModalProps {
   onAddToCartSuccess: () => void;
   onBuyNowSuccess: () => void;
   onSelectRelated: (product: Product) => void;
+  isFullPage?: boolean;
 }
 
 function getHexColor(colorName: string): string {
@@ -95,7 +96,8 @@ export default function ProductDetailsModal({
   onClose,
   onAddToCartSuccess,
   onBuyNowSuccess,
-  onSelectRelated
+  onSelectRelated,
+  isFullPage = false
 }: ProductDetailsModalProps) {
   const [activeImage, setActiveImage] = useState((product && product.images && product.images[0]) || "");
   const [selectedSize, setSelectedSize] = useState("");
@@ -285,24 +287,35 @@ export default function ProductDetailsModal({
     .slice(0, 3);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex justify-center p-2 sm:p-4 items-start sm:items-center">
-      <div className="relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-20px)] sm:max-h-[90vh] my-auto">
+    <div className={isFullPage ? "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4" : "fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex justify-center p-2 sm:p-4 items-start sm:items-center"}>
+      
+      {isFullPage && (
+        <button
+          onClick={onClose}
+          className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-black transition-colors mb-2 cursor-pointer"
+        >
+          <ChevronRight className="w-4 h-4 rotate-180 text-neutral-400" />
+          <span>Back to Products</span>
+        </button>
+      )}
+
+      <div className={isFullPage ? "bg-white w-full rounded-2xl border border-neutral-200/80 shadow-md overflow-hidden flex flex-col" : "relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-20px)] sm:max-h-[90vh] my-auto"}>
         
         {/* Header bar */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-neutral-100 bg-white">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-600 font-mono">
-            Product Detail Overview
+          <span className="text-xs font-black uppercase tracking-widest text-amber-600 font-mono">
+            {isFullPage ? "Product Details" : "Product Detail Overview"}
           </span>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-neutral-100 transition text-neutral-500 hover:text-black"
+            className="p-1.5 rounded-full hover:bg-neutral-100 transition text-neutral-500 hover:text-black cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Content - Scrollable */}
-        <div className="overflow-y-auto p-6 flex-grow">
+        <div className={isFullPage ? "p-6 space-y-8" : "overflow-y-auto p-6 flex-grow"}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* Left Column: Image Slider and Zoom */}

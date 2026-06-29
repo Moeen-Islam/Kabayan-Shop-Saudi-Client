@@ -123,7 +123,10 @@ export const translations = {
     sizes: "Available Sizes",
     packages: "Select Package Style",
     single_piece: "Single Piece",
-    related_products: "Related Products You May Like"
+    related_products: "Related Products You May Like",
+    load_more: "Load More Designs",
+    explore_products: "Explore Products",
+    trending_now: "Trending Now"
   },
   ar: {
     // Header
@@ -244,7 +247,10 @@ export const translations = {
     sizes: "المقاسات المتاحة",
     packages: "اختر نوع الباقة",
     single_piece: "قطعة واحدة فريدة",
-    related_products: "منتجات ذات صلة قد تعجبك"
+    related_products: "منتجات ذات صلة قد تعجبك",
+    load_more: "عرض المزيد من التصاميم",
+    explore_products: "استكشف المنتجات",
+    trending_now: "الأكثر رواجاً الآن"
   },
   fil: {
     // Header
@@ -365,7 +371,10 @@ export const translations = {
     sizes: "Mga Sukat na Available",
     packages: "Piliin ang Estilo ng Package",
     single_piece: "Isang Piraso Lamang",
-    related_products: "Mga Kaugnay na Produkto na Maaari Mong Magustuhan"
+    related_products: "Mga Kaugnay na Produkto na Maaari Mong Magustuhan",
+    load_more: "Tingnan ang Iba pa",
+    explore_products: "I-explore ang mga Produkto",
+    trending_now: "Trending Ngayon"
   }
 };
 
