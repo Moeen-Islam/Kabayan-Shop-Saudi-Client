@@ -1544,7 +1544,11 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                           : (products.find(p => p.id === item.productId)?.purchasePrice || 0);
                         return costSum + (purchasePrice * item.quantity);
                       }, 0);
-                      const profit = selectedOrder.grandTotal - totalCost - (selectedOrder.driverDeliveryCharge || 0);
+                      const area = areas.find(a => a.name === selectedOrder.areaName || a.id === selectedOrder.areaId);
+                      const driverCost = selectedOrder.driverDeliveryCharge !== undefined && selectedOrder.driverDeliveryCharge !== 0
+                        ? selectedOrder.driverDeliveryCharge
+                        : (area?.driverCharge || 0);
+                      const profit = selectedOrder.grandTotal - totalCost - driverCost;
                       
                       return (
                         <div className="mt-2.5 pt-2 border-t border-dashed border-neutral-200/80 bg-neutral-900/5 -mx-3 px-3 py-2 rounded-lg flex flex-col gap-1 text-[10px] text-neutral-600 animate-fade-in">
@@ -1556,7 +1560,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                             <span className="text-amber-600">{profit} SAR</span>
                           </div>
                           <div className="text-[9px] text-neutral-400 leading-snug">
-                            Calculation: {selectedOrder.grandTotal} SAR (Bill) - {totalCost} SAR (Cloth Purchase) - {selectedOrder.driverDeliveryCharge || 0} SAR (Driver Cost)
+                            Calculation: {selectedOrder.grandTotal} SAR (Bill) - {totalCost} SAR (Cloth Purchase) - {driverCost} SAR (Driver Cost)
                           </div>
                         </div>
                       );
@@ -1659,6 +1663,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     <th className="p-4">Category</th>
                     <th className="p-4">Base Price</th>
                     <th className="p-4">Offer Price</th>
+                    <th className="p-4">Purchase Price</th>
                     <th className="p-4">Stock</th>
                     <th className="p-4">Status</th>
                     <th className="p-4 text-right">Actions</th>
@@ -1688,6 +1693,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <td className="p-4">{prod.category}</td>
                       <td className="p-4 font-mono font-bold text-neutral-800">{prod.price} SAR</td>
                       <td className="p-4 font-mono font-bold text-amber-600">{prod.offerPrice ? `${prod.offerPrice} SAR` : "No Offer"}</td>
+                      <td className="p-4 font-mono font-bold text-emerald-600">{prod.purchasePrice ? `${prod.purchasePrice} SAR` : "-"}</td>
                       <td className="p-4 font-mono">{prod.stock}</td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${prod.status === "active" ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-500"
@@ -1749,6 +1755,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   <div className="flex flex-col">
                     <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Offer Price</span>
                     <span className="font-mono font-bold text-amber-600">{prod.offerPrice ? `${prod.offerPrice} SAR` : "No Offer"}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Purchase Price</span>
+                    <span className="font-mono font-bold text-emerald-600">{prod.purchasePrice ? `${prod.purchasePrice} SAR` : "-"}</span>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider mb-0.5">Status</span>
