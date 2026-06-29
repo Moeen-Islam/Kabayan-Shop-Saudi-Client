@@ -372,6 +372,9 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     msg += `• *Name:* ${order.customerName}\n`;
     msg += `• *WhatsApp:* +${contactNumber}\n`;
     msg += `• *City/Area:* ${order.areaName}\n`;
+    if (order.deliveryTime) {
+      msg += `• *Est. Delivery Time:* ${order.deliveryTime}\n`;
+    }
     msg += `• *House No:* ${order.houseNo || "N/A"}\n`;
     msg += `• *Full Address:* ${order.fullAddress}\n`;
     if (order.notes) {

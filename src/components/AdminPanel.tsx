@@ -346,7 +346,7 @@ export default function AdminPanel({
 • *Name:* ${order.customerName}
 • *WhatsApp Contact:* +${cleanPhone}
 • *City/Area:* ${order.areaName}
-• *House No:* ${order.houseNo || "N/A"}
+${order.deliveryTime ? `• *Est. Delivery Time:* ${order.deliveryTime}\n` : ""}• *House No:* ${order.houseNo || "N/A"}
 • *Full Address:* ${order.fullAddress}
 ${notesText ? notesText + "\n" : ""}${mapText}
 
