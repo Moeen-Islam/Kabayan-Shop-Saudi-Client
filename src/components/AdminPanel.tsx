@@ -949,7 +949,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 1: OVERVIEW */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "overview" && (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-8">
 
           {/* Stats Cards Row */}
           {statsLoading || !stats ? (
@@ -1119,7 +1119,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 2: ORDERS */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "orders" && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-6">
 
           {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200">
@@ -1431,7 +1431,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 3: PRODUCTS */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "products" && (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-6">
 
           <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-neutral-200">
             <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">
@@ -2071,7 +2071,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 4: SHIPPING & COUPONS */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "shipping-coupons" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fade-in text-xs font-medium">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-xs font-medium">
 
           {/* Categories Management & Delivery Area Setup */}
           <div className="space-y-8">
@@ -2359,7 +2359,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 5: SETTINGS */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "settings" && (
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 animate-fade-in text-xs font-medium">
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 text-xs font-medium">
           <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-100 pb-2 mb-6">
             Store Customization Details
           </h3>

@@ -946,6 +946,14 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                 </div>
               )}
 
+              {/* Highlighted WhatsApp order confirmation notice */}
+              <div className="bg-amber-500/10 border border-amber-500/20 text-neutral-800 rounded-xl p-3.5 flex items-center gap-3 text-xs font-bold shadow-xs">
+                <span className="p-1.5 bg-amber-500/20 rounded-lg text-amber-600">
+                  <MessageSquare className="w-4 h-4" />
+                </span>
+                <span>{t("order_details_whatsapp_notice")}</span>
+              </div>
+
               <button
                 type="submit"
                 disabled={isSubmitting || items.length === 0 || isMinOrderViolation}
