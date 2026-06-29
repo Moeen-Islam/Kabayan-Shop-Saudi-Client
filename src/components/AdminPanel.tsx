@@ -326,6 +326,8 @@ export default function AdminPanel({
   // Send Delivery details to customer via WhatsApp
   const handleSendWhatsAppDispatch = (order: Order) => {
     let cleanPhone = order.whatsapp.replace(/[^0-9]/g, "");
+    const areaObj = areas.find(a => a.id === order.areaId || a.name === order.areaName);
+    const estDeliveryTime = order.deliveryTime || areaObj?.deliveryTime;
 
     let itemsText = order.items.map((item) => {
       const imgUrl = item.productImage.startsWith("http")
@@ -346,7 +348,7 @@ export default function AdminPanel({
 • *Name:* ${order.customerName}
 • *WhatsApp Contact:* +${cleanPhone}
 • *City/Area:* ${order.areaName}
-${order.deliveryTime ? `• *Est. Delivery Time:* ${order.deliveryTime}\n` : ""}• *House No:* ${order.houseNo || "N/A"}
+${estDeliveryTime ? `• *Est. Delivery Time:* ${estDeliveryTime}\n` : ""}• *House No:* ${order.houseNo || "N/A"}
 • *Full Address:* ${order.fullAddress}
 ${notesText ? notesText + "\n" : ""}${mapText}
 

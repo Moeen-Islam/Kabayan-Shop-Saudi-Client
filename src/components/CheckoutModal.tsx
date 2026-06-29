@@ -361,6 +361,8 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   // Helper to format and trigger WhatsApp for an order
   const triggerWhatsApp = (order: Order) => {
     const contactNumber = order.whatsapp.replace(/\D/g, "");
+    const areaObj = areas.find(a => a.id === order.areaId || a.name === order.areaName);
+    const estDeliveryTime = order.deliveryTime || areaObj?.deliveryTime;
 
     // Format text beautifully and cleanly
     let msg = `*🛍️ KABAYAN SHOP SAUDI - NEW ORDER CONFIRMED*\n`;
@@ -372,8 +374,8 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     msg += `• *Name:* ${order.customerName}\n`;
     msg += `• *WhatsApp:* +${contactNumber}\n`;
     msg += `• *City/Area:* ${order.areaName}\n`;
-    if (order.deliveryTime) {
-      msg += `• *Est. Delivery Time:* ${order.deliveryTime}\n`;
+    if (estDeliveryTime) {
+      msg += `• *Est. Delivery Time:* ${estDeliveryTime}\n`;
     }
     msg += `• *House No:* ${order.houseNo || "N/A"}\n`;
     msg += `• *Full Address:* ${order.fullAddress}\n`;
@@ -944,6 +946,43 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                   {grandTotal} <span className="text-xs font-extrabold text-amber-600">SAR</span>
                 </span>
               </div>
+
+              {/* Shipping & Delivery Requirements Info Box */}
+              {activeArea && (
+                <div className="mt-4 bg-neutral-50 rounded-xl border border-neutral-200 p-3.5 space-y-2 text-xs text-left">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-neutral-400 mb-1.5 flex items-center gap-1.5">
+                    <span>📦 Shipping & Delivery Info</span>
+                  </h4>
+                  
+                  {/* Minimum Order constraint */}
+                  {activeArea.minOrderValue !== undefined && activeArea.minOrderValue !== null && subtotal < activeArea.minOrderValue && (
+                    <div className="flex items-start gap-2 text-red-600 font-semibold leading-normal">
+                      <span className="shrink-0 text-xs mt-0.5">⚠️</span>
+                      <div>
+                        <span>Minimum Order:</span> You need <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> more to place this order (Min: {activeArea.minOrderValue} SAR).
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Free Delivery threshold */}
+                  {activeArea.freeDeliveryAbove !== undefined && activeArea.freeDeliveryAbove !== null && subtotal < activeArea.freeDeliveryAbove && deliveryCharge > 0 && (
+                    <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal">
+                      <span className="shrink-0 text-xs mt-0.5">🚚</span>
+                      <div>
+                        <span className="text-neutral-800">Free Delivery:</span> Add <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> more to get <span className="text-green-600 font-black">Free Delivery</span>!
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Always Shown: Delivery Time */}
+                  <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal border-t border-neutral-200/50 pt-2">
+                    <span className="shrink-0 text-xs mt-0.5">🕒</span>
+                    <div>
+                      <span className="text-neutral-800">Estimated Delivery:</span> <span className="text-amber-600 font-extrabold">{activeArea.deliveryTime || "1-3 Business Days"}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Checkout Form CTA button */}
