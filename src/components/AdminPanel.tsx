@@ -100,8 +100,10 @@ export default function AdminPanel({
   const [newCatName, setNewCatName] = useState("");
   // Delivery Area State
   const [editingArea, setEditingArea] = useState<DeliveryArea | null>(null);
-  const [areaForm, setAreaForm] = useState({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
+  const [areaForm, setAreaForm] = useState({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
   const [isAddingArea, setIsAddingArea] = useState(false);
+  const [editingPhoneOrderId, setEditingPhoneOrderId] = useState<string | null>(null);
+  const [editPhoneValue, setEditPhoneValue] = useState("");
 
   // Coupon State
   const [isAddingCoupon, setIsAddingCoupon] = useState(false);
@@ -258,6 +260,37 @@ export default function AdminPanel({
       }
     } catch (err) {
       console.error("Failed to update status", err);
+    }
+  };
+
+  // Update Customer Phone Number (whatsapp) API
+  const handleSaveCustomerPhone = async () => {
+    if (!editingPhoneOrderId || !editPhoneValue.trim()) return;
+    try {
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      const response = await fetch(`${API_URL}/orders/${editingPhoneOrderId}/whatsapp`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token || ""
+        },
+        body: JSON.stringify({ whatsapp: editPhoneValue.trim() })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        // Refresh orders list
+        fetchOrders();
+        // Update selected order view details
+        if (selectedOrder && selectedOrder.id === editingPhoneOrderId) {
+          setSelectedOrder(data.order || { ...selectedOrder, whatsapp: editPhoneValue.trim() });
+        }
+        setEditingPhoneOrderId(null);
+      } else {
+        const err = await response.json();
+        alert(`Error updating phone number: ${err.error}`);
+      }
+    } catch (err) {
+      console.error("Failed to update phone number", err);
     }
   };
 
@@ -562,13 +595,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           name: areaForm.name,
           charge: Number(areaForm.charge),
           driverCharge: areaForm.driverCharge ? Number(areaForm.driverCharge) : 0,
+          deliveryTime: areaForm.deliveryTime,
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
         })
       });
       if (response.ok) {
         setIsAddingArea(false);
-        setAreaForm({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
+        setAreaForm({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
         onRefreshAll();
       }
     } catch (err) {
@@ -591,13 +625,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           name: areaForm.name,
           charge: Number(areaForm.charge),
           driverCharge: areaForm.driverCharge ? Number(areaForm.driverCharge) : 0,
+          deliveryTime: areaForm.deliveryTime,
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
         })
       });
       if (response.ok) {
         setEditingArea(null);
-        setAreaForm({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
+        setAreaForm({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
         onRefreshAll();
       }
     } catch (err) {
@@ -1297,15 +1332,52 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       {/* WhatsApp trigger link */}
                       <div className="flex items-center justify-between">
                         <span>WhatsApp Contact:</span>
-                        <a
-                          href={`https://api.whatsapp.com/send?phone=${selectedOrder.whatsapp.replace(/[^0-9]/g, "")}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-green-600 font-bold hover:underline"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          <span>+{selectedOrder.whatsapp}</span>
-                        </a>
+                        {editingPhoneOrderId === selectedOrder.id ? (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              value={editPhoneValue}
+                              onChange={(e) => setEditPhoneValue(e.target.value)}
+                              className="px-2 py-1 border border-neutral-300 rounded text-xs w-36 font-mono font-bold focus:outline-none focus:border-black bg-white text-neutral-800"
+                            />
+                            <button
+                              onClick={handleSaveCustomerPhone}
+                              className="p-1 bg-green-500 hover:bg-green-600 text-white rounded transition cursor-pointer"
+                              title="Save"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setEditingPhoneOrderId(null)}
+                              className="p-1 bg-neutral-200 hover:bg-neutral-300 text-neutral-700 rounded transition cursor-pointer"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`https://api.whatsapp.com/send?phone=${selectedOrder.whatsapp.replace(/[^0-9]/g, "")}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-green-600 font-bold hover:underline"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>+{selectedOrder.whatsapp}</span>
+                            </a>
+                            <button
+                              onClick={() => {
+                                setEditingPhoneOrderId(selectedOrder.id);
+                                setEditPhoneValue(selectedOrder.whatsapp);
+                              }}
+                              className="p-1 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded transition cursor-pointer"
+                              title="Edit Phone Number"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div>House No: <strong className="text-neutral-900">{selectedOrder.houseNo || "N/A"}</strong></div>
@@ -2254,7 +2326,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   <h4 className="font-bold text-neutral-800 uppercase text-[10px]">
                     {isAddingArea ? "Add Delivery Area" : `Edit Rate for ${editingArea?.name}`}
                   </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="text"
                       required
@@ -2268,7 +2340,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       required
                       value={areaForm.charge}
                       onChange={(e) => setAreaForm({ ...areaForm, charge: e.target.value })}
-                      placeholder="Customer Delivery (SAR)"
+                      placeholder="Customer Delivery Fee (SAR)"
                       className="px-3 py-2 border border-neutral-300 bg-white rounded-lg text-xs"
                     />
                     <input
@@ -2278,6 +2350,13 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       onChange={(e) => setAreaForm({ ...areaForm, driverCharge: e.target.value })}
                       placeholder="Driver Delivery Cost (SAR)"
                       className="px-3 py-2 border border-amber-300 bg-amber-50/10 rounded-lg text-xs focus:outline-none focus:border-amber-500 font-semibold text-amber-900"
+                    />
+                    <input
+                      type="text"
+                      value={areaForm.deliveryTime}
+                      onChange={(e) => setAreaForm({ ...areaForm, deliveryTime: e.target.value })}
+                      placeholder="Delivery Estimate (e.g. 1-2 Days, 3-5 Days)"
+                      className="px-3 py-2 border border-neutral-300 bg-white rounded-lg text-xs"
                     />
                     <input
                       type="number"
@@ -2290,7 +2369,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       type="number"
                       value={areaForm.minOrderValue}
                       onChange={(e) => setAreaForm({ ...areaForm, minOrderValue: e.target.value })}
-                      placeholder="Min Order (SAR) - Optional"
+                      placeholder="Min Order Value (SAR) - Optional"
                       className="px-3 py-2 border border-neutral-300 bg-white rounded-lg text-xs"
                     />
                   </div>
@@ -2317,14 +2396,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
               <div className="divide-y divide-neutral-100 max-h-48 overflow-y-auto">
                 {areas.map((area) => (
-                  <div key={area.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-neutral-900 block">{area.name}</span>
-                      <span className="text-[10px] text-neutral-400 font-bold font-mono">
+                   <div key={area.id} className="py-2.5 flex items-center justify-between">
+                     <div>
+                       <span className="font-bold text-neutral-900 block">{area.name}</span>
+                       <span className="text-[10px] text-neutral-400 font-bold font-mono">
                         Customer Rate: {area.charge} SAR
                         {area.driverCharge !== undefined && area.driverCharge !== null && (
                           <span className="text-amber-600 ml-2 font-black">
                             • Driver Cost: {area.driverCharge} SAR
+                          </span>
+                        )}
+                        {area.deliveryTime && (
+                          <span className="text-blue-600 ml-2">
+                            • Est: {area.deliveryTime}
                           </span>
                         )}
                         {area.freeDeliveryAbove !== undefined && area.freeDeliveryAbove !== null && (
@@ -2347,6 +2431,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                             name: area.name,
                             charge: String(area.charge),
                             driverCharge: area.driverCharge !== undefined && area.driverCharge !== null ? String(area.driverCharge) : "",
+                            deliveryTime: area.deliveryTime || "",
                             freeDeliveryAbove: area.freeDeliveryAbove !== undefined && area.freeDeliveryAbove !== null ? String(area.freeDeliveryAbove) : "",
                             minOrderValue: area.minOrderValue !== undefined && area.minOrderValue !== null ? String(area.minOrderValue) : ""
                           });

@@ -653,6 +653,12 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                   )}
                 </div>
               )}
+              {activeArea && activeArea.deliveryTime && (
+                <div className="mt-1.5 p-2 bg-neutral-50 rounded-lg border border-neutral-200/50 flex items-center gap-1.5 text-[11px] text-neutral-500 font-medium">
+                  <span>🚚 {lang === "ar" ? "وقت التوصيل المتوقع:" : lang === "fil" ? "Est. Oras ng Paghahatid:" : "Est. Delivery Time:"}</span>
+                  <span className="text-amber-600 font-extrabold">{activeArea.deliveryTime}</span>
+                </div>
+              )}
             </div>
 
             {/* House No. / Villa */}
