@@ -104,6 +104,9 @@ export default function ProductDetailsModal({
   const [selectedSize2, setSelectedSize2] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedSizes2, setSelectedSizes2] = useState<string[]>([]);
+  const [isSameSizeAll, setIsSameSizeAll] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -113,17 +116,22 @@ export default function ProductDetailsModal({
   useEffect(() => {
     if (!product) return;
     setActiveImage((product.images && product.images[0]) || "");
-    setSelectedSize((product.sizes && product.sizes[0]) || "Free Size");
-    setSelectedSize2((product.hasDualSizes && product.sizes2 && product.sizes2[0]) || "");
+    const initialSize = (product.sizes && product.sizes[0]) || "Free Size";
+    const initialSize2 = (product.hasDualSizes && product.sizes2 && product.sizes2[0]) || "";
+    setSelectedSize(initialSize);
+    setSelectedSize2(initialSize2);
+    
     const initialColor = (product.colors && product.colors[0]) || "Multi";
     setSelectedColor(initialColor);
     setSelectedColors([initialColor]);
+    setSelectedSizes([initialSize]);
+    setSelectedSizes2([initialSize2]);
+    setIsSameSizeAll(true);
     setSelectedPackage((product.packageTypes && product.packageTypes[0]) || "Single Piece");
     setQuantity(1);
     setIsZoomed(false);
   }, [product]);
 
-  // Keep selectedColors array in sync with the current quantity
   useEffect(() => {
     if (!product) return;
     const defaultColor = selectedColor || (product.colors && product.colors[0]) || "Multi";
@@ -208,9 +216,20 @@ export default function ProductDetailsModal({
   const handleAddToCart = () => {
     if (product.stock === 0) return;
     
-    const finalSize = product.hasDualSizes
-      ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
-      : selectedSize;
+    let finalSize = "";
+    if (quantity > 1 && !isSameSizeAll) {
+      if (product.hasDualSizes) {
+        finalSize = selectedSizes.map((sz, idx) => {
+          return `#${idx + 1}: (${product.dualSizesTitle1 || "Size 1"}: ${sz} | ${product.dualSizesTitle2 || "Size 2"}: ${selectedSizes2[idx] || ""})`;
+        }).join(" • ");
+      } else {
+        finalSize = selectedSizes.join(", ");
+      }
+    } else {
+      finalSize = product.hasDualSizes
+        ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
+        : selectedSize;
+    }
 
     const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
 
@@ -243,9 +262,20 @@ export default function ProductDetailsModal({
   const handleBuyNow = () => {
     if (product.stock === 0) return;
 
-    const finalSize = product.hasDualSizes
-      ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
-      : selectedSize;
+    let finalSize = "";
+    if (quantity > 1 && !isSameSizeAll) {
+      if (product.hasDualSizes) {
+        finalSize = selectedSizes.map((sz, idx) => {
+          return `#${idx + 1}: (${product.dualSizesTitle1 || "Size 1"}: ${sz} | ${product.dualSizesTitle2 || "Size 2"}: ${selectedSizes2[idx] || ""})`;
+        }).join(" • ");
+      } else {
+        finalSize = selectedSizes.join(", ");
+      }
+    } else {
+      finalSize = product.hasDualSizes
+        ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
+        : selectedSize;
+    }
 
     const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
 
@@ -601,22 +631,182 @@ export default function ProductDetailsModal({
                 )}
 
                 {/* 3. Size Selection */}
-                {product.hasDualSizes ? (
-                  <div className="space-y-4">
-                    {product.sizes && product.sizes.length > 0 && (
-                      <div>
-                        <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
-                          3. Select {product.dualSizesTitle1 || "Jacket Size"}:
-                        </label>
+                <div className="space-y-3">
+                  <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
+                    3. Select Size{quantity > 1 ? `s (${quantity} Items)` : ""}:
+                  </label>
+ 
+                  {quantity > 1 && (
+                    <div className="flex items-center gap-2 mb-1 bg-neutral-100/50 p-2 rounded-lg border border-neutral-200/50 w-fit">
+                      <input
+                        type="checkbox"
+                        id="same-size-checkbox"
+                        checked={isSameSizeAll}
+                        onChange={(e) => setIsSameSizeAll(e.target.checked)}
+                        className="rounded text-amber-500 focus:ring-amber-400 cursor-pointer h-4 w-4"
+                      />
+                      <label htmlFor="same-size-checkbox" className="text-xs font-bold text-neutral-700 cursor-pointer select-none">
+                        Same size for all {quantity} items
+                      </label>
+                    </div>
+                  )}
+ 
+                  {(quantity > 1 && !isSameSizeAll) ? (
+                    <div className="space-y-4 bg-neutral-50 p-3.5 rounded-xl border border-neutral-200/80">
+                      <p className="text-[10px] text-neutral-400 font-medium leading-normal mb-1">
+                        Select the size for each of your {quantity} items below:
+                      </p>
+                      {Array.from({ length: quantity }).map((_, idx) => (
+                        <div key={idx} className="flex flex-col gap-2 border-b border-neutral-200/50 last:border-0 pb-3.5 last:pb-0">
+                          <span className="text-xs font-bold text-neutral-700 font-mono">
+                            Item #{idx + 1} Size:
+                          </span>
+                          
+                          {product.hasDualSizes ? (
+                            <div className="space-y-2">
+                              {product.sizes && product.sizes.length > 0 && (
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider w-20 shrink-0">
+                                    {product.dualSizesTitle1 || "Jacket"}:
+                                  </span>
+                                  {product.sizes.map((sz) => (
+                                    <button
+                                      key={sz}
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...selectedSizes];
+                                        updated[idx] = sz;
+                                        setSelectedSizes(updated);
+                                      }}
+                                      className={`px-2 py-1 text-[11px] font-bold rounded border transition cursor-pointer ${
+                                        selectedSizes[idx] === sz
+                                          ? "bg-amber-400 text-black border-amber-400"
+                                          : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400"
+                                      }`}
+                                    >
+                                      {sz}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {product.sizes2 && product.sizes2.length > 0 && (
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider w-20 shrink-0">
+                                    {product.dualSizesTitle2 || "Jeans"}:
+                                  </span>
+                                  {product.sizes2.map((sz2) => (
+                                    <button
+                                      key={sz2}
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...selectedSizes2];
+                                        updated[idx] = sz2;
+                                        setSelectedSizes2(updated);
+                                      }}
+                                      className={`px-2 py-1 text-[11px] font-bold rounded border transition cursor-pointer ${
+                                        selectedSizes2[idx] === sz2
+                                          ? "bg-amber-400 text-black border-amber-400"
+                                          : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400"
+                                      }`}
+                                    >
+                                      {sz2}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                              {product.sizes.map((sz) => (
+                                <button
+                                  key={sz}
+                                  type="button"
+                                  onClick={() => {
+                                    const updated = [...selectedSizes];
+                                    updated[idx] = sz;
+                                    setSelectedSizes(updated);
+                                  }}
+                                  className={`px-2.5 py-1 text-[11px] font-bold rounded border transition cursor-pointer ${
+                                    selectedSizes[idx] === sz
+                                      ? "bg-amber-400 text-black border-amber-400"
+                                      : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400"
+                                  }`}
+                                >
+                                  {sz}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    product.hasDualSizes ? (
+                      <div className="space-y-4">
+                        {product.sizes && product.sizes.length > 0 && (
+                          <div>
+                            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-2">
+                              Select {product.dualSizesTitle1 || "Jacket Size"}:
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {product.sizes.map((size) => (
+                                <button
+                                  key={size}
+                                  type="button"
+                                  onClick={() => setSelectedSize(size)}
+                                  className={`px-3.5 h-12 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] cursor-pointer ${
+                                    selectedSize === size
+                                      ? "bg-amber-400 text-black border-amber-400 font-extrabold"
+                                      : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
+                                  }`}
+                                >
+                                  <span className="text-xs font-bold leading-none">{size}</span>
+                                  {product.sizePrices?.[size] !== undefined && (
+                                    <span className="text-[8px] font-bold mt-1 leading-none opacity-80">
+                                      {product.sizePrices[size]} SAR
+                                    </span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+ 
+                        {product.sizes2 && product.sizes2.length > 0 && (
+                          <div>
+                            <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-2">
+                              Select {product.dualSizesTitle2 || "Jeans Waist Size"}:
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {product.sizes2.map((size) => (
+                                <button
+                                  key={size}
+                                  type="button"
+                                  onClick={() => setSelectedSize2(size)}
+                                  className={`px-3.5 h-10 rounded-lg text-xs font-bold border transition flex items-center justify-center min-w-[3rem] cursor-pointer ${
+                                    selectedSize2 === size
+                                      ? "bg-amber-400 text-black border-amber-400 font-extrabold"
+                                      : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
+                                  }`}
+                                >
+                                  {size}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      product.sizes && product.sizes.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {product.sizes.map((size) => (
                             <button
                               key={size}
                               type="button"
                               onClick={() => setSelectedSize(size)}
-                              className={`px-3.5 h-12 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] ${
+                              className={`h-12 px-3.5 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] cursor-pointer ${
                                 selectedSize === size
-                                  ? "bg-amber-400 text-black border-amber-400"
+                                  ? "bg-amber-400 text-black border-amber-400 font-extrabold"
                                   : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
                               }`}
                             >
@@ -629,62 +819,10 @@ export default function ProductDetailsModal({
                             </button>
                           ))}
                         </div>
-                      </div>
-                    )}
-
-                    {product.sizes2 && product.sizes2.length > 0 && (
-                      <div>
-                        <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
-                          Select {product.dualSizesTitle2 || "Jeans Waist Size"}:
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {product.sizes2.map((size) => (
-                            <button
-                              key={size}
-                              type="button"
-                              onClick={() => setSelectedSize2(size)}
-                              className={`px-3 h-10 rounded-lg text-xs font-bold border transition flex items-center justify-center min-w-[3rem] ${
-                                selectedSize2 === size
-                                  ? "bg-amber-400 text-black border-amber-400"
-                                  : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
-                              }`}
-                            >
-                              {size}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  product.sizes && product.sizes.length > 0 && (
-                    <div>
-                      <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
-                        3. Select Size:
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {product.sizes.map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
-                            className={`h-12 px-3.5 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] ${
-                              selectedSize === size
-                                ? "bg-amber-400 text-black border-amber-400"
-                                : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
-                            }`}
-                          >
-                            <span className="text-xs font-bold leading-none">{size}</span>
-                            {product.sizePrices?.[size] !== undefined && (
-                              <span className="text-[8px] font-bold mt-1 leading-none opacity-80">
-                                {product.sizePrices[size]} SAR
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                )}
+                      )
+                    )
+                  )}
+                </div>
 
                 {/* 4. Quantity Selector */}
                 <div>
