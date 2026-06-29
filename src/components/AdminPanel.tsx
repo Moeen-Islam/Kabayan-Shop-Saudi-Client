@@ -948,7 +948,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </span>
           </h2>
           <p className="text-xs text-neutral-400 font-mono mt-0.5">
-            Manoj Admin • {new Date().toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            Store Admin • {new Date().toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
