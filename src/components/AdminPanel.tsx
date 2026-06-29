@@ -468,6 +468,74 @@ Thank you for shopping with Kabayan Shop! ❤️`;
     }
   };
 
+  // Upload multiple local image files in parallel
+  const uploadMultipleImageFiles = async (files: FileList | File[]) => {
+    setIsUploading(true);
+    setUploadError("");
+    const fileList = Array.from(files).filter(f => f.type.startsWith("image/"));
+    if (fileList.length === 0) {
+      setUploadError("No valid image files selected.");
+      setIsUploading(false);
+      return;
+    }
+
+    try {
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      
+      const uploadPromises = fileList.map(async (file) => {
+        try {
+          const base64Data = await compressImage(file);
+          if (!base64Data) return null;
+
+          const baseName = file.name.replace(/\.[^/.]+$/, "");
+          const finalFilename = `${baseName || "upload"}.jpg`;
+
+          const response = await fetch(API_URL + "/admin/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": token || ""
+            },
+            body: JSON.stringify({
+              filename: finalFilename,
+              data: base64Data
+            })
+          });
+
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.success && resData.imageUrl) {
+              return resData.imageUrl;
+            }
+          }
+          return null;
+        } catch (e) {
+          console.error("Individual file upload failed:", e);
+          return null;
+        }
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      const validUrls = uploadedUrls.filter((url): url is string => url !== null);
+
+      if (validUrls.length > 0) {
+        setProductForm(prev => ({
+          ...prev,
+          images: [...prev.images, ...validUrls]
+        }));
+      }
+
+      if (validUrls.length < fileList.length) {
+        setUploadError(`Uploaded ${validUrls.length} of ${fileList.length} images successfully. Some files failed.`);
+      }
+    } catch (err: any) {
+      console.error("Batch upload error:", err);
+      setUploadError("An error occurred during batch image upload.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Add Product Submit API
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1989,12 +2057,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         e.preventDefault();
                         e.stopPropagation();
                         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                          const file = e.dataTransfer.files[0];
-                          if (file.type.startsWith("image/")) {
-                            uploadImageFile(file);
-                          } else {
-                            setUploadError("Please drop an image file.");
-                          }
+                          uploadMultipleImageFiles(e.dataTransfer.files);
                         }
                       }}
                       className="border-2 border-dashed border-neutral-300 hover:border-amber-500 bg-neutral-50 hover:bg-neutral-100/50 rounded-xl p-5 text-center transition cursor-pointer flex flex-col items-center justify-center gap-2 group relative"
@@ -2002,9 +2065,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <input
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={(e) => {
                           if (e.target.files && e.target.files.length > 0) {
-                            uploadImageFile(e.target.files[0]);
+                            uploadMultipleImageFiles(e.target.files);
                           }
                         }}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -2017,10 +2081,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                             Uploading to Storage...
                           </span>
                         ) : (
-                          "Drag & drop image here or click to upload"
+                          "Drag & drop multiple images here or click to upload"
                         )}
                       </div>
-                      <p className="text-[9px] text-neutral-400 font-mono">Supports PNG, JPG, JPEG, WEBP</p>
+                      <p className="text-[9px] text-neutral-400 font-mono">Supports PNG, JPG, JPEG, WEBP (Batch Upload)</p>
                     </div>
 
                     {uploadError && (
