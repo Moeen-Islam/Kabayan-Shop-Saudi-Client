@@ -428,8 +428,8 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   // Success view block
   if (placedOrder) {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col text-center">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex justify-center p-2 sm:p-4 items-start sm:items-center">
+        <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 sm:p-8 flex flex-col text-center max-h-[calc(100vh-20px)] sm:max-h-[95vh] overflow-y-auto my-auto">
           <div className="mx-auto bg-green-50 text-green-600 p-4 rounded-full mb-5 flex items-center justify-center">
             <CheckCircle className="w-12 h-12" />
           </div>
@@ -530,8 +530,8 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
   // Normal Checkout Form View
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-scale-in">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex justify-center p-2 sm:p-4 items-start sm:items-center">
+      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[calc(100vh-20px)] sm:max-h-[95vh] my-auto animate-scale-in">
 
         {/* Header bar */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-neutral-100 bg-white shrink-0">
