@@ -162,7 +162,12 @@ export default function ProductDetailsModal({
   }, [quantity, product, selectedPackage]);
 
   const hasOffer = product.offerPrice !== undefined && product.offerPrice < product.price;
-  const basePrice = hasOffer ? product.offerPrice! : product.price;
+  const defaultBasePrice = hasOffer ? product.offerPrice! : product.price;
+
+  // Use custom size price if defined for the selected size
+  const basePrice = (product.sizePrices && selectedSize && product.sizePrices[selectedSize] !== undefined)
+    ? product.sizePrices[selectedSize]
+    : defaultBasePrice;
   
   let activePrice = 0;
   let multiplier = 1;
@@ -596,13 +601,18 @@ export default function ProductDetailsModal({
                               key={size}
                               type="button"
                               onClick={() => setSelectedSize(size)}
-                              className={`px-3 h-10 rounded-lg text-xs font-bold border transition flex items-center justify-center min-w-[3rem] ${
+                              className={`px-3.5 h-12 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] ${
                                 selectedSize === size
                                   ? "bg-amber-400 text-black border-amber-400"
                                   : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
                               }`}
                             >
-                              {size}
+                              <span className="text-xs font-bold leading-none">{size}</span>
+                              {product.sizePrices?.[size] !== undefined && (
+                                <span className="text-[8px] font-bold mt-1 leading-none opacity-80">
+                                  {product.sizePrices[size]} SAR
+                                </span>
+                              )}
                             </button>
                           ))}
                         </div>
@@ -644,13 +654,18 @@ export default function ProductDetailsModal({
                           <button
                             key={size}
                             onClick={() => setSelectedSize(size)}
-                            className={`w-12 h-10 rounded-lg text-xs font-bold border transition flex items-center justify-center ${
+                            className={`h-12 px-3.5 rounded-lg border transition flex flex-col items-center justify-center min-w-[3.5rem] ${
                               selectedSize === size
                                 ? "bg-amber-400 text-black border-amber-400"
                                 : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400"
                             }`}
                           >
-                            {size}
+                            <span className="text-xs font-bold leading-none">{size}</span>
+                            {product.sizePrices?.[size] !== undefined && (
+                              <span className="text-[8px] font-bold mt-1 leading-none opacity-80">
+                                {product.sizePrices[size]} SAR
+                              </span>
+                            )}
                           </button>
                         ))}
                       </div>

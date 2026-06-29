@@ -78,6 +78,8 @@ export default function AdminPanel({
     price: "",
     offerPrice: "",
     purchasePrice: "",
+    sizePrices: {} as Record<string, number>,
+    clothShopOwner: "",
     stock: "",
     sizesInput: "",
     colorsInput: "",
@@ -123,7 +125,10 @@ export default function AdminPanel({
     metaPixelId: "",
     metaTitle: "",
     metaDescription: "",
-    metaKeywords: ""
+    metaKeywords: "",
+    messengerPageId: "",
+    adminEmail: "",
+    adminPassword: ""
   });
 
   // Verify previous session
@@ -153,7 +158,10 @@ export default function AdminPanel({
         metaPixelId: settings.metaPixelId || "",
         metaTitle: settings.metaTitle || "",
         metaDescription: settings.metaDescription || "",
-        metaKeywords: settings.metaKeywords || ""
+        metaKeywords: settings.metaKeywords || "",
+        messengerPageId: settings.messengerPageId || "",
+        adminEmail: settings.adminEmail || "",
+        adminPassword: settings.adminPassword || ""
       });
     }
   }, [isLoggedIn, settings]);
@@ -389,6 +397,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
         purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
+        sizePrices: productForm.sizePrices,
+        clothShopOwner: productForm.clothShopOwner,
         stock: Number(productForm.stock),
         sizes: productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean),
         colors: productForm.colorsInput.split(",").map(c => c.trim()).filter(Boolean),
@@ -439,6 +449,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
         purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
+        sizePrices: productForm.sizePrices,
+        clothShopOwner: productForm.clothShopOwner,
         stock: Number(productForm.stock),
         sizes: productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean),
         colors: productForm.colorsInput.split(",").map(c => c.trim()).filter(Boolean),
@@ -698,6 +710,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       price: "",
       offerPrice: "",
       purchasePrice: "",
+      sizePrices: {},
+      clothShopOwner: "",
       stock: "",
       sizesInput: "S, M, L, XL, Free Size",
       colorsInput: "Multi",
@@ -728,6 +742,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       price: String(prod.price),
       offerPrice: prod.offerPrice ? String(prod.offerPrice) : "",
       purchasePrice: prod.purchasePrice ? String(prod.purchasePrice) : "",
+      sizePrices: prod.sizePrices || {},
+      clothShopOwner: prod.clothShopOwner || "",
       stock: String(prod.stock),
       sizesInput: prod.sizes.join(", "),
       colorsInput: prod.colors.join(", "),
@@ -1348,9 +1364,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                           </div>
                           <div className="flex-grow min-w-0">
                             <span className="font-bold text-neutral-900 block truncate">{item.productName}</span>
-                            <span className="text-[9px] text-neutral-400 font-mono">
+                            <span className="text-[9px] text-neutral-400 font-mono block">
                               Sz: {item.selectedSize} | Col: {item.selectedColor} | {item.selectedPackageType}
                             </span>
+                            {item.clothShopOwner && (
+                              <span className="text-[8px] font-bold bg-amber-50 text-amber-800 border border-amber-200/50 rounded px-1.5 py-0.5 mt-1 inline-block uppercase tracking-wider">
+                                Vendor: {item.clothShopOwner}
+                              </span>
+                            )}
                           </div>
                           <span className="font-bold text-neutral-800 text-right shrink-0">
                             {item.quantity}x
@@ -1678,6 +1699,20 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     </div>
                   </div>
 
+                  {/* Cloth Shop Owner (Admin Only) */}
+                  <div>
+                    <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
+                      Cloth Shop Owner / Supplier (Admin Only)
+                    </label>
+                    <input
+                      type="text"
+                      value={productForm.clothShopOwner}
+                      onChange={(e) => setProductForm({ ...productForm, clothShopOwner: e.target.value })}
+                      placeholder="e.g. Abaya Boutique, Riyadh Fabrics (Leave blank if internal)"
+                      className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-black font-medium"
+                    />
+                  </div>
+
                   {/* Description */}
                   <div>
                     <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
@@ -2000,8 +2035,48 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                             value={productForm.sizesInput}
                             onChange={(e) => setProductForm({ ...productForm, sizesInput: e.target.value })}
                             placeholder="S, M, L, XL, XXL, Free Size"
-                            className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none bg-white"
+                            className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none bg-white mb-2"
                           />
+                        </div>
+                      )}
+
+                      {/* Size Prices Customizer */}
+                      {productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean).length > 0 && (
+                        <div className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 mb-2">
+                          <label className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-1">
+                            Set Custom Price for Each Size
+                          </label>
+                          <p className="text-[10px] text-neutral-400 mb-2.5 leading-normal">
+                            Leave blank or 0 to use the product's base price. Useful for multi-sized luggage.
+                          </p>
+                          <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                            {productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean).map((sz) => (
+                              <div key={sz} className="flex items-center justify-between gap-2 bg-white p-2 rounded-md border border-neutral-200">
+                                <span className="text-[11px] font-semibold text-neutral-700 truncate max-w-[60%]">
+                                  Size {sz}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="Base"
+                                    value={productForm.sizePrices?.[sz] || ""}
+                                    onChange={(e) => {
+                                      const newPrices = { ...(productForm.sizePrices || {}) };
+                                      if (e.target.value) {
+                                        newPrices[sz] = Number(e.target.value);
+                                      } else {
+                                        delete newPrices[sz];
+                                      }
+                                      setProductForm({ ...productForm, sizePrices: newPrices });
+                                    }}
+                                    className="w-20 px-2 py-0.5 text-xs text-right border border-neutral-200 rounded focus:outline-none focus:border-amber-500 font-semibold font-mono"
+                                  />
+                                  <span className="text-[9px] font-bold text-neutral-400 uppercase">SAR</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -2431,6 +2506,22 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
             <div>
               <label className="text-xs font-bold text-neutral-700 block mb-1">
+                Facebook Page ID / Username (for Messenger Chatbot)
+              </label>
+              <input
+                type="text"
+                value={shopSettingsForm.messengerPageId}
+                onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, messengerPageId: e.target.value })}
+                placeholder="e.g. kabayanshopksa"
+                className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs"
+              />
+              <span className="text-[10px] text-neutral-400 mt-1 block">
+                Leave blank to disable the floating Messenger chat widget.
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-neutral-700 block mb-1">
                 Homepage Hero Banner Image URLs
               </label>
               <div className="flex gap-2">
@@ -2581,6 +2672,44 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, contactAddress: e.target.value })}
                   className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs"
                 />
+              </div>
+            </div>
+
+            {/* Admin Credentials Changer */}
+            <div className="bg-amber-50/10 p-5 rounded-2xl border border-amber-200/50 space-y-4">
+              <h4 className="text-xs font-black uppercase tracking-widest text-amber-700 flex items-center gap-1.5">
+                <span>🔑 Admin Login Account Security</span>
+              </h4>
+              <p className="text-[10px] text-neutral-400 leading-normal">
+                You can change the email and password used to access this Admin Panel. If left blank, it will continue to use your default environment configurations.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-neutral-700 block mb-1">
+                    Admin Login Email
+                  </label>
+                  <input
+                    type="email"
+                    value={shopSettingsForm.adminEmail}
+                    onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, adminEmail: e.target.value })}
+                    placeholder="e.g. admin@kabayanshopksa.com"
+                    className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-neutral-700 block mb-1">
+                    New Admin Login Password
+                  </label>
+                  <input
+                    type="password"
+                    value={shopSettingsForm.adminPassword}
+                    onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, adminPassword: e.target.value })}
+                    placeholder="Enter new secure password"
+                    className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs font-medium font-mono"
+                  />
+                </div>
               </div>
             </div>
 

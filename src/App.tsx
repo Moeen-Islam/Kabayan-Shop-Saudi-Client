@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   ShoppingBag, Search, Sparkles, Star, ChevronLeft, ChevronRight,
   MapPin, Phone, Heart, ArrowRight, ShieldCheck, Instagram, Mail, Info, RefreshCw,
-  MessageCircle, Facebook, ThumbsUp, ExternalLink, CheckCircle
+  MessageCircle, Facebook, ThumbsUp, ExternalLink, CheckCircle, X, MessageSquare
 } from "lucide-react";
 import Header from "./components/Header";
 import ProductCard from "./components/ProductCard";
@@ -47,6 +47,7 @@ export default function App() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isMessengerChatOpen, setIsMessengerChatOpen] = useState(false);
 
   // Client-side Wishlist persistence
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -989,7 +990,7 @@ export default function App() {
 
       {/* D. FLOATING WHATSAPP CHAT BUTTON */}
       <a
-        href="https://wa.me/8801765865757?text=Hello!%20I%20am%20interested%20in%20Kabayan%20Shop%20products."
+        href={`https://wa.me/${settings?.whatsappContact || "8801765865757"}?text=Hello!%20I%20am%2520interested%20in%20Kabayan%20Shop%20products.`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-40 flex items-center justify-center bg-green-500 hover:bg-green-600 text-white p-3.5 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 group cursor-pointer"
@@ -1002,6 +1003,90 @@ export default function App() {
           Chat With Us
         </span>
       </a>
+
+      {/* E. FLOATING MESSENGER CHAT BUTTON & CHATBOT PANEL */}
+      {settings?.messengerPageId && (
+        <>
+          {/* Floating Messenger Icon Bubble */}
+          <button
+            onClick={() => setIsMessengerChatOpen(!isMessengerChatOpen)}
+            className="fixed bottom-24 right-6 z-40 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white p-3.5 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300 group cursor-pointer animate-none"
+            title="Chat with us on Facebook Messenger"
+            id="messenger-float-btn"
+          >
+            <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-30 animate-ping pointer-events-none"></span>
+            <svg className="w-6.5 h-6.5 text-white fill-white group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.36 2 2 6.13 2 11.7c0 3.22 1.43 6.05 3.67 7.78V22l2.4-1.3c1.2.33 2.5.53 3.93.53 5.64 0 10-4.13 10-9.7C22 6.13 17.64 2 12 2zm1.03 12.87l-2.67-2.85-5.2 2.85 5.7-6.06 2.7 2.85 5.17-2.85-5.7 6.06z"/>
+            </svg>
+            <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-out whitespace-nowrap text-xs font-bold uppercase tracking-wider pl-0 group-hover:pl-2">
+              Messenger Chat
+            </span>
+          </button>
+
+          {/* Chatbot Window */}
+          {isMessengerChatOpen && (
+            <div className="fixed bottom-38 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden animate-none font-sans">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white p-4 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/20">
+                    <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.36 2 2 6.13 2 11.7c0 3.22 1.43 6.05 3.67 7.78V22l2.4-1.3c1.2.33 2.5.53 3.93.53 5.64 0 10-4.13 10-9.7C22 6.13 17.64 2 12 2zm1.03 12.87l-2.67-2.85-5.2 2.85 5.7-6.06 2.7 2.85 5.17-2.85-5.7 6.06z"/>
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <h4 className="text-xs font-black tracking-wider uppercase leading-none">Kabayan Chatbot</h4>
+                    <span className="text-[9px] text-blue-100 font-semibold mt-1 block">Replies within minutes</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsMessengerChatOpen(false)}
+                  className="p-1 hover:bg-white/10 rounded-full transition"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+
+              {/* Chat Body */}
+              <div className="p-4 space-y-3 bg-neutral-50 h-64 overflow-y-auto">
+                <div className="flex items-start gap-2 max-w-[85%] text-left">
+                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold shrink-0">
+                    KB
+                  </div>
+                  <div className="bg-white p-2.5 rounded-2xl rounded-tl-none border border-neutral-200/80 shadow-xs text-xs text-neutral-800 leading-normal">
+                    👋 Salam & Hello! Welcome to Kabayan Shop Saudi support.
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 max-w-[85%] text-left">
+                  <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold shrink-0">
+                    KB
+                  </div>
+                  <div className="bg-white p-2.5 rounded-2xl rounded-tl-none border border-neutral-200/80 shadow-xs text-xs text-neutral-800 leading-normal">
+                    Would you like to send us a direct message on Messenger? Click the button below to start chatting with our Facebook Page!
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-3 bg-white border-t border-neutral-150 flex flex-col gap-2 items-center">
+                <a
+                  href={`https://m.me/${settings.messengerPageId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-xl text-xs font-extrabold uppercase tracking-wider transition shadow-md shadow-blue-600/10 flex items-center justify-center gap-1.5"
+                >
+                  <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 3.22 1.43 6.05 3.67 7.78V22l2.4-1.3c1.2.33 2.5.53 3.93.53 5.64 0 10-4.13 10-9.7C22 6.13 17.64 2 12 2zm1.03 12.87l-2.67-2.85-5.2 2.85 5.7-6.06 2.7 2.85 5.17-2.85-5.7 6.06z"/>
+                  </svg>
+                  <span>Chat on Messenger</span>
+                </a>
+                <span className="text-[9px] text-neutral-400 font-medium">Powered by Facebook Messenger</span>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
     </div>
   );
