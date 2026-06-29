@@ -1535,6 +1535,32 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <span>Final Bill:</span>
                       <span className="text-amber-600 font-extrabold">{selectedOrder.grandTotal} SAR</span>
                     </div>
+
+                    {/* Private Est. Profit calculation */}
+                    {(() => {
+                      const totalCost = selectedOrder.items.reduce((costSum: number, item: any) => {
+                        const purchasePrice = item.purchasePrice !== undefined 
+                          ? item.purchasePrice 
+                          : (products.find(p => p.id === item.productId)?.purchasePrice || 0);
+                        return costSum + (purchasePrice * item.quantity);
+                      }, 0);
+                      const profit = selectedOrder.grandTotal - totalCost - (selectedOrder.driverDeliveryCharge || 0);
+                      
+                      return (
+                        <div className="mt-2.5 pt-2 border-t border-dashed border-neutral-200/80 bg-neutral-900/5 -mx-3 px-3 py-2 rounded-lg flex flex-col gap-1 text-[10px] text-neutral-600 animate-fade-in">
+                          <div className="flex justify-between font-extrabold text-neutral-800 uppercase tracking-wider text-[11px]">
+                            <span className="flex items-center gap-1">
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                              Est. Order Profit (Private):
+                            </span>
+                            <span className="text-amber-600">{profit} SAR</span>
+                          </div>
+                          <div className="text-[9px] text-neutral-400 leading-snug">
+                            Calculation: {selectedOrder.grandTotal} SAR (Bill) - {totalCost} SAR (Cloth Purchase) - {selectedOrder.driverDeliveryCharge || 0} SAR (Driver Cost)
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* WhatsApp Forwarding Action */}
