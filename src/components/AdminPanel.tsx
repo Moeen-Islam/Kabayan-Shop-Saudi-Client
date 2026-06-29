@@ -724,6 +724,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           contactEmail: shopSettingsForm.contactEmail,
           contactAddress: shopSettingsForm.contactAddress,
           metaPixelId: shopSettingsForm.metaPixelId,
+          messengerPageId: shopSettingsForm.messengerPageId,
+          currency: shopSettingsForm.currency,
+          adminEmail: shopSettingsForm.adminEmail,
+          adminPassword: shopSettingsForm.adminPassword,
           metaTitle: shopSettingsForm.metaTitle,
           metaDescription: shopSettingsForm.metaDescription,
           metaKeywords: shopSettingsForm.metaKeywords
@@ -731,6 +735,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       });
       if (response.ok) {
         onRefreshAll();
+        setShopSettingsForm(prev => ({ ...prev, adminPassword: "" }));
         alert("Shop settings saved successfully!");
       }
     } catch (err) {

@@ -939,10 +939,10 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                   if (lower === "1/2 days" || lower === "1-2 days" || lower === "1/2 day" || lower === "1-2 day") {
                     return currentLang === "ar" ? "خلال يوم إلى يومين" : currentLang === "fil" ? "1-2 Araw" : "1-2 Days";
                   }
-                  if (lower === "sunday monday" || lower === "sunday & monday" || lower === "sunday, monday") {
+                  if (lower === "sunday monday" || lower === "sunday & monday" || lower === "sunday, monday" || lower === "sunday-monday") {
                     return currentLang === "ar" ? "الأحد والاثنين" : currentLang === "fil" ? "Linggo at Lunes" : "Sunday & Monday";
                   }
-                  if (lower === "wednesday saturday" || lower === "wednesday & saturday" || lower === "wednesday, saturday") {
+                  if (lower === "wednesday saturday" || lower === "wednesday & saturday" || lower === "wednesday, saturday" || lower === "wednesday-saturday") {
                     return currentLang === "ar" ? "الأربعاء والسبت" : currentLang === "fil" ? "Miyerkules at Sabado" : "Wednesday & Saturday";
                   }
                   return timeStr;
