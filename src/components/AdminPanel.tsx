@@ -1539,7 +1539,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     {/* Private Est. Profit calculation */}
                     {(() => {
                       const totalCost = selectedOrder.items.reduce((costSum: number, item: any) => {
-                        const purchasePrice = item.purchasePrice !== undefined 
+                        const purchasePrice = (item.purchasePrice !== undefined && item.purchasePrice !== 0)
                           ? item.purchasePrice 
                           : (products.find(p => p.id === item.productId)?.purchasePrice || 0);
                         return costSum + (purchasePrice * item.quantity);
