@@ -8,8 +8,8 @@ import Header from "./components/Header";
 import ProductCard from "./components/ProductCard";
 import ProductDetailsModal from "./components/ProductDetailsModal";
 import CartDrawer from "./components/CartDrawer";
-import CheckoutModal from "./components/CheckoutModal";
-import AdminPanel from "./components/AdminPanel";
+const CheckoutModal = React.lazy(() => import("./components/CheckoutModal"));
+const AdminPanel = React.lazy(() => import("./components/AdminPanel"));
 import { Product, Category, DeliveryArea, Coupon, ShopSettings } from "./types";
 import { useCart } from "./lib/cartStore";
 import { safeStorage } from "./lib/safeStorage";
@@ -388,14 +388,21 @@ export default function App() {
       <main className="flex-grow">
         {isAdminMode ? (
           /* Render full Operations dashboard screen */
-          <AdminPanel
-            products={products}
-            categories={categories}
-            areas={areas}
-            coupons={coupons}
-            settings={settings}
-            onRefreshAll={fetchAllData}
-          />
+          <React.Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-32 gap-3">
+              <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
+              <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Loading Dashboard...</span>
+            </div>
+          }>
+            <AdminPanel
+              products={products}
+              categories={categories}
+              areas={areas}
+              coupons={coupons}
+              settings={settings}
+              onRefreshAll={fetchAllData}
+            />
+          </React.Suspense>
         ) : (
           /* Render Customer-facing shop website storefront */
           <div className="space-y-12 pb-16 md:pb-24">
@@ -949,26 +956,35 @@ export default function App() {
 
       {/* C. CHECKOUT MODAL FORM */}
       {isCheckoutOpen && (
-        <CheckoutModal
-          areas={areas}
-          settings={settings}
-          onClose={() => setIsCheckoutOpen(false)}
-          onBackToCart={() => {
-            setIsCheckoutOpen(false);
-            setIsCartOpen(true);
-          }}
-          onOrderSuccess={() => {
-            setIsCheckoutOpen(false);
-            fetchAllData(); // refresh stock numbers on storefront!
-          }}
-          onSelectProductById={(id) => {
-            const prod = products.find(p => p.id === id);
-            if (prod) {
-              setSelectedProduct(prod);
+        <React.Suspense fallback={
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center">
+            <div className="bg-white p-6 rounded-xl flex items-center gap-3 shadow-xl">
+              <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
+              <span className="text-xs font-bold uppercase text-neutral-600">Loading Checkout...</span>
+            </div>
+          </div>
+        }>
+          <CheckoutModal
+            areas={areas}
+            settings={settings}
+            onClose={() => setIsCheckoutOpen(false)}
+            onBackToCart={() => {
               setIsCheckoutOpen(false);
-            }
-          }}
-        />
+              setIsCartOpen(true);
+            }}
+            onOrderSuccess={() => {
+              setIsCheckoutOpen(false);
+              fetchAllData(); // refresh stock numbers on storefront!
+            }}
+            onSelectProductById={(id) => {
+              const prod = products.find(p => p.id === id);
+              if (prod) {
+                setSelectedProduct(prod);
+                setIsCheckoutOpen(false);
+              }
+            }}
+          />
+        </React.Suspense>
       )}
 
       {/* D. FLOATING WHATSAPP CHAT BUTTON */}
