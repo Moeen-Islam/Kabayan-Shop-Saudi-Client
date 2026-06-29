@@ -360,14 +360,17 @@ export default function App() {
     return matchesCategory && matchesSearch;
   });
 
-  // Sort
+  // Sort (Trending products pinned to the top first, then sorted by selection)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (a.isTrending && !b.isTrending) return -1;
+    if (!a.isTrending && b.isTrending) return 1;
+ 
     const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
     const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
-
+ 
     if (sortBy === "price-low") return aPrice - bPrice;
     if (sortBy === "price-high") return bPrice - aPrice;
-
+ 
     // Default: newest
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
@@ -542,53 +545,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* C. Trending Now Showcase (Admin Highlighted) */}
-            {products.some((p) => p.isTrending && p.status === "active") && (
-              <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
-                <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-2.5 w-2.5 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                    </span>
-                    <h3 className="text-lg font-black uppercase text-neutral-900 tracking-wider flex items-center gap-1">
-                      {t("trending_now") || "Trending Now"}
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded">
-                    Admin's Choice
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                  {products
-                    .filter((p) => p.isTrending && p.status === "active")
-                    .slice(0, 4)
-                    .map((product) => (
-                      <div key={product.id} className="relative group">
-                        <ProductCard
-                          product={product}
-                          onSelect={(prod) => {
-                            setSelectedProduct(prod);
-                            window.history.pushState(null, "", `/product/${prod.slug}`);
-                          }}
-                        />
-                        <button
-                          onClick={(e) => toggleWishlist(product.id, e)}
-                          className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full shadow-md backdrop-blur-xs transition ${wishlist.includes(product.id)
-                              ? "bg-amber-400 text-black scale-110"
-                              : "bg-white/80 hover:bg-white text-neutral-400 hover:text-red-500 hover:scale-110"
-                            }`}
-                          title="Add to wishlist"
-                        >
-                          <Heart className={`w-3.5 h-3.5 ${wishlist.includes(product.id) ? "fill-current" : ""}`} />
-                        </button>
-                      </div>
-                    ))}
-                </div>
-              </section>
-            )}
-
-            {/* D. Product Listing Grid & Sorting */}
+            {/* C. Product Listing Grid & Sorting */}
             <section id="all-products-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
               {/* Product Filter Section placed down with the products */}
