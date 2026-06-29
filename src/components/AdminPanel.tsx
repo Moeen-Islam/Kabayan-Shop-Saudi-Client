@@ -100,7 +100,7 @@ export default function AdminPanel({
   const [newCatName, setNewCatName] = useState("");
   // Delivery Area State
   const [editingArea, setEditingArea] = useState<DeliveryArea | null>(null);
-  const [areaForm, setAreaForm] = useState({ name: "", charge: "", freeDeliveryAbove: "", minOrderValue: "" });
+  const [areaForm, setAreaForm] = useState({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
   const [isAddingArea, setIsAddingArea] = useState(false);
 
   // Coupon State
@@ -561,13 +561,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         body: JSON.stringify({
           name: areaForm.name,
           charge: Number(areaForm.charge),
+          driverCharge: areaForm.driverCharge ? Number(areaForm.driverCharge) : 0,
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
         })
       });
       if (response.ok) {
         setIsAddingArea(false);
-        setAreaForm({ name: "", charge: "", freeDeliveryAbove: "", minOrderValue: "" });
+        setAreaForm({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
         onRefreshAll();
       }
     } catch (err) {
@@ -589,13 +590,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         body: JSON.stringify({
           name: areaForm.name,
           charge: Number(areaForm.charge),
+          driverCharge: areaForm.driverCharge ? Number(areaForm.driverCharge) : 0,
           freeDeliveryAbove: areaForm.freeDeliveryAbove ? Number(areaForm.freeDeliveryAbove) : null,
           minOrderValue: areaForm.minOrderValue ? Number(areaForm.minOrderValue) : null
         })
       });
       if (response.ok) {
         setEditingArea(null);
-        setAreaForm({ name: "", charge: "", freeDeliveryAbove: "", minOrderValue: "" });
+        setAreaForm({ name: "", charge: "", driverCharge: "", freeDeliveryAbove: "", minOrderValue: "" });
         onRefreshAll();
       }
     } catch (err) {
@@ -2252,7 +2254,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   <h4 className="font-bold text-neutral-800 uppercase text-[10px]">
                     {isAddingArea ? "Add Delivery Area" : `Edit Rate for ${editingArea?.name}`}
                   </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
                     <input
                       type="text"
                       required
@@ -2266,8 +2268,16 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       required
                       value={areaForm.charge}
                       onChange={(e) => setAreaForm({ ...areaForm, charge: e.target.value })}
-                      placeholder="Delivery Charge (SAR)"
+                      placeholder="Customer Delivery (SAR)"
                       className="px-3 py-2 border border-neutral-300 bg-white rounded-lg text-xs"
+                    />
+                    <input
+                      type="number"
+                      required
+                      value={areaForm.driverCharge}
+                      onChange={(e) => setAreaForm({ ...areaForm, driverCharge: e.target.value })}
+                      placeholder="Driver Delivery Cost (SAR)"
+                      className="px-3 py-2 border border-amber-300 bg-amber-50/10 rounded-lg text-xs focus:outline-none focus:border-amber-500 font-semibold text-amber-900"
                     />
                     <input
                       type="number"
@@ -2311,7 +2321,12 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     <div>
                       <span className="font-bold text-neutral-900 block">{area.name}</span>
                       <span className="text-[10px] text-neutral-400 font-bold font-mono">
-                        Rate: {area.charge} SAR
+                        Customer Rate: {area.charge} SAR
+                        {area.driverCharge !== undefined && area.driverCharge !== null && (
+                          <span className="text-amber-600 ml-2 font-black">
+                            • Driver Cost: {area.driverCharge} SAR
+                          </span>
+                        )}
                         {area.freeDeliveryAbove !== undefined && area.freeDeliveryAbove !== null && (
                           <span className="text-green-600 ml-2">
                             • Free Above {area.freeDeliveryAbove} SAR
@@ -2331,6 +2346,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                           setAreaForm({
                             name: area.name,
                             charge: String(area.charge),
+                            driverCharge: area.driverCharge !== undefined && area.driverCharge !== null ? String(area.driverCharge) : "",
                             freeDeliveryAbove: area.freeDeliveryAbove !== undefined && area.freeDeliveryAbove !== null ? String(area.freeDeliveryAbove) : "",
                             minOrderValue: area.minOrderValue !== undefined && area.minOrderValue !== null ? String(area.minOrderValue) : ""
                           });
