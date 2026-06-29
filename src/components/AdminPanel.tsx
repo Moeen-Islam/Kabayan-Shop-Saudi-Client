@@ -77,6 +77,7 @@ export default function AdminPanel({
     images: [] as string[],
     price: "",
     offerPrice: "",
+    purchasePrice: "",
     stock: "",
     sizesInput: "",
     colorsInput: "",
@@ -387,6 +388,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         images: productForm.images,
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
+        purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
         stock: Number(productForm.stock),
         sizes: productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean),
         colors: productForm.colorsInput.split(",").map(c => c.trim()).filter(Boolean),
@@ -436,6 +438,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         images: productForm.images,
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
+        purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
         stock: Number(productForm.stock),
         sizes: productForm.sizesInput.split(",").map(s => s.trim()).filter(Boolean),
         colors: productForm.colorsInput.split(",").map(c => c.trim()).filter(Boolean),
@@ -694,6 +697,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       images: [],
       price: "",
       offerPrice: "",
+      purchasePrice: "",
       stock: "",
       sizesInput: "S, M, L, XL, Free Size",
       colorsInput: "Multi",
@@ -723,6 +727,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       images: prod.images || [],
       price: String(prod.price),
       offerPrice: prod.offerPrice ? String(prod.offerPrice) : "",
+      purchasePrice: prod.purchasePrice ? String(prod.purchasePrice) : "",
       stock: String(prod.stock),
       sizesInput: prod.sizes.join(", "),
       colorsInput: prod.colors.join(", "),
@@ -959,7 +964,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
                 {/* Total Orders Card */}
                 <div className="bg-white p-5 rounded-2xl border border-neutral-200/70 shadow-sm flex flex-col justify-between">
@@ -1004,6 +1009,22 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       {stats.monthlyRevenue} <span className="text-xs font-semibold">SAR</span>
                     </h3>
                     <p className="text-[10px] text-amber-600 font-bold mt-1">Current Month Sales</p>
+                  </div>
+                </div>
+
+                {/* Monthly Profit Card */}
+                <div className="bg-amber-50/30 p-5 rounded-2xl border border-amber-200 shadow-sm flex flex-col justify-between">
+                  <div className="flex items-start justify-between">
+                    <span className="text-xs font-bold text-amber-800 uppercase tracking-widest font-sans">Monthly Profit</span>
+                    <span className="p-2 bg-amber-100 rounded-lg text-amber-700">
+                      <TrendingUp className="w-4 h-4" />
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-2xl sm:text-3xl font-black text-amber-900 font-sans leading-none">
+                      {stats.monthlyProfit !== undefined ? stats.monthlyProfit : 0} <span className="text-xs font-semibold">SAR</span>
+                    </h3>
+                    <p className="text-[10px] text-amber-700 font-bold mt-1">Est. Net Profit</p>
                   </div>
                 </div>
 
@@ -1671,8 +1692,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     />
                   </div>
 
-                  {/* Price, Offer Price, Stock */}
-                  <div className="grid grid-cols-3 gap-4">
+                  {/* Price, Offer Price, Purchase Price, Stock */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div>
                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
                         Base Price (SAR)
@@ -1695,8 +1716,21 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         type="number"
                         value={productForm.offerPrice}
                         onChange={(e) => setProductForm({ ...productForm, offerPrice: e.target.value })}
-                        placeholder="145 (optional)"
+                        placeholder="145"
                         className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-amber-700 uppercase tracking-wide block mb-1">
+                        Purchase Price (SAR) *
+                      </label>
+                      <input
+                        type="number"
+                        value={productForm.purchasePrice}
+                        onChange={(e) => setProductForm({ ...productForm, purchasePrice: e.target.value })}
+                        placeholder="e.g. 80"
+                        className="w-full px-3.5 py-2 border border-amber-300 bg-amber-50/10 rounded-lg focus:outline-none font-bold text-amber-900 focus:border-amber-500"
                       />
                     </div>
 
