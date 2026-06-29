@@ -644,26 +644,10 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
               >
                 {areas.map((area) => (
                   <option key={area.id} value={area.id}>
-                    {area.name} — Shipping: {area.charge} SAR {area.freeDeliveryAbove ? `(Free Above ${area.freeDeliveryAbove} SAR)` : ""}{area.minOrderValue ? ` [Min Order: ${area.minOrderValue} SAR]` : ""}
+                    {area.name} — Shipping: {area.charge === 0 ? t("free") : `${area.charge} SAR`}
                   </option>
                 ))}
               </select>
-              {activeArea && activeArea.minOrderValue && (
-                <div className={`mt-1.5 text-[11px] font-bold ${isMinOrderViolation ? "text-red-600 animate-pulse" : "text-neutral-500"}`}>
-                  📌 {lang === "ar" ? "الحد الأدنى للطلب:" : lang === "fil" ? "Minimum Order:" : "Minimum Order:"} {activeArea.minOrderValue} SAR
-                  {isMinOrderViolation && (
-                    <span className="ml-1 text-[10px] font-semibold text-red-500 block">
-                      ({lang === "ar" ? "سلتك الحالية:" : lang === "fil" ? "Kasalukuyang cart:" : "Your current cart:"} {subtotal} SAR)
-                    </span>
-                  )}
-                </div>
-              )}
-              {activeArea && activeArea.deliveryTime && (
-                <div className="mt-1.5 p-2 bg-neutral-50 rounded-lg border border-neutral-200/50 flex items-center gap-1.5 text-[11px] text-neutral-500 font-medium">
-                  <span>🚚 {lang === "ar" ? "وقت التوصيل المتوقع:" : lang === "fil" ? "Est. Oras ng Paghahatid:" : "Est. Delivery Time:"}</span>
-                  <span className="text-amber-600 font-extrabold">{activeArea.deliveryTime}</span>
-                </div>
-              )}
             </div>
 
             {/* House No. / Villa */}
