@@ -820,14 +820,14 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] text-amber-600 font-bold block truncate">
-                          {item.selectedPackageType}
+                          {item.selectedPackageType === "Single Piece" ? t("single_piece") : item.selectedPackageType}
                         </span>
                         <button
                           type="button"
                           onClick={() => onSelectProductById?.(item.productId)}
                           className="text-[10px] text-neutral-500 font-bold hover:text-amber-600 hover:underline transition"
                         >
-                          (Edit)
+                          {lang === "ar" ? "(تعديل)" : lang === "fil" ? "(I-edit)" : "(Edit)"}
                         </button>
                       </div>
                     </div>
@@ -932,41 +932,75 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
               </div>
 
               {/* Shipping & Delivery Requirements Info Box */}
-              {activeArea && (
-                <div className="mt-4 bg-neutral-50 rounded-xl border border-neutral-200 p-3.5 space-y-2 text-xs text-left">
-                  <h4 className="text-[10px] font-black uppercase tracking-wider text-neutral-400 mb-1.5 flex items-center gap-1.5">
-                    <span>📦 Shipping & Delivery Info</span>
-                  </h4>
-                  
-                  {/* Minimum Order constraint */}
-                  {activeArea.minOrderValue !== undefined && activeArea.minOrderValue !== null && subtotal < activeArea.minOrderValue && (
-                    <div className="flex items-start gap-2 text-red-600 font-semibold leading-normal">
-                      <span className="shrink-0 text-xs mt-0.5">⚠️</span>
-                      <div>
-                        <span>Minimum Order:</span> You need <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> more to place this order (Min: {activeArea.minOrderValue} SAR).
-                      </div>
-                    </div>
-                  )}
+              {activeArea && (() => {
+                const getDeliveryTimeTranslation = (timeStr: string | undefined, currentLang: string) => {
+                  if (!timeStr) return currentLang === "ar" ? "1-3 أيام عمل" : currentLang === "fil" ? "1-3 Araw" : "1-3 Business Days";
+                  const lower = timeStr.toLowerCase().trim();
+                  if (lower === "1/2 days" || lower === "1-2 days" || lower === "1/2 day" || lower === "1-2 day") {
+                    return currentLang === "ar" ? "خلال يوم إلى يومين" : currentLang === "fil" ? "1-2 Araw" : "1-2 Days";
+                  }
+                  if (lower === "sunday monday" || lower === "sunday & monday" || lower === "sunday, monday") {
+                    return currentLang === "ar" ? "الأحد والاثنين" : currentLang === "fil" ? "Linggo at Lunes" : "Sunday & Monday";
+                  }
+                  if (lower === "wednesday saturday" || lower === "wednesday & saturday" || lower === "wednesday, saturday") {
+                    return currentLang === "ar" ? "الأربعاء والسبت" : currentLang === "fil" ? "Miyerkules at Sabado" : "Wednesday & Saturday";
+                  }
+                  return timeStr;
+                };
 
-                  {/* Free Delivery threshold */}
-                  {activeArea.freeDeliveryAbove !== undefined && activeArea.freeDeliveryAbove !== null && subtotal < activeArea.freeDeliveryAbove && deliveryCharge > 0 && (
-                    <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal">
-                      <span className="shrink-0 text-xs mt-0.5">🚚</span>
-                      <div>
-                        <span className="text-neutral-800">Free Delivery:</span> Add <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> more to get <span className="text-green-600 font-black">Free Delivery</span>!
-                      </div>
-                    </div>
-                  )}
+                const deliveryTimeText = getDeliveryTimeTranslation(activeArea.deliveryTime, lang);
 
-                  {/* Always Shown: Delivery Time */}
-                  <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal border-t border-neutral-200/50 pt-2">
-                    <span className="shrink-0 text-xs mt-0.5">🕒</span>
-                    <div>
-                      <span className="text-neutral-800">Estimated Delivery:</span> <span className="text-amber-600 font-extrabold">{activeArea.deliveryTime || "1-3 Business Days"}</span>
+                return (
+                  <div className="mt-4 bg-neutral-50 rounded-xl border border-neutral-200 p-3.5 space-y-2 text-xs text-left">
+                    <h4 className="text-[10px] font-black uppercase tracking-wider text-neutral-400 mb-1.5 flex items-center gap-1.5">
+                      <span>{lang === "ar" ? "📦 معلومات الشحن والتوصيل" : lang === "fil" ? "📦 Impormasyon sa Delivery" : "📦 Shipping & Delivery Info"}</span>
+                    </h4>
+                    
+                    {/* Minimum Order constraint */}
+                    {activeArea.minOrderValue !== undefined && activeArea.minOrderValue !== null && subtotal < activeArea.minOrderValue && (
+                      <div className="flex items-start gap-2 text-red-600 font-semibold leading-normal">
+                        <span className="shrink-0 text-xs mt-0.5">⚠️</span>
+                        <div>
+                          <span>{lang === "ar" ? "الحد الأدنى للطلب:" : lang === "fil" ? "Minimum Order:" : "Minimum Order:"}</span>{" "}
+                          {lang === "ar" ? (
+                            <>تحتاج إلى <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} ريال</span> إضافي لإتمام هذا الطلب (الحد الأدنى: {activeArea.minOrderValue} ريال).</>
+                          ) : lang === "fil" ? (
+                            <>Kailangan mo ng <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> pa para makapag-order (Min: {activeArea.minOrderValue} SAR).</>
+                          ) : (
+                            <>You need <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> more to place this order (Min: {activeArea.minOrderValue} SAR).</>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Free Delivery threshold */}
+                    {activeArea.freeDeliveryAbove !== undefined && activeArea.freeDeliveryAbove !== null && subtotal < activeArea.freeDeliveryAbove && deliveryCharge > 0 && (
+                      <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal">
+                        <span className="shrink-0 text-xs mt-0.5">🚚</span>
+                        <div>
+                          <span className="text-neutral-800">{lang === "ar" ? "توصيل مجاني:" : lang === "fil" ? "Libreng Deliber:" : "Free Delivery:"}</span>{" "}
+                          {lang === "ar" ? (
+                            <>أضف <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} ريال</span> إضافي للحصول على <span className="text-green-600 font-black">توصيل مجاني</span>!</>
+                          ) : lang === "fil" ? (
+                            <>Magdagdag ng <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> pa para makakuha ng <span className="text-green-600 font-black">Libreng Deliber</span>!</>
+                          ) : (
+                            <>Add <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> more to get <span className="text-green-600 font-black">Free Delivery</span>!</>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Always Shown: Delivery Time */}
+                    <div className="flex items-start gap-2 text-neutral-600 font-semibold leading-normal border-t border-neutral-200/50 pt-2">
+                      <span className="shrink-0 text-xs mt-0.5">🕒</span>
+                      <div>
+                        <span className="text-neutral-800">{lang === "ar" ? "وقت التوصيل المتوقع:" : lang === "fil" ? "Est. Oras ng Paghahatid:" : "Estimated Delivery:"}</span>{" "}
+                        <span className="text-amber-600 font-extrabold">{deliveryTimeText}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
 
             {/* Checkout Form CTA button */}

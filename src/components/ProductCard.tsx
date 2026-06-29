@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Star, ShoppingCart, Percent, AlertCircle } from "lucide-react";
 import { Product } from "../types";
+import { useLanguage } from "../lib/translationStore";
 
 interface ProductCardProps {
   product: Product;
@@ -38,6 +39,7 @@ function getHexColor(colorName: string): string {
 }
 
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
+  const { lang } = useLanguage();
   const [selectedColor, setSelectedColor] = useState(product && product.colors && product.colors[0] ? product.colors[0] : "");
 
   const hasOffer = product && product.offerPrice !== undefined && product.offerPrice < product.price;
@@ -116,12 +118,12 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           {discountPercent > 0 && (
             <span className="bg-black text-amber-400 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-sm flex items-center gap-1 shadow-md">
               <Percent className="w-3 h-3 text-amber-400" />
-              <span>SAVE {discountPercent}%</span>
+              <span>{lang === "ar" ? `وفر %${discountPercent}` : lang === "fil" ? `SAVE ${discountPercent}%` : `SAVE ${discountPercent}%`}</span>
             </span>
           )}
           {isCombo && (
             <span className="bg-amber-400 text-black text-[9px] font-extrabold tracking-widest uppercase px-2 py-0.5 rounded-sm shadow-md">
-              SUPER VALUE COMBO
+              {lang === "ar" ? "عرض كومبو مميز" : lang === "fil" ? "SUPER VALUE COMBO" : "SUPER VALUE COMBO"}
             </span>
           )}
         </div>
@@ -130,12 +132,12 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         <div className="absolute bottom-2.5 right-2.5 z-10">
           {isOutOfStock ? (
             <span className="bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm shadow-md flex items-center gap-1">
-              Out of Stock
+              {lang === "ar" ? "نفدت الكمية" : lang === "fil" ? "Out of Stock" : "Out of Stock"}
             </span>
           ) : isLowStock ? (
             <span className="bg-amber-600 text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-sm shadow-md flex items-center gap-1 animate-pulse">
               <AlertCircle className="w-3.5 h-3.5" />
-              <span>Only {product.stock} Left!</span>
+              <span>{lang === "ar" ? `متبقي ${product.stock} فقط!` : lang === "fil" ? `${product.stock} na lang!` : `Only ${product.stock} Left!`}</span>
             </span>
           ) : null}
         </div>
