@@ -519,7 +519,7 @@ export default function App() {
                             : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
                           }`}
                       >
-                        {cat.name}
+                        {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
                       </button>
                     ))}
                   </div>
@@ -529,7 +529,7 @@ export default function App() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-200">
                 <div>
                   <h3 className="text-lg font-black uppercase text-neutral-900 tracking-wider flex items-center gap-1.5">
-                    {selectedCategory ? `${selectedCategory.toUpperCase()} COLLECTION` : t("explore_all_designs")}
+                    {selectedCategory ? (lang === "ar" ? `مجموعة ${t(selectedCategory) !== selectedCategory ? t(selectedCategory) : selectedCategory}` : `${(t(selectedCategory) !== selectedCategory ? t(selectedCategory) : selectedCategory).toUpperCase()} COLLECTION`) : t("explore_all_designs")}
                     <span className="text-xs bg-neutral-900 text-white font-mono px-2 py-0.5 rounded ml-1 font-bold">
                       {sortedProducts.length} {t("items")}
                     </span>
@@ -867,7 +867,7 @@ export default function App() {
                       onClick={() => setSelectedCategory(cat.slug)}
                       className="hover:text-white transition uppercase text-[10px] font-semibold"
                     >
-                      {cat.name}
+                      {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
                     </button>
                   </li>
                 ))}

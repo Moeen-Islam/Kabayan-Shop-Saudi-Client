@@ -162,7 +162,7 @@ export default function Header({
                     }}
                     className="w-full text-left px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 hover:text-amber-600 transition"
                   >
-                    {cat.name}
+                    {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
                   </button>
                 ))}
               </div>
@@ -351,7 +351,7 @@ export default function Header({
                         }}
                         className="text-left py-1.5 px-3 text-[11px] font-semibold uppercase text-neutral-500 hover:text-amber-600"
                       >
-                        {cat.name}
+                        {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
                       </button>
                     ))}
                   </div>

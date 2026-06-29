@@ -92,6 +92,19 @@ export const translations = {
     delivery_warning_map: "⚠️ Please pin your delivery location on the map to proceed.",
     order_success: "Order Placed Successfully!",
 
+    // Category Names
+    dresses: "Dresses",
+    abaya: "Abaya",
+    terno: "Terno",
+    denim: "Denim",
+    shoes: "Shoes",
+    "t-shirts": "T-Shirts",
+    "night-wear": "Night Wear",
+    luggage: "Luggage",
+    "combo-pack": "Combo Pack",
+    cosmetics: "Cosmetics",
+    watch: "Watch",
+
     // Cart Drawer
     my_shopping_cart: "My Shopping Cart",
     cart_empty: "Your cart is empty",
@@ -199,6 +212,19 @@ export const translations = {
     back_to_cart: "العودة إلى السلة",
     delivery_warning_map: "⚠️ يرجى تحديد موقع التوصيل على الخريطة أولاً للمتابعة.",
     order_success: "تم إرسال طلبك بنجاح!",
+
+    // Category Names
+    dresses: "فساتين",
+    abaya: "عبايات",
+    terno: "طقم تيرنو",
+    denim: "جينز",
+    shoes: "أحذية",
+    "t-shirts": "تيشيرتات",
+    "night-wear": "ملابس نوم",
+    luggage: "حقائب سفر",
+    "combo-pack": "حزمة كومبو",
+    cosmetics: "مستحضرات تجميل",
+    watch: "ساعات",
 
     // Cart Drawer
     my_shopping_cart: "سلة التسوق الخاصة بي",
@@ -308,6 +334,19 @@ export const translations = {
     delivery_warning_map: "⚠️ Mangyaring i-pin ang iyong lokasyon sa mapa upang magpatuloy.",
     order_success: "Matagumpay na naipadala ang iyong Order!",
 
+    // Category Names
+    dresses: "Mga Damit",
+    abaya: "Abaya",
+    terno: "Terno",
+    denim: "Denim",
+    shoes: "Mga Sapatos",
+    "t-shirts": "Mga T-Shirt",
+    "night-wear": "Pangtulog",
+    luggage: "Bagahe",
+    "combo-pack": "Combo Pack",
+    cosmetics: "Kosmetiko",
+    watch: "Relo",
+
     // Cart Drawer
     my_shopping_cart: "Aking Shopping Cart",
     cart_empty: "Walang laman ang iyong cart",
@@ -339,6 +378,18 @@ if (typeof window !== "undefined") {
     const saved = safeStorage.getItem("kabayan_lang");
     if (saved === "en" || saved === "ar" || saved === "fil") {
       currentLanguage = saved;
+    } else {
+      // Detect browser/device default language
+      const browserLang = navigator.language || (navigator as any).userLanguage || "";
+      const lower = browserLang.toLowerCase();
+      if (lower.startsWith("ar")) {
+        currentLanguage = "ar";
+      } else if (lower.startsWith("fil") || lower.startsWith("tl")) {
+        currentLanguage = "fil";
+      } else {
+        currentLanguage = "en";
+      }
+      safeStorage.setItem("kabayan_lang", currentLanguage);
     }
   } catch (e) {
     console.error(e);
@@ -371,9 +422,10 @@ export const languageStore = {
     };
   },
 
-  translate(key: keyof typeof translations["en"], params?: Record<string, string | number>): string {
-    const dict = translations[currentLanguage] || translations["en"];
-    let text = dict[key] || translations["en"][key] || String(key);
+  translate(key: string, params?: Record<string, string | number>): string {
+    const dict = (translations[currentLanguage] || translations["en"]) as Record<string, string>;
+    const defaultDict = translations["en"] as Record<string, string>;
+    let text = dict[key] || defaultDict[key] || String(key);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));
@@ -393,7 +445,7 @@ export function useLanguage() {
     return unsubscribe;
   }, []);
 
-  const t = (key: keyof typeof translations["en"], params?: Record<string, string | number>) => {
+  const t = (key: string, params?: Record<string, string | number>) => {
     return languageStore.translate(key, params);
   };
 
