@@ -78,6 +78,7 @@ export default function AdminPanel({
     price: "",
     offerPrice: "",
     purchasePrice: "",
+    rating: "",
     sizePrices: {} as Record<string, number>,
     clothShopOwner: "",
     stock: "",
@@ -549,6 +550,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
         purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
+        rating: productForm.rating ? Number(productForm.rating) : undefined,
         sizePrices: productForm.sizePrices,
         clothShopOwner: productForm.clothShopOwner,
         stock: Number(productForm.stock),
@@ -602,6 +604,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         price: Number(productForm.price),
         offerPrice: productForm.offerPrice ? Number(productForm.offerPrice) : undefined,
         purchasePrice: productForm.purchasePrice ? Number(productForm.purchasePrice) : undefined,
+        rating: productForm.rating ? Number(productForm.rating) : undefined,
         sizePrices: productForm.sizePrices,
         clothShopOwner: productForm.clothShopOwner,
         stock: Number(productForm.stock),
@@ -873,6 +876,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       price: "",
       offerPrice: "",
       purchasePrice: "",
+      rating: "",
       sizePrices: {},
       clothShopOwner: "",
       stock: "",
@@ -906,6 +910,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       price: String(prod.price),
       offerPrice: prod.offerPrice ? String(prod.offerPrice) : "",
       purchasePrice: prod.purchasePrice ? String(prod.purchasePrice) : "",
+      rating: prod.rating ? String(prod.rating) : "",
       sizePrices: prod.sizePrices || {},
       clothShopOwner: prod.clothShopOwner || "",
       stock: String(prod.stock),
@@ -1984,8 +1989,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     />
                   </div>
 
-                  {/* Price, Offer Price, Purchase Price, Stock */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {/* Price, Offer Price, Purchase Price, Stock, Rating */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     <div>
                       <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
                         Base Price (SAR)
@@ -2036,6 +2041,22 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         value={productForm.stock}
                         onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
                         placeholder="25"
+                        className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">
+                        Rating (1.0 - 5.0)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="1"
+                        max="5"
+                        value={productForm.rating}
+                        onChange={(e) => setProductForm({ ...productForm, rating: e.target.value })}
+                        placeholder="e.g. 4.9"
                         className="w-full px-3.5 py-2 border border-neutral-300 rounded-lg focus:outline-none"
                       />
                     </div>
@@ -2130,9 +2151,9 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">
                           Current Gallery ({productForm.images.length} Image{productForm.images.length > 1 ? "s" : ""})
                         </span>
-                        <div className="flex flex-wrap gap-2 p-2 bg-neutral-50 rounded-lg border border-neutral-200">
+                        <div className="flex flex-wrap gap-3.5 p-3 bg-neutral-50 rounded-xl border border-neutral-200">
                           {productForm.images.map((img, index) => (
-                            <div key={index} className="relative w-12 h-16 bg-neutral-200 rounded overflow-hidden group border border-neutral-300">
+                            <div key={index} className="relative w-24 h-32 bg-neutral-200 rounded-lg overflow-hidden group border border-neutral-300 shadow-sm transition hover:shadow">
                               <img src={img} alt="" className="w-full h-full object-cover" />
                               <button
                                 type="button"
@@ -2142,34 +2163,34 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                                     images: productForm.images.filter((_, i) => i !== index)
                                   });
                                 }}
-                                className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                               >
-                                <X className="w-4 h-4" />
+                                <X className="w-6 h-6" />
                               </button>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
-
+ 
                     {/* Image to Color Mapping */}
                     {productForm.images.length > 0 && (
-                      <div className="mt-3 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+                      <div className="mt-4 bg-neutral-50 p-4 rounded-xl border border-neutral-200">
                         <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-wider block mb-1">
                           🎨 Color-Specific Images (Optional)
                         </span>
-                        <p className="text-[10px] text-neutral-400 mb-2.5 leading-snug">
+                        <p className="text-[10px] text-neutral-400 mb-3.5 leading-snug">
                           Assign a color to an image so it dynamically displays when that color is selected on the storefront.
                         </p>
-                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
                           {productForm.images.map((img, index) => {
                             const parsedColors = productForm.colorsInput
                               .split(",")
                               .map(c => c.trim())
                               .filter(Boolean);
                             return (
-                              <div key={index} className="flex items-center gap-3 bg-white p-1.5 rounded-md border border-neutral-200 shadow-xs">
-                                <img src={img} alt="" className="w-10 h-10 object-cover rounded border border-neutral-200 shrink-0 bg-neutral-100" referrerPolicy="no-referrer" />
+                              <div key={index} className="flex items-center gap-3 bg-white p-2 rounded-lg border border-neutral-200 shadow-xs">
+                                <img src={img} alt="" className="w-16 h-20 object-cover rounded-md border border-neutral-200 shrink-0 bg-neutral-100" referrerPolicy="no-referrer" />
                                 <div className="flex-grow min-w-0">
                                   <span className="text-[9px] text-neutral-400 block truncate font-mono">
                                     Image #{index + 1}

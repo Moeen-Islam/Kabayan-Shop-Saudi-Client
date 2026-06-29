@@ -85,9 +85,26 @@ function getHexColor(colorName: string): string {
     khaki: "#f0e68c",
     peach: "#ffdab9",
     lavender: "#e6e6fa",
-    olive: "#808000"
+    olive: "#808000",
+    terracotta: "#e2725b",
+    lilac: "#c8a2c8",
+    plum: "#dda0dd",
+    mint: "#98ff98",
+    burgundy: "#800020",
+    mustard: "#e1ad01",
+    magenta: "#ff00ff",
+    charcoal: "#36454f"
   };
-  return map[col] || "#cbd5e1";
+
+  if (map[col]) return map[col];
+
+  // Try matching individual tokens
+  const tokens = col.split(/\s+/);
+  for (const t of tokens) {
+    if (map[t]) return map[t];
+  }
+
+  return "#cbd5e1";
 }
 
 export default function ProductDetailsModal({

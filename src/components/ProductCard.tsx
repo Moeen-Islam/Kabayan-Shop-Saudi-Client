@@ -33,9 +33,26 @@ function getHexColor(colorName: string): string {
     khaki: "#f0e68c",
     peach: "#ffdab9",
     lavender: "#e6e6fa",
-    olive: "#808000"
+    olive: "#808000",
+    terracotta: "#e2725b",
+    lilac: "#c8a2c8",
+    plum: "#dda0dd",
+    mint: "#98ff98",
+    burgundy: "#800020",
+    mustard: "#e1ad01",
+    magenta: "#ff00ff",
+    charcoal: "#36454f"
   };
-  return map[col] || "#cbd5e1";
+
+  if (map[col]) return map[col];
+
+  // Try matching individual tokens
+  const tokens = col.split(/\s+/);
+  for (const t of tokens) {
+    if (map[t]) return map[t];
+  }
+
+  return "#cbd5e1";
 }
 
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
@@ -89,7 +106,37 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
     // Default to the first image
     return images[0] || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200";
   };
-
+ 
+  // Helper to find the correct image for a specific color
+  const getDisplayImageForColor = (colName: string) => {
+    if (!product) return "";
+    const images = product.images || [];
+    if (!colName) return "";
+ 
+    // 1. Check if we have an explicit mapping
+    if (product.colorImageMap) {
+      const mappedImg = Object.keys(product.colorImageMap).find(
+        (img) => product.colorImageMap![img] === colName
+      );
+      if (mappedImg) return mappedImg;
+    }
+ 
+    // 2. Check if any image contains the color name in its URL or filename
+    const lowerCol = colName.toLowerCase();
+    const matchedByFilename = images.find((img) =>
+      img && img.toLowerCase().includes(lowerCol)
+    );
+    if (matchedByFilename) return matchedByFilename;
+ 
+    // 3. Fallback to matching indexes if possible
+    const colorIndex = (product.colors || []).indexOf(colName);
+    if (colorIndex !== -1 && images[colorIndex]) {
+      return images[colorIndex];
+    }
+ 
+    return "";
+  };
+ 
   const displayImage = getDisplayImage();
 
   return (
@@ -160,11 +207,19 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         {/* Dynamic Reviews Section */}
         <div className="flex items-center gap-1 mb-2">
           <div className="flex text-amber-400">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 fill-current" />
-            ))}
+            {[...Array(5)].map((_, i) => {
+              const starVal = i + 1;
+              const displayRating = product.rating || 4.9;
+              const isFilled = starVal <= Math.round(displayRating);
+              return (
+                <Star 
+                  key={i} 
+                  className={`w-3.5 h-3.5 ${isFilled ? "fill-current" : "text-neutral-200"}`} 
+                />
+              );
+            })}
           </div>
-          <span className="text-[10px] text-neutral-400 font-semibold">(4.9/5)</span>
+          <span className="text-[10px] text-neutral-400 font-semibold">({(product.rating || 4.9).toFixed(1)}/5)</span>
         </div>
 
         {/* Color Swatch Selection inside Card */}
@@ -173,6 +228,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
             {product.colors.map((color) => {
               const isActive = selectedColor === color;
               const isMulti = color.toLowerCase() === "multi";
+              const colorImg = getDisplayImageForColor(color);
               return (
                 <button
                   key={color}
@@ -182,17 +238,20 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
                     e.stopPropagation();
                     setSelectedColor(color);
                   }}
-                  className={`w-4 h-4 rounded-full border transition-all flex items-center justify-center shrink-0 ${
+                  className={`w-5 h-5 rounded-full border transition-all flex items-center justify-center shrink-0 overflow-hidden ${
                     isActive
-                      ? "ring-2 ring-amber-500 border-white scale-110"
-                      : "border-neutral-300 hover:border-neutral-500"
+                      ? "ring-2 ring-amber-500 border-white scale-110 shadow-sm"
+                      : "border-neutral-300 hover:border-neutral-400"
                   }`}
                   style={{
-                    backgroundColor: isMulti ? undefined : getHexColor(color),
-                    background: isMulti ? "linear-gradient(135deg, #ef4444, #3b82f6, #22c55e)" : undefined
+                    backgroundImage: colorImg ? `url(${colorImg})` : undefined,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundColor: colorImg ? undefined : (isMulti ? undefined : getHexColor(color)),
+                    background: colorImg ? undefined : (isMulti ? "linear-gradient(135deg, #ef4444, #3b82f6, #22c55e)" : undefined)
                   }}
                 >
-                  {isActive && (
+                  {isActive && !colorImg && (
                     <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.3)] shrink-0" />
                   )}
                 </button>
