@@ -48,6 +48,7 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [isMessengerChatOpen, setIsMessengerChatOpen] = useState(false);
+  const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
 
   // Catalog pagination state
   const [visibleCount, setVisibleCount] = useState(12);
@@ -596,21 +597,21 @@ export default function App() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-mono">
                     {t("filter_by_collection")}
                   </span>
-                  <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  <div className="flex flex-wrap items-center gap-2 pb-1">
                     <button
                       onClick={() => setSelectedCategory("")}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${selectedCategory === ""
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition cursor-pointer ${selectedCategory === ""
                           ? "bg-neutral-950 text-white border-neutral-950 shadow-sm"
                           : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
                         }`}
                     >
                       {t("all_arrivals")}
                     </button>
-                    {categories.map((cat) => (
+                    {(isCategoriesExpanded ? categories : categories.slice(0, 5)).map((cat) => (
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.slug)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition shrink-0 ${selectedCategory.toLowerCase() === cat.slug.toLowerCase()
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border transition cursor-pointer ${selectedCategory.toLowerCase() === cat.slug.toLowerCase()
                             ? "bg-amber-500 text-black border-amber-500 shadow-sm"
                             : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
                           }`}
@@ -618,6 +619,17 @@ export default function App() {
                         {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
                       </button>
                     ))}
+                    {categories.length > 5 && (
+                      <button
+                        onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
+                        className="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest border border-dashed border-amber-500/40 text-amber-600 bg-amber-500/5 hover:bg-amber-500/10 transition cursor-pointer flex items-center gap-1"
+                      >
+                        <span>{isCategoriesExpanded ? "Show Less" : `+ ${categories.length - 5} More`}</span>
+                        <svg className={`w-3 h-3 transition-transform ${isCategoriesExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
