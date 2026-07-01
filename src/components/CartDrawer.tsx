@@ -2,6 +2,8 @@ import React from "react";
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Heart, Minus, Plus } from "lucide-react";
 import { useCart } from "../lib/cartStore";
 import { useLanguage } from "../lib/translationStore";
+import { getOptimizedImageUrl } from "../lib/imageOptimizer";
+
 
 interface CartDrawerProps {
   onClose: () => void;
@@ -66,13 +68,13 @@ export default function CartDrawer({ onClose, onOpenCheckout, onSelectProductByI
                   title="Click to edit options"
                 >
                   <img
-                    src={item.productImage}
+                    src={getOptimizedImageUrl(item.productImage, 200)}
                     alt=""
                     referrerPolicy="no-referrer"
                     className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none"
                   />
                   <img
-                    src={item.productImage}
+                    src={getOptimizedImageUrl(item.productImage, 200)}
                     alt={item.productName}
                     referrerPolicy="no-referrer"
                     className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"

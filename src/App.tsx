@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import {
   ShoppingBag, Search, Sparkles, Star, ChevronLeft, ChevronRight,
   MapPin, Phone, Heart, ArrowRight, ShieldCheck, Instagram, Mail, Info, RefreshCw,
@@ -6,15 +6,29 @@ import {
 } from "lucide-react";
 import Header from "./components/Header";
 import ProductCard from "./components/ProductCard";
-const ProductDetailsModal = React.lazy(() => import("./components/ProductDetailsModal"));
-const CartDrawer = React.lazy(() => import("./components/CartDrawer"));
-const CheckoutModal = React.lazy(() => import("./components/CheckoutModal"));
-const AdminPanel = React.lazy(() => import("./components/AdminPanel"));
+import CartDrawer from "./components/CartDrawer";
 import { Product, Category, DeliveryArea, Coupon, ShopSettings } from "./types";
 import { useCart } from "./lib/cartStore";
 import { safeStorage } from "./lib/safeStorage";
 import { useLanguage } from "./lib/translationStore";
 import { initMetaPixel } from "./lib/metaPixel";
+import { getOptimizedImageUrl } from "./lib/imageOptimizer";
+
+const AdminPanel = lazy(() => import("./components/AdminPanel"));
+const ProductDetailsModal = lazy(() => import("./components/ProductDetailsModal"));
+const CheckoutModal = lazy(() => import("./components/CheckoutModal"));
+
+const FallbackLoading = () => (
+  <div className="w-full py-24 flex items-center justify-center bg-transparent">
+    <div className="text-center space-y-4">
+      <div className="relative">
+        <div className="w-12 h-12 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin mx-auto" />
+        <Sparkles className="w-4 h-4 text-amber-400 absolute inset-0 m-auto animate-pulse" />
+      </div>
+    </div>
+  </div>
+);
+
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api";
 
@@ -414,12 +428,7 @@ export default function App() {
       <main className="flex-grow">
         {isAdminMode ? (
           /* Render full Operations dashboard screen */
-          <React.Suspense fallback={
-            <div className="flex flex-col items-center justify-center py-32 gap-3">
-              <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
-              <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Loading Dashboard...</span>
-            </div>
-          }>
+          <Suspense fallback={<FallbackLoading />}>
             <AdminPanel
               products={products}
               categories={categories}
@@ -428,15 +437,10 @@ export default function App() {
               settings={settings}
               onRefreshAll={fetchAllData}
             />
-          </React.Suspense>
+          </Suspense>
         ) : selectedProduct ? (
           /* Render dedicated full-page Product detail page */
-          <React.Suspense fallback={
-            <div className="flex flex-col items-center justify-center py-32 gap-3">
-              <RefreshCw className="w-8 h-8 animate-spin text-amber-500" />
-              <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest font-mono">Loading Product Details...</span>
-            </div>
-          }>
+          <Suspense fallback={<FallbackLoading />}>
             <ProductDetailsModal
               product={selectedProduct}
               allProducts={products}
@@ -460,7 +464,7 @@ export default function App() {
               }}
               isFullPage={true}
             />
-          </React.Suspense>
+          </Suspense>
         ) : (
           /* Render Customer-facing shop website storefront */
           <div className="space-y-12 pb-16 md:pb-24">
@@ -470,7 +474,7 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
                 <section className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden shadow-lg rounded-2xl min-h-[320px] sm:min-h-0">
                   <img
-                    src={settings.bannerImages[currentHeroIdx]}
+                    src={getOptimizedImageUrl(settings.bannerImages[currentHeroIdx], 1000)}
                     alt="Shop Luxury Banner"
                     referrerPolicy="no-referrer"
                     fetchPriority="high"
@@ -1005,34 +1009,25 @@ export default function App() {
 
       {/* B. CART DRAWER COMPONENT */}
       {isCartOpen && (
-        <React.Suspense fallback={null}>
-          <CartDrawer
-            onClose={handleCloseCart}
-            onOpenCheckout={() => {
+        <CartDrawer
+          onClose={handleCloseCart}
+          onOpenCheckout={() => {
+            setIsCartOpen(false);
+            setIsCheckoutOpen(true);
+          }}
+          onSelectProductById={(id) => {
+            const prod = products.find(p => p.id === id);
+            if (prod) {
+              setSelectedProduct(prod);
               setIsCartOpen(false);
-              setIsCheckoutOpen(true);
-            }}
-            onSelectProductById={(id) => {
-              const prod = products.find(p => p.id === id);
-              if (prod) {
-                setSelectedProduct(prod);
-                setIsCartOpen(false);
-              }
-            }}
-          />
-        </React.Suspense>
+            }
+          }}
+        />
       )}
 
       {/* C. CHECKOUT MODAL FORM */}
       {isCheckoutOpen && (
-        <React.Suspense fallback={
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center">
-            <div className="bg-white p-6 rounded-xl flex items-center gap-3 shadow-xl">
-              <RefreshCw className="w-5 h-5 animate-spin text-amber-500" />
-              <span className="text-xs font-bold uppercase text-neutral-600">Loading Checkout...</span>
-            </div>
-          </div>
-        }>
+        <Suspense fallback={<FallbackLoading />}>
           <CheckoutModal
             areas={areas}
             settings={settings}
@@ -1053,7 +1048,7 @@ export default function App() {
               }
             }}
           />
-        </React.Suspense>
+        </Suspense>
       )}
 
       {/* D. FLOATING WHATSAPP CHAT BUTTON */}

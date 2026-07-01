@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { Star, ShoppingCart, Percent, AlertCircle } from "lucide-react";
 import { Product } from "../types";
 import { useLanguage } from "../lib/translationStore";
+import { getOptimizedImageUrl } from "../lib/imageOptimizer";
 
 interface ProductCardProps {
   product: Product;
   onSelect: (product: Product) => void;
 }
 
-function getHexColor(colorName: string): string {
+function getSwatchBackground(colorName: string): string {
   const col = colorName.trim().toLowerCase();
   const map: Record<string, string> = {
     red: "#ef4444",
@@ -44,12 +45,25 @@ function getHexColor(colorName: string): string {
     charcoal: "#36454f"
   };
 
-  if (map[col]) return map[col];
+  if (col === "multi") {
+    return "linear-gradient(135deg, #ef4444, #3b82f6, #22c55e)";
+  }
 
-  // Try matching individual tokens
-  const tokens = col.split(/\s+/);
+  // Clean string and split into tokens
+  const cleanStr = col.replace(/[^a-z\s/]/g, "");
+  const tokens = cleanStr.split(/[\s/]+/);
+  const matchedColors: string[] = [];
+
   for (const t of tokens) {
-    if (map[t]) return map[t];
+    if (map[t]) {
+      matchedColors.push(map[t]);
+    }
+  }
+
+  if (matchedColors.length === 1) {
+    return matchedColors[0];
+  } else if (matchedColors.length > 1) {
+    return `linear-gradient(135deg, ${matchedColors.join(", ")})`;
   }
 
   return "#cbd5e1";
@@ -107,37 +121,8 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
     return images[0] || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200";
   };
  
-  // Helper to find the correct image for a specific color
-  const getDisplayImageForColor = (colName: string) => {
-    if (!product) return "";
-    const images = product.images || [];
-    if (!colName) return "";
- 
-    // 1. Check if we have an explicit mapping
-    if (product.colorImageMap) {
-      const mappedImg = Object.keys(product.colorImageMap).find(
-        (img) => product.colorImageMap![img] === colName
-      );
-      if (mappedImg) return mappedImg;
-    }
- 
-    // 2. Check if any image contains the color name in its URL or filename
-    const lowerCol = colName.toLowerCase();
-    const matchedByFilename = images.find((img) =>
-      img && img.toLowerCase().includes(lowerCol)
-    );
-    if (matchedByFilename) return matchedByFilename;
- 
-    // 3. Fallback to matching indexes if possible
-    const colorIndex = (product.colors || []).indexOf(colName);
-    if (colorIndex !== -1 && images[colorIndex]) {
-      return images[colorIndex];
-    }
- 
-    return "";
-  };
- 
-  const displayImage = getDisplayImage();
+  const rawImage = getDisplayImage();
+  const displayImage = getOptimizedImageUrl(rawImage, 400);
 
   return (
     <div
@@ -227,8 +212,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
           <div className="flex items-center gap-1.5 mt-1 mb-3 flex-wrap">
             {product.colors.map((color) => {
               const isActive = selectedColor === color;
-              const isMulti = color.toLowerCase() === "multi";
-              const colorImg = getDisplayImageForColor(color);
+              const swatchBg = getSwatchBackground(color);
               return (
                 <button
                   key={color}
@@ -244,15 +228,13 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
                       : "border-neutral-300 hover:border-neutral-400"
                   }`}
                   style={{
-                    backgroundImage: colorImg ? `url(${colorImg})` : undefined,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundColor: colorImg ? undefined : (isMulti ? undefined : getHexColor(color)),
-                    background: colorImg ? undefined : (isMulti ? "linear-gradient(135deg, #ef4444, #3b82f6, #22c55e)" : undefined)
+                    background: swatchBg
                   }}
                 >
-                  {isActive && !colorImg && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.3)] shrink-0" />
+                  {isActive && (
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      color.toLowerCase().includes("white") ? "bg-black" : "bg-white"
+                    } shadow-[0_1px_2px_rgba(0,0,0,0.3)]`} />
                   )}
                 </button>
               );
@@ -287,3 +269,4 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
     </div>
   );
 }
+

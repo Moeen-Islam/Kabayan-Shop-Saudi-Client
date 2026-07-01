@@ -3,6 +3,8 @@ import { X, Check, ShoppingCart, ArrowRight, Minus, Plus, RefreshCw, ZoomIn, Che
 import { Product } from "../types";
 import { cartStore } from "../lib/cartStore";
 import { trackPixelEvent } from "../lib/metaPixel";
+import { getOptimizedImageUrl } from "../lib/imageOptimizer";
+
 
 export function getPackageMultiplierAndDiscount(pkgName: string): { multiplier: number; discount: number } {
   const name = (pkgName || "").toLowerCase();
@@ -382,13 +384,13 @@ export default function ProductDetailsModal({
                 ) : (
                   <div className="w-full h-full flex items-center justify-center relative bg-neutral-50">
                     <img
-                      src={activeImage}
+                      src={getOptimizedImageUrl(activeImage, 800)}
                       alt=""
                       referrerPolicy="no-referrer"
                       className="absolute inset-0 w-full h-full object-cover blur-lg opacity-40 scale-110 select-none pointer-events-none"
                     />
                     <img
-                      src={activeImage}
+                      src={getOptimizedImageUrl(activeImage, 800)}
                       alt={product.name}
                       referrerPolicy="no-referrer"
                       className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
@@ -415,13 +417,13 @@ export default function ProductDetailsModal({
                       }`}
                     >
                       <img
-                        src={img}
+                        src={getOptimizedImageUrl(img, 150)}
                         alt=""
                         referrerPolicy="no-referrer"
                         className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none"
                       />
                       <img
-                        src={img}
+                        src={getOptimizedImageUrl(img, 150)}
                         alt={`${product.name} gallery ${idx}`}
                         referrerPolicy="no-referrer"
                         className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"

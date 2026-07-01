@@ -5,6 +5,7 @@ import { DeliveryArea, Coupon, Order, ShopSettings } from "../types";
 import L from "leaflet";
 import { useLanguage } from "../lib/translationStore";
 import { trackPixelEvent } from "../lib/metaPixel";
+import { getOptimizedImageUrl } from "../lib/imageOptimizer";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api";
 
@@ -795,13 +796,13 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                       title="Click to edit options"
                     >
                       <img
-                        src={item.productImage}
+                        src={getOptimizedImageUrl(item.productImage, 100)}
                         alt=""
                         referrerPolicy="no-referrer"
                         className="absolute inset-0 w-full h-full object-cover blur-sm opacity-40 scale-110 pointer-events-none"
                       />
                       <img
-                        src={item.productImage}
+                        src={getOptimizedImageUrl(item.productImage, 100)}
                         alt={item.productName}
                         referrerPolicy="no-referrer"
                         className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
