@@ -30,7 +30,21 @@ const FallbackLoading = () => (
 );
 
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000") + "/api";
+const API_URL = (() => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    return envUrl + "/api";
+  }
+  const hostname = window.location.hostname;
+  if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+    const isIp = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+    if (isIp) {
+      return `http://${hostname}:5000/api`;
+    }
+    return "/api";
+  }
+  return (envUrl || "http://localhost:5000") + "/api";
+})();
 
 export default function App() {
   const { items, subtotal } = useCart();
