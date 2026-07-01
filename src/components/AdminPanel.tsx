@@ -361,7 +361,7 @@ ${itemsText}
 💰 *PAYMENT SUMMARY:*
 • Product Total: ${order.productTotal} SAR
 ${order.discountAmount ? `• Coupon Discount: -${order.discountAmount} SAR\n` : ""}• Delivery Fee: ${order.deliveryCharge} SAR
-👉 *Total Bill:* *${order.grandTotal} SAR* (Cash on Delivery)
+👉 *Total Bill:* *${order.grandTotal} SAR* (${order.paymentMethod || "Cash On Delivery"})
 
 ━━━━━━━━━━━━━━━━━━━━━━
 Thank you for shopping with Kabayan Shop! ❤️`;
@@ -1516,6 +1516,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       <div>House No: <strong className="text-neutral-900">{selectedOrder.houseNo || "N/A"}</strong></div>
                       <div>City/Area: <strong className="text-neutral-900">{selectedOrder.areaName}</strong></div>
                       <div>Full Address: <strong className="text-neutral-900 block mt-0.5 leading-snug">{selectedOrder.fullAddress}</strong></div>
+                      <div>Payment Option: <strong className="text-neutral-900">{selectedOrder.paymentMethod || "Cash On Delivery"}</strong></div>
                       {selectedOrder.notes && (
                         <div className="italic text-neutral-500 pt-1 border-t border-neutral-200/50">
                           Note: "{selectedOrder.notes}"

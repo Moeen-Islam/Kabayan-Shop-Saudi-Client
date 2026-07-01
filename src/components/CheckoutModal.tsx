@@ -141,6 +141,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   const [houseNo, setHouseNo] = useState("");
   const [fullAddress, setFullAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"Cash On Delivery" | "STC Pay on Delivery" | "Card Payment">("Cash On Delivery");
 
   // Geolocation states
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -312,6 +313,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
         lat: latitude,
         lng: longitude,
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        paymentMethod,
         items: items.map(item => ({
           productId: item.productId,
           productName: item.productName,
@@ -349,9 +351,9 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       // Notify the customer with a beautiful non-blocking toast
       alert(t("order_success"));
 
-      // Direct to the storefront home page
-      onOrderSuccess();
-      onClose();
+      // Display the order summary receipt screen and trigger WhatsApp
+      setPlacedOrder(data.order);
+      triggerWhatsApp(data.order);
     } catch (err: any) {
       alert(err.message || "Something went wrong while placing your order. Please try again.");
     } finally {
@@ -402,7 +404,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       msg += `• Coupon Discount: -${order.discountAmount} SAR\n`;
     }
     msg += `• Delivery Fee: ${order.deliveryCharge} SAR\n`;
-    msg += `⭐ *Grand Total:* *${order.grandTotal} SAR* (Cash on Delivery)\n`;
+    msg += `⭐ *Grand Total:* *${order.grandTotal} SAR* (${order.paymentMethod || "Cash On Delivery"})\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
     msg += `Thank you for shopping with Kabayan Shop! We will message you shortly to coordinate the delivery. Please reply to this message to confirm. ❤️`;
 
@@ -497,6 +499,10 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
               <div className="flex justify-between text-neutral-500">
                 <span>Delivery Charge ({placedOrder.areaName}):</span>
                 <span className="font-semibold">{placedOrder.deliveryCharge} SAR</span>
+              </div>
+              <div className="flex justify-between text-xs text-neutral-500 pt-1">
+                <span>Payment Option (On Delivery):</span>
+                <span className="font-semibold text-neutral-800">{placedOrder.paymentMethod || "Cash On Delivery"}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-neutral-900 pt-2 border-t border-neutral-200 font-sans">
                 <span>Total Amount:</span>
@@ -678,6 +684,41 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                 placeholder="e.g. King Fahd Road, Near Olaya Mall"
                 className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm text-neutral-950 placeholder-neutral-400 focus:outline-none focus:border-amber-500 transition bg-neutral-50 focus:bg-white"
               />
+            </div>
+
+            {/* Payment Method Selector (Required, processed on delivery) */}
+            <div>
+              <label className="text-xs font-bold text-neutral-700 block mb-2">
+                Payment Option (Processed on Delivery) <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {[
+                  { id: "Cash On Delivery", label: "Cash On Delivery" },
+                  { id: "STC Pay on Delivery", label: "STC Pay on Delivery" },
+                  { id: "Card Payment", label: "Card Payment" }
+                ].map((opt) => {
+                  const selected = paymentMethod === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setPaymentMethod(opt.id as any)}
+                      className={`flex items-center gap-2.5 px-4 py-3 rounded-lg border text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                        selected
+                          ? "border-amber-500 bg-amber-500/5 text-neutral-950 ring-1 ring-amber-500 font-extrabold"
+                          : "border-neutral-300 bg-neutral-50 hover:bg-neutral-100 text-neutral-600"
+                      }`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                        selected ? "border-amber-500" : "border-neutral-400"
+                      }`}>
+                        {selected && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                      </div>
+                      <span>{opt.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Additional Delivery Notes */}
