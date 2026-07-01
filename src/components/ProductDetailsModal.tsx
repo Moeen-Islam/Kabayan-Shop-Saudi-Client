@@ -5,7 +5,21 @@ import { cartStore } from "../lib/cartStore";
 import { trackPixelEvent } from "../lib/metaPixel";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
 
-
+const API_URL = (() => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
+    return envUrl + "/api";
+  }
+  const hostname = window.location.hostname;
+  if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+    const isIp = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
+    if (isIp) {
+      return `http://${hostname}:5000/api`;
+    }
+    return "/api";
+  }
+  return (envUrl || "http://localhost:5000") + "/api";
+})();
 export function getPackageMultiplierAndDiscount(pkgName: string): { multiplier: number; discount: number } {
   const name = (pkgName || "").toLowerCase();
   let count = 1;
@@ -120,6 +134,7 @@ export default function ProductDetailsModal({
 }: ProductDetailsModalProps) {
   const [fullProduct, setFullProduct] = useState<Product | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [addingState, setAddingState] = useState<"idle" | "adding" | "added">("idle");
 
   // Fetch full details dynamically if this is a lightweight catalog card
   useEffect(() => {
@@ -128,7 +143,7 @@ export default function ProductDetailsModal({
 
     if (isLightweight) {
       setIsLoadingDetails(true);
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/products/slug/${propProduct.slug}`)
+      fetch(`${API_URL}/products/slug/${propProduct.slug}`)
         .then(res => {
           if (!res.ok) throw new Error("Failed to load details");
           return res.json();
@@ -264,50 +279,63 @@ export default function ProductDetailsModal({
     });
   };
 
-  // Add to Cart handler
+  // Add to Cart handler with premium micro-animations
   const handleAddToCart = () => {
-    if (product.stock === 0) return;
+    if (product.stock === 0 || addingState !== "idle") return;
     
-    let finalSize = "";
-    if (quantity > 1 && !isSameSizeAll) {
-      if (product.hasDualSizes) {
-        finalSize = selectedSizes.map((sz, idx) => {
-          return `#${idx + 1}: (${product.dualSizesTitle1 || "Size 1"}: ${sz} | ${product.dualSizesTitle2 || "Size 2"}: ${selectedSizes2[idx] || ""})`;
-        }).join(" • ");
+    setAddingState("adding");
+
+    // Perform the item addition after a minor delay to show the "Adding..." animation state
+    setTimeout(() => {
+      let finalSize = "";
+      if (quantity > 1 && !isSameSizeAll) {
+        if (product.hasDualSizes) {
+          finalSize = selectedSizes.map((sz, idx) => {
+            return `#${idx + 1}: (${product.dualSizesTitle1 || "Size 1"}: ${sz} | ${product.dualSizesTitle2 || "Size 2"}: ${selectedSizes2[idx] || ""})`;
+          }).join(" • ");
+        } else {
+          finalSize = selectedSizes.join(", ");
+        }
       } else {
-        finalSize = selectedSizes.join(", ");
+        finalSize = product.hasDualSizes
+          ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
+          : selectedSize;
       }
-    } else {
-      finalSize = product.hasDualSizes
-        ? `${product.dualSizesTitle1 || "Jacket Size"}: ${selectedSize} | ${product.dualSizesTitle2 || "Jeans Waist Size"}: ${selectedSize2}`
-        : selectedSize;
-    }
 
-    const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
+      const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
 
-    cartStore.addItem({
-      productId: product.id,
-      productName: product.name,
-      productImage: product.images[0] || "",
-      quantity,
-      price: unitPrice,
-      selectedColor: finalColor,
-      selectedSize: finalSize,
-      selectedPackageType: selectedPackage,
-      basePrice,
-      packageTypes: product.packageTypes,
-      packagePrices: product.packagePrices
-    });
+      cartStore.addItem({
+        productId: product.id,
+        productName: product.name,
+        productImage: product.images[0] || "",
+        quantity,
+        price: unitPrice,
+        selectedColor: finalColor,
+        selectedSize: finalSize,
+        selectedPackageType: selectedPackage,
+        basePrice,
+        packageTypes: product.packageTypes,
+        packagePrices: product.packagePrices
+      });
 
-    trackPixelEvent("AddToCart", {
-      content_name: product.name,
-      content_ids: [product.id],
-      content_type: "product",
-      value: unitPrice * quantity,
-      currency: "SAR"
-    });
+      trackPixelEvent("AddToCart", {
+        content_name: product.name,
+        content_ids: [product.id],
+        content_type: "product",
+        value: unitPrice * quantity,
+        currency: "SAR"
+      });
 
-    onAddToCartSuccess();
+      setAddingState("added");
+
+      // Fire success callback in the background
+      onAddToCartSuccess();
+
+      // Reset back to idle after 1.5s
+      setTimeout(() => {
+        setAddingState("idle");
+      }, 1500);
+    }, 600);
   };
 
   // Buy Now handler
@@ -909,11 +937,31 @@ export default function ProductDetailsModal({
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="flex items-center justify-center gap-2 border border-black hover:bg-neutral-50 font-bold text-sm text-black py-3.5 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={product.stock === 0 || addingState !== "idle"}
+                  className={`flex items-center justify-center gap-2 font-bold text-sm py-3.5 rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed select-none ${
+                    addingState === "added"
+                      ? "bg-emerald-500 border border-emerald-500 text-white animate-pulse shadow-md shadow-emerald-500/20"
+                      : addingState === "adding"
+                      ? "bg-amber-500 border border-amber-500 text-white cursor-wait"
+                      : "border border-black text-black hover:bg-neutral-50 cursor-pointer"
+                  }`}
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  <span>Add To Cart</span>
+                  {addingState === "adding" ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Adding...</span>
+                    </>
+                  ) : addingState === "added" ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Added!</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>Add To Cart</span>
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"

@@ -639,8 +639,7 @@ export default function App() {
                 window.history.pushState(null, "", "/");
               }}
               onAddToCartSuccess={() => {
-                setSelectedProduct(null);
-                window.history.pushState(null, "", "/");
+                // Do not close the modal, allowing customer to keep selecting/buying
               }}
               onBuyNowSuccess={() => {
                 setSelectedProduct(null);
