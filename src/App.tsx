@@ -407,7 +407,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col justify-between selection:bg-amber-400 selection:text-black">
+    <div className="min-h-screen bg-neutral-50 flex flex-col justify-between selection:bg-amber-400 selection:text-black overflow-x-hidden w-full max-w-full">
 
       {/* 1. Brand Header */}
       <Header
