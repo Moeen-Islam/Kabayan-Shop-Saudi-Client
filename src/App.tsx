@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from "react";
 import {
   ShoppingBag, Search, Sparkles, Star, ChevronLeft, ChevronRight,
   MapPin, Phone, Heart, ArrowRight, ShieldCheck, Instagram, Mail, Info, RefreshCw,
-  MessageCircle, Facebook, ThumbsUp, ExternalLink, CheckCircle, X, MessageSquare
+  MessageCircle, Facebook, ThumbsUp, ExternalLink, CheckCircle, X, MessageSquare, ShieldAlert
 } from "lucide-react";
 import Header from "./components/Header";
 import ProductCard from "./components/ProductCard";
@@ -73,9 +73,14 @@ export default function App() {
   // Hero slideshow index
   const [currentHeroIdx, setCurrentHeroIdx] = useState(0);
 
-  // Fetch all core resources
-  const fetchAllData = async () => {
+  // Waking up server status states
+  const [showWakingUpText, setShowWakingUpText] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
+
+  // Fetch all core resources with automated retry loops
+  const fetchAllData = async (retryCount = 0) => {
     try {
+      setConnectionError(false);
       const [prodRes, catRes, areaRes, setRes] = await Promise.all([
         fetch(API_URL + "/products"),
         fetch(API_URL + "/categories"),
@@ -83,22 +88,37 @@ export default function App() {
         fetch(API_URL + "/settings")
       ]);
 
-      if (prodRes.ok) setProducts(await prodRes.json());
-      if (catRes.ok) setCategories(await catRes.json());
-      if (areaRes.ok) setAreas(await areaRes.json());
-      if (setRes.ok) setSettings(await setRes.json());
+      if (!prodRes.ok || !catRes.ok || !areaRes.ok || !setRes.ok) {
+        throw new Error("Failed to load storefront data resources");
+      }
 
-      // If coupons are requested, they are restricted behind admin auth.
-      // But we can pull coupons securely via validate API when user applies them in checkout.
-    } catch (error) {
-      console.error("Error loading storefront data:", error);
-    } finally {
+      const productsData = await prodRes.json();
+      const categoriesData = await catRes.json();
+      const areasData = await areaRes.json();
+      const settingsData = await setRes.json();
+
+      setProducts(productsData);
+      setCategories(categoriesData);
+      setAreas(areasData);
+      setSettings(settingsData);
       setLoading(false);
+    } catch (error) {
+      console.error(`Storefront fetch attempt ${retryCount + 1} failed:`, error);
+      
+      // Auto-retry up to 10 times with 3-second intervals (approx 30 seconds total for server wake-up)
+      if (retryCount < 10) {
+        setTimeout(() => {
+          fetchAllData(retryCount + 1);
+        }, 3000);
+      } else {
+        setConnectionError(true);
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(0);
 
     // Load wishlist
     try {
@@ -108,6 +128,18 @@ export default function App() {
       console.error(e);
     }
   }, []);
+
+  // Monitor loading timer to show helper waking-up alert if it takes long
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setShowWakingUpText(true);
+      }, 4000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowWakingUpText(false);
+    }
+  }, [loading]);
 
   // Initialize Meta Pixel & SEO tags dynamically
   useEffect(() => {
@@ -392,15 +424,57 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-6 max-w-sm mx-auto">
           <div className="relative">
             <div className="w-16 h-16 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin mx-auto" />
             <Sparkles className="w-6 h-6 text-amber-400 absolute inset-0 m-auto animate-pulse" />
           </div>
-          <h1 className="text-xl font-bold tracking-widest font-sans uppercase">
-            Loading Premium Fashion...
-          </h1>
-          <p className="text-xs text-neutral-500 font-mono">KABAYAN SHOP SAUDI</p>
+          <div className="space-y-2">
+            <h1 className="text-xl font-bold tracking-widest font-sans uppercase">
+              Loading Premium Fashion...
+            </h1>
+            <p className="text-xs text-neutral-500 font-mono">KABAYAN SHOP SAUDI</p>
+          </div>
+          {showWakingUpText && (
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center space-y-2 animate-fade-in">
+              <p className="text-[11px] text-amber-400 font-bold uppercase tracking-wider animate-pulse">
+                ⚡ Waking up the server
+              </p>
+              <p className="text-[10px] text-neutral-400 leading-relaxed">
+                Free hosting servers take up to 25s to spin up from sleep. The shop will load automatically once active. Thank you!
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (connectionError) {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-sm mx-auto">
+          <div className="bg-red-500/10 text-red-500 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto border border-red-500/25">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-lg font-bold tracking-widest font-sans uppercase">
+              Connection Failed
+            </h1>
+            <p className="text-xs text-neutral-500 leading-relaxed">
+              We couldn't connect to our servers to load the fashion catalog. Please check your internet connection and try again.
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setConnectionError(false);
+              fetchAllData(0);
+            }}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs uppercase py-3 rounded-full transition-all tracking-wider cursor-pointer"
+          >
+            Retry Connection
+          </button>
         </div>
       </div>
     );
