@@ -3,7 +3,7 @@
  * If the URL is an Unsplash image, rewrites parameters to request optimized size and format.
  * Otherwise, returns the original URL.
  */
-export function getOptimizedImageUrl(url: string, width: number, quality = 75): string {
+export function getOptimizedImageUrl(url: string, width: number, quality = 60): string {
   if (!url) return "";
   
   if (url.includes("unsplash.com")) {

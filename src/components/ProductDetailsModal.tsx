@@ -110,7 +110,7 @@ function getHexColor(colorName: string): string {
 }
 
 export default function ProductDetailsModal({
-  product,
+  product: propProduct,
   allProducts,
   onClose,
   onAddToCartSuccess,
@@ -118,7 +118,40 @@ export default function ProductDetailsModal({
   onSelectRelated,
   isFullPage = false
 }: ProductDetailsModalProps) {
-  const [activeImage, setActiveImage] = useState((product && product.images && product.images[0]) || "");
+  const [fullProduct, setFullProduct] = useState<Product | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  // Fetch full details dynamically if this is a lightweight catalog card
+  useEffect(() => {
+    if (!propProduct) return;
+    const isLightweight = !propProduct.description || !propProduct.sizes || propProduct.sizes.length === 0;
+
+    if (isLightweight) {
+      setIsLoadingDetails(true);
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/products/slug/${propProduct.slug}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to load details");
+          return res.json();
+        })
+        .then(data => {
+          setFullProduct(data);
+        })
+        .catch(err => {
+          console.error("Error loading product details:", err);
+          setFullProduct(propProduct);
+        })
+        .finally(() => {
+          setIsLoadingDetails(false);
+        });
+    } else {
+      setFullProduct(propProduct);
+      setIsLoadingDetails(false);
+    }
+  }, [propProduct]);
+
+  const product = fullProduct || propProduct;
+
+  const [activeImage, setActiveImage] = useState((propProduct && propProduct.images && propProduct.images[0]) || "");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedSize2, setSelectedSize2] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -384,13 +417,13 @@ export default function ProductDetailsModal({
                 ) : (
                   <div className="w-full h-full flex items-center justify-center relative bg-neutral-50">
                     <img
-                      src={getOptimizedImageUrl(activeImage, 800)}
+                      src={getOptimizedImageUrl(activeImage, window.innerWidth < 640 ? 500 : 800)}
                       alt=""
                       referrerPolicy="no-referrer"
                       className="absolute inset-0 w-full h-full object-cover blur-lg opacity-40 scale-110 select-none pointer-events-none"
                     />
                     <img
-                      src={getOptimizedImageUrl(activeImage, 800)}
+                      src={getOptimizedImageUrl(activeImage, window.innerWidth < 640 ? 500 : 800)}
                       alt={product.name}
                       referrerPolicy="no-referrer"
                       className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"

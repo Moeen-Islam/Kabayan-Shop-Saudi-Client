@@ -50,19 +50,44 @@ export default function App() {
   const { items, subtotal } = useCart();
   const { lang, t } = useLanguage();
 
-  // Core API State
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [areas, setAreas] = useState<DeliveryArea[]>([]);
+  // Helper to parse cached storefront data for 0ms initial render
+  const getCachedStorefrontData = () => {
+    try {
+      const cachedProds = safeStorage.getItem("kabayan_cached_products");
+      const cachedCats = safeStorage.getItem("kabayan_cached_categories");
+      const cachedAreas = safeStorage.getItem("kabayan_cached_areas");
+      const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
+
+      if (cachedProds && cachedCats && cachedAreas && cachedSettings) {
+        return {
+          products: JSON.parse(cachedProds),
+          categories: JSON.parse(cachedCats),
+          areas: JSON.parse(cachedAreas),
+          settings: JSON.parse(cachedSettings),
+          hasCache: true
+        };
+      }
+    } catch (err) {
+      console.error("Failed to parse cached storefront files:", err);
+    }
+    return { hasCache: false };
+  };
+
+  const cached = getCachedStorefrontData();
+
+  // Core API State (Initialized from local storage cache for 0ms loads)
+  const [products, setProducts] = useState<Product[]>(cached.products || []);
+  const [categories, setCategories] = useState<Category[]>(cached.categories || []);
+  const [areas, setAreas] = useState<DeliveryArea[]>(cached.areas || []);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [settings, setSettings] = useState<ShopSettings>({
+  const [settings, setSettings] = useState<ShopSettings>(cached.settings || {
     shopName: "Kabayan Shop Saudi",
     whatsappContact: "966501234567",
     currency: "SAR",
     bannerImages: []
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!cached.hasCache);
 
   // Filter & Search State
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -78,8 +103,10 @@ export default function App() {
   const [isMessengerChatOpen, setIsMessengerChatOpen] = useState(false);
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
 
-  // Catalog pagination state
-  const [visibleCount, setVisibleCount] = useState(12);
+  // Catalog pagination and page tracking states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMoreProducts, setHasMoreProducts] = useState(false);
+  const [totalProductsCount, setTotalProductsCount] = useState(0);
 
   // Client-side Wishlist persistence
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -92,60 +119,97 @@ export default function App() {
   const [connectionError, setConnectionError] = useState(false);
 
   // Fetch all core resources with automated retry loops
-  const fetchAllData = async (retryCount = 0) => {
+  const fetchAllData = async (retryCount = 0, page = 1, isLoadMore = false) => {
     try {
       setConnectionError(false);
 
-      // Attempt to load settings, categories, and areas from localStorage cache for instant visual render
-      const cachedCats = safeStorage.getItem("kabayan_cached_categories");
-      const cachedAreas = safeStorage.getItem("kabayan_cached_areas");
-      const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
+      const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("limit", "12");
+      if (selectedCategory) params.append("category", selectedCategory);
+      if (searchQuery) params.append("search", searchQuery);
 
-      if (cachedCats) setCategories(JSON.parse(cachedCats));
-      if (cachedAreas) setAreas(JSON.parse(cachedAreas));
-      if (cachedSettings) setSettings(JSON.parse(cachedSettings));
+      const isInitialRequest = page === 1 && !isLoadMore;
 
-      const [prodRes, catRes, areaRes, setRes] = await Promise.all([
-        fetch(API_URL + "/products"),
-        fetch(API_URL + "/categories"),
-        fetch(API_URL + "/areas"),
-        fetch(API_URL + "/settings")
-      ]);
+      let productsData;
+      let categoriesData = categories;
+      let areasData = areas;
+      let settingsData = settings;
 
-      if (!prodRes.ok || !catRes.ok || !areaRes.ok || !setRes.ok) {
-        throw new Error("Failed to load storefront data resources");
+      if (isInitialRequest) {
+        // Attempt to load settings, categories, and areas from localStorage cache for instant visual render
+        const cachedCats = safeStorage.getItem("kabayan_cached_categories");
+        const cachedAreas = safeStorage.getItem("kabayan_cached_areas");
+        const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
+
+        if (cachedCats) setCategories(JSON.parse(cachedCats));
+        if (cachedAreas) setAreas(JSON.parse(cachedAreas));
+        if (cachedSettings) setSettings(JSON.parse(cachedSettings));
+
+        const [prodRes, catRes, areaRes, setRes] = await Promise.all([
+          fetch(`${API_URL}/products?${params.toString()}`),
+          fetch(API_URL + "/categories"),
+          fetch(API_URL + "/areas"),
+          fetch(API_URL + "/settings")
+        ]);
+
+        if (!prodRes.ok || !catRes.ok || !areaRes.ok || !setRes.ok) {
+          throw new Error("Failed to load storefront data resources");
+        }
+
+        productsData = await prodRes.json();
+        categoriesData = await catRes.json();
+        areasData = await areaRes.json();
+        settingsData = await setRes.json();
+
+        setCategories(categoriesData);
+        setAreas(areasData);
+        setSettings(settingsData);
+      } else {
+        const prodRes = await fetch(`${API_URL}/products?${params.toString()}`);
+        if (!prodRes.ok) {
+          throw new Error("Failed to load product page");
+        }
+        productsData = await prodRes.json();
       }
 
-      const productsData = await prodRes.json();
-      const categoriesData = await catRes.json();
-      const areasData = await areaRes.json();
-      const settingsData = await setRes.json();
+      // If loading next page, append; otherwise overwrite
+      if (isLoadMore) {
+        setProducts(prev => {
+          const ids = new Set(prev.map(p => p.id));
+          const fresh = productsData.products.filter((p: Product) => !ids.has(p.id));
+          return [...prev, ...fresh];
+        });
+      } else {
+        setProducts(productsData.products);
+      }
 
-      setProducts(productsData);
-      setCategories(categoriesData);
-      setAreas(areasData);
-      setSettings(settingsData);
+      setCurrentPage(productsData.page);
+      setHasMoreProducts(productsData.hasMore);
+      setTotalProductsCount(productsData.total);
 
-      // Persist the resolved data back to local cache for instant load next time
-      try {
-        safeStorage.setItem("kabayan_cached_categories", JSON.stringify(categoriesData));
-        safeStorage.setItem("kabayan_cached_areas", JSON.stringify(areasData));
-        safeStorage.setItem("kabayan_cached_settings", JSON.stringify(settingsData));
-      } catch (err) {
-        console.error("Failed to write layout configurations to cache:", err);
+      // Persist the resolved data back to local cache for instant load next time (only cache homepage page-1)
+      if (isInitialRequest && !selectedCategory && !searchQuery) {
+        try {
+          safeStorage.setItem("kabayan_cached_products", JSON.stringify(productsData.products));
+          safeStorage.setItem("kabayan_cached_categories", JSON.stringify(categoriesData));
+          safeStorage.setItem("kabayan_cached_areas", JSON.stringify(areasData));
+          safeStorage.setItem("kabayan_cached_settings", JSON.stringify(settingsData));
+        } catch (err) {
+          console.error("Failed to write layout configurations to cache:", err);
+        }
       }
 
       setLoading(false);
     } catch (error) {
       console.error(`Storefront fetch attempt ${retryCount + 1} failed:`, error);
       
-      // Auto-retry up to 10 times with 3-second intervals (approx 30 seconds total for server wake-up)
-      if (retryCount < 10) {
+      // Auto-retry up to 5 times
+      if (retryCount < 5) {
         setTimeout(() => {
-          fetchAllData(retryCount + 1);
+          fetchAllData(retryCount + 1, page, isLoadMore);
         }, 3000);
       } else {
-        // If retries exhausted but we loaded layout configs, suppress connection error and hide spinner
         if (products.length > 0) {
           setLoading(false);
         } else {
@@ -156,8 +220,26 @@ export default function App() {
     }
   };
 
+  // Fetch full unpaginated product list for admin panel
+  const fetchAdminProducts = async () => {
+    try {
+      const response = await fetch(API_URL + "/products?admin=true");
+      if (response.ok) {
+        const fullProducts = await response.json();
+        setProducts(fullProducts);
+      }
+    } catch (err) {
+      console.error("Failed to load admin products:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchAllData(0);
+    const path = window.location.pathname;
+    if (path === "/admin") {
+      fetchAdminProducts();
+    } else {
+      fetchAllData(0, 1, false);
+    }
 
     // Load wishlist
     try {
@@ -217,10 +299,6 @@ export default function App() {
     }
   }, [settings]);
 
-  // Reset visibleCount whenever category, search, or sort changes
-  useEffect(() => {
-    setVisibleCount(12);
-  }, [selectedCategory, searchQuery, sortBy]);
 
   // Slide rotation interval
   useEffect(() => {
@@ -294,11 +372,13 @@ export default function App() {
   const handleOpenAdmin = () => {
     setIsAdminMode(true);
     setIsCartOpen(false);
+    fetchAdminProducts();
     window.history.pushState(null, "", "/admin");
   };
 
   const handleExitAdmin = () => {
     setIsAdminMode(false);
+    fetchAllData(0, 1, false);
     window.history.pushState(null, "", "/");
   };
 
@@ -341,6 +421,7 @@ export default function App() {
       if (path === "/admin") {
         setIsAdminMode(true);
         setIsCartOpen(false);
+        fetchAdminProducts();
       } else if (path === "/cart") {
         setIsCartOpen(true);
         setIsAdminMode(false);
@@ -409,6 +490,16 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [loading]);
 
+  // Handle URL change search or category queries reloading
+  useEffect(() => {
+    if (!isFirstRender) {
+      setLoading(true);
+      fetchAllData(0, 1, false);
+    } else {
+      setIsFirstRender(false);
+    }
+  }, [selectedCategory, searchQuery]);
+
   // Handle wishlist toggle
   const toggleWishlist = (prodId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -426,23 +517,9 @@ export default function App() {
     }
   };
 
-  // Filter & Sort Products
+  // Filter & Sort Products (Category and Search filter are executed server-side)
   const filteredProducts = products.filter((prod) => {
-    // Only show active products on storefront
-    if (prod.status !== "active") return false;
-
-    // Filter by Category
-    const matchesCategory =
-      selectedCategory === "" ||
-      prod.category.toLowerCase() === selectedCategory.toLowerCase();
-
-    // Filter by Search Query
-    const matchesSearch =
-      prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prod.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prod.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
+    return prod.status === "active";
   });
 
   // Sort (Trending products pinned to the top first, then sorted by selection)
@@ -587,7 +664,7 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
                 <section className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden shadow-lg rounded-2xl min-h-[320px] sm:min-h-0">
                   <img
-                    src={getOptimizedImageUrl(settings.bannerImages[currentHeroIdx], 1000)}
+                    src={getOptimizedImageUrl(settings.bannerImages[currentHeroIdx], window.innerWidth < 640 ? 600 : 1200)}
                     alt="Shop Luxury Banner"
                     referrerPolicy="no-referrer"
                     fetchPriority="high"
@@ -763,7 +840,7 @@ export default function App() {
               ) : (
                 <div className="space-y-8">
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                    {sortedProducts.slice(0, visibleCount).map((product) => (
+                    {sortedProducts.map((product) => (
                       <div key={product.id} className="relative group">
 
                         {/* Interactive Product Listing Card */}
@@ -791,10 +868,10 @@ export default function App() {
                     ))}
                   </div>
 
-                  {visibleCount < sortedProducts.length && (
+                  {hasMoreProducts && (
                     <div className="flex justify-center pt-6">
                       <button
-                        onClick={() => setVisibleCount((prev) => prev + 12)}
+                        onClick={() => fetchAllData(0, currentPage + 1, true)}
                         className="bg-neutral-900 hover:bg-amber-500 hover:text-neutral-950 text-white font-extrabold text-[11px] uppercase tracking-widest px-8 py-3.5 rounded-full transition-all duration-300 shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
                       >
                         <span>{t("load_more") || "Load More Designs"}</span>
