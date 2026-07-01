@@ -248,16 +248,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     );
   };
 
-  // Helper to manual pin Riyadh coordinates
-  const handlePinRiyadh = () => {
-    const lat = 24.7136;
-    const lng = 46.6753;
-    setLatitude(lat);
-    setLongitude(lng);
-    setMapCenter({ lat, lng });
-    setMapZoom(12);
-    setLocatingState("success");
-  };
+
 
 
   // 2. Coupon Validation API
@@ -773,26 +764,17 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
               {/* Action Buttons & Status */}
               <div className="space-y-2.5">
-                <div className="flex flex-wrap gap-2">
+                <div className="w-full">
                   <button
                     type="button"
                     onClick={handleShareLocation}
                     disabled={locatingState === "locating"}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 bg-black hover:bg-neutral-800 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-1.5 px-3.5 py-2 bg-black hover:bg-neutral-800 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider transition disabled:opacity-50"
                   >
                     <Compass className={`w-3.5 h-3.5 ${locatingState === "locating" ? "animate-spin" : ""}`} />
                     <span>
                       {locatingState === "locating" ? t("locating") : t("pin_live_location")}
                     </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handlePinRiyadh}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-2 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 rounded-lg text-[10px] font-bold uppercase tracking-wider transition"
-                  >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>{t("reset_to_riyadh")}</span>
                   </button>
                 </div>
 
