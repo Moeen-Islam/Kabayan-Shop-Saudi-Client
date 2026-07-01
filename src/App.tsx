@@ -641,7 +641,6 @@ export default function App() {
               onAddToCartSuccess={() => {
                 setSelectedProduct(null);
                 window.history.pushState(null, "", "/");
-                setIsCartOpen(true);
               }}
               onBuyNowSuccess={() => {
                 setSelectedProduct(null);

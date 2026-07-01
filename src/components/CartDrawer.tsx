@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Heart, Minus, Plus } from "lucide-react";
+import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Heart, Minus, Plus, ArrowLeft } from "lucide-react";
 import { useCart } from "../lib/cartStore";
 import { useLanguage } from "../lib/translationStore";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
@@ -23,18 +23,29 @@ export default function CartDrawer({ onClose, onOpenCheckout, onSelectProductByI
       {/* Drawer Panel */}
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-slide-in-right">
         {/* Header */}
-        <div className="px-5 py-5 border-b border-neutral-100 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-amber-500" />
-            <span className="text-base font-bold text-neutral-900 uppercase tracking-wider">
+        <div className="px-4 py-5 border-b border-neutral-100 flex items-center justify-between gap-2">
+          <button
+            onClick={onClose}
+            className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-neutral-500 hover:text-black transition cursor-pointer select-none"
+            title="Back to products"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>{lang === "ar" ? "العودة" : "Back"}</span>
+          </button>
+
+          <div className="flex items-center gap-1.5 flex-grow justify-center">
+            <ShoppingBag className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-black text-neutral-900 uppercase tracking-widest truncate">
               {t("my_shopping_cart")} ({items.reduce((sum, i) => sum + i.quantity, 0)})
             </span>
           </div>
+
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-neutral-100 transition text-neutral-400 hover:text-black"
+            title="Close"
           >
-            <X className="w-5.5 h-5.5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
