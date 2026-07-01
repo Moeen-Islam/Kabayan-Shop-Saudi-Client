@@ -205,11 +205,17 @@ export default function Header({
               <button
                 id="desk-cart-btn"
                 onClick={onOpenCart}
-                className="flex items-center gap-1.5 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 rounded-full px-4 py-1.5 text-xs text-neutral-800 transition font-bold"
+                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs transition duration-300 font-black border select-none ${
+                  totalItemsCount > 0
+                    ? "bg-amber-400 hover:bg-amber-500 text-black border-amber-400 animate-pulse-subtle shadow-md shadow-amber-500/20"
+                    : "bg-neutral-900 hover:bg-neutral-800 text-white border-neutral-900"
+                }`}
               >
-                <ShoppingBag className="w-3.5 h-3.5 text-amber-600" />
+                <ShoppingBag className="w-3.5 h-3.5" />
                 <span>{t("my_cart")}</span>
-                <span className="bg-amber-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full ml-1">
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ml-1 transition duration-300 ${
+                  totalItemsCount > 0 ? "bg-black text-amber-400" : "bg-amber-500 text-black"
+                }`}>
                   {totalItemsCount}
                 </span>
               </button>
@@ -254,15 +260,19 @@ export default function Header({
               <button
                 id="mob-cart-btn"
                 onClick={onOpenCart}
-                className="relative p-2 text-neutral-700 hover:text-amber-600 transition"
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition duration-300 border select-none ${
+                  totalItemsCount > 0
+                    ? "bg-amber-400 hover:bg-amber-500 text-black border-amber-400 animate-pulse-subtle shadow-md shadow-amber-500/20"
+                    : "bg-neutral-900 hover:bg-neutral-800 text-white border-neutral-900"
+                }`}
                 aria-label="View Cart"
               >
-                <ShoppingBag className="w-5 h-5" />
-                {totalItemsCount > 0 && (
-                  <span className="absolute top-1 right-1 bg-amber-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center">
-                    {totalItemsCount}
-                  </span>
-                )}
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ml-0.5 transition duration-300 ${
+                  totalItemsCount > 0 ? "bg-black text-amber-400" : "bg-amber-500 text-black"
+                }`}>
+                  {totalItemsCount}
+                </span>
               </button>
             )}
 

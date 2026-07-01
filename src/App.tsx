@@ -421,19 +421,23 @@ export default function App() {
       if (path === "/admin") {
         setIsAdminMode(true);
         setIsCartOpen(false);
+        setSelectedProduct(null);
         fetchAdminProducts();
       } else if (path === "/cart") {
         setIsCartOpen(true);
         setIsAdminMode(false);
+        setSelectedProduct(null);
       } else if (path.startsWith("/collections/")) {
         const cat = path.replace("/collections/", "");
         setSelectedCategory(cat);
         setIsCartOpen(false);
         setIsAdminMode(false);
+        setSelectedProduct(null);
       } else if (path === "/collections") {
         setSelectedCategory("");
         setIsCartOpen(false);
         setIsAdminMode(false);
+        setSelectedProduct(null);
         setTimeout(() => {
           const element = document.getElementById("all-products-section");
           if (element) {
@@ -446,7 +450,18 @@ export default function App() {
         if (prod) {
           setSelectedProduct(prod);
         } else {
-          setSelectedProduct(null);
+          // Fetch from server if not loaded yet
+          fetch(`${API_URL}/products/slug/${slug}`)
+            .then(res => {
+              if (!res.ok) throw new Error("Product not found");
+              return res.json();
+            })
+            .then(data => {
+              if (data && !data.error) {
+                setSelectedProduct(data);
+              }
+            })
+            .catch(err => console.error("Router failed to fetch product:", err));
         }
         setIsCartOpen(false);
         setIsAdminMode(false);
@@ -470,12 +485,14 @@ export default function App() {
         setSearchQuery(query);
         setIsCartOpen(false);
         setIsAdminMode(false);
+        setSelectedProduct(null);
       } else {
         // Root path "/"
         setSelectedCategory("");
         setSearchQuery("");
         setIsCartOpen(false);
         setIsAdminMode(false);
+        setSelectedProduct(null);
       }
     };
 
@@ -488,7 +505,7 @@ export default function App() {
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [loading]);
+  }, [loading, products]);
 
   // Handle URL change search or category queries reloading
   useEffect(() => {
@@ -499,6 +516,13 @@ export default function App() {
       setIsFirstRender(false);
     }
   }, [selectedCategory, searchQuery]);
+
+  // Reset window scroll position to top when a product details card opens or changes
+  useEffect(() => {
+    if (selectedProduct) {
+      window.scrollTo({ top: 0, behavior: "instant" as any });
+    }
+  }, [selectedProduct]);
 
   // Handle wishlist toggle
   const toggleWishlist = (prodId: string, e: React.MouseEvent) => {
