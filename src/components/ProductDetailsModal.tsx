@@ -368,7 +368,7 @@ export default function ProductDetailsModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* Left Column: Image Slider and Zoom */}
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 min-w-0">
               {/* Main Image Stage */}
               <div 
                 className="relative aspect-[3/4] bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100 cursor-zoom-in flex items-center justify-center"
@@ -407,7 +407,7 @@ export default function ProductDetailsModal({
 
               {/* Thumbnails Gallery */}
               {product.images.length > 1 && (
-                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-hide w-full">
                   {product.images.map((img, idx) => (
                     <button
                       key={idx}
