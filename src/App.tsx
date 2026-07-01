@@ -95,6 +95,16 @@ export default function App() {
   const fetchAllData = async (retryCount = 0) => {
     try {
       setConnectionError(false);
+
+      // Attempt to load settings, categories, and areas from localStorage cache for instant visual render
+      const cachedCats = safeStorage.getItem("kabayan_cached_categories");
+      const cachedAreas = safeStorage.getItem("kabayan_cached_areas");
+      const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
+
+      if (cachedCats) setCategories(JSON.parse(cachedCats));
+      if (cachedAreas) setAreas(JSON.parse(cachedAreas));
+      if (cachedSettings) setSettings(JSON.parse(cachedSettings));
+
       const [prodRes, catRes, areaRes, setRes] = await Promise.all([
         fetch(API_URL + "/products"),
         fetch(API_URL + "/categories"),
@@ -115,6 +125,16 @@ export default function App() {
       setCategories(categoriesData);
       setAreas(areasData);
       setSettings(settingsData);
+
+      // Persist the resolved data back to local cache for instant load next time
+      try {
+        safeStorage.setItem("kabayan_cached_categories", JSON.stringify(categoriesData));
+        safeStorage.setItem("kabayan_cached_areas", JSON.stringify(areasData));
+        safeStorage.setItem("kabayan_cached_settings", JSON.stringify(settingsData));
+      } catch (err) {
+        console.error("Failed to write layout configurations to cache:", err);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error(`Storefront fetch attempt ${retryCount + 1} failed:`, error);
@@ -125,8 +145,13 @@ export default function App() {
           fetchAllData(retryCount + 1);
         }, 3000);
       } else {
-        setConnectionError(true);
-        setLoading(false);
+        // If retries exhausted but we loaded layout configs, suppress connection error and hide spinner
+        if (products.length > 0) {
+          setLoading(false);
+        } else {
+          setConnectionError(true);
+          setLoading(false);
+        }
       }
     }
   };
