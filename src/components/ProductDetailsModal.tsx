@@ -407,12 +407,12 @@ export default function ProductDetailsModal({
 
               {/* Thumbnails Gallery */}
               {product.images.length > 1 && (
-                <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
                   {product.images.map((img, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveImage(img)}
-                      className={`relative w-16 sm:w-20 aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all flex items-center justify-center bg-neutral-50 ${
+                      className={`relative w-16 sm:w-20 aspect-[3/4] rounded-lg overflow-hidden border-2 transition-all flex items-center justify-center bg-neutral-50 shrink-0 ${
                         activeImage === img ? "border-amber-400 scale-95" : "border-transparent hover:border-neutral-300"
                       }`}
                     >
