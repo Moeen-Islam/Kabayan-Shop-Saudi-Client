@@ -106,7 +106,8 @@ export default function AdminPanel({
     dualSizesTitle1: "Jacket Size",
     dualSizesTitle2: "Jeans Waist Size",
     sizes2Input: "",
-    colorImageMap: {} as Record<string, string>
+    colorImageMap: {} as Record<string, string>,
+    isGroupOrder: false
   });
 
   const [isUploading, setIsUploading] = useState(false);
@@ -578,7 +579,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         dualSizesTitle1: productForm.dualSizesTitle1,
         dualSizesTitle2: productForm.dualSizesTitle2,
         sizes2: productForm.sizes2Input.split(",").map(s => s.trim()).filter(Boolean),
-        colorImageMap: productForm.colorImageMap
+        colorImageMap: productForm.colorImageMap,
+        isGroupOrder: !!productForm.isGroupOrder
       };
 
       const response = await fetch(API_URL + "/products", {
@@ -632,7 +634,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         dualSizesTitle1: productForm.dualSizesTitle1,
         dualSizesTitle2: productForm.dualSizesTitle2,
         sizes2: productForm.sizes2Input.split(",").map(s => s.trim()).filter(Boolean),
-        colorImageMap: productForm.colorImageMap
+        colorImageMap: productForm.colorImageMap,
+        isGroupOrder: !!productForm.isGroupOrder
       };
 
       const response = await fetch(`${API_URL}/products/${editingProduct.id}`, {
@@ -904,7 +907,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       dualSizesTitle1: "Jacket Size",
       dualSizesTitle2: "Jeans Waist Size",
       sizes2Input: "28, 30, 32, 34, 36",
-      colorImageMap: {}
+      colorImageMap: {},
+      isGroupOrder: false
     });
   };
 
@@ -938,7 +942,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       dualSizesTitle1: prod.dualSizesTitle1 || "Jacket Size",
       dualSizesTitle2: prod.dualSizesTitle2 || "Jeans Waist Size",
       sizes2Input: prod.sizes2 ? prod.sizes2.join(", ") : "",
-      colorImageMap: prod.colorImageMap || {}
+      colorImageMap: prod.colorImageMap || {},
+      isGroupOrder: !!prod.isGroupOrder
     });
   };
 
@@ -1973,6 +1978,27 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                         className="sr-only peer"
                       />
                       <div className="w-9 h-5 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-50 peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+
+                  {/* Group Order Toggle */}
+                  <div className="flex items-center justify-between p-3.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider flex items-center gap-1">
+                        📦 Group Order (Mix Color)
+                      </span>
+                      <span className="text-[10px] text-neutral-400">
+                        If enabled, customers will skip color selection. The item color will automatically default to "Mix Color".
+                      </span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={productForm.isGroupOrder || false}
+                        onChange={(e) => setProductForm({ ...productForm, isGroupOrder: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-50 peer-checked:bg-indigo-600"></div>
                     </label>
                   </div>
 

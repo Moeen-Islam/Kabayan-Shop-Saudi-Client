@@ -188,7 +188,9 @@ export default function ProductDetailsModal({
     setSelectedSize(initialSize);
     setSelectedSize2(initialSize2);
     
-    const initialColor = (product.colors && product.colors[0]) || "Multi";
+    const initialColor = product.isGroupOrder
+      ? "Mix Color"
+      : ((product.colors && product.colors[0]) || "Multi");
     setSelectedColor(initialColor);
     setSelectedColors([initialColor]);
     setSelectedSizes([initialSize]);
@@ -201,7 +203,9 @@ export default function ProductDetailsModal({
 
   useEffect(() => {
     if (!product) return;
-    const defaultColor = selectedColor || (product.colors && product.colors[0]) || "Multi";
+    const defaultColor = product.isGroupOrder
+      ? "Mix Color"
+      : (selectedColor || (product.colors && product.colors[0]) || "Multi");
     setSelectedColors((prev) => {
       const next = [...prev];
       if (next.length < quantity) {
@@ -614,7 +618,7 @@ export default function ProductDetailsModal({
                 )}
 
                 {/* 2. Color Selection */}
-                {product.colors && product.colors.length > 0 && (
+                {product.colors && product.colors.length > 0 && !product.isGroupOrder && (
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
                       2. Select Color{quantity > 1 ? `s (${quantity} Items)` : ""}:

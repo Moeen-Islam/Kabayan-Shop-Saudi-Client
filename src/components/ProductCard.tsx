@@ -71,7 +71,11 @@ function getSwatchBackground(colorName: string): string {
 
 export default function ProductCard({ product, onSelect }: ProductCardProps) {
   const { lang } = useLanguage();
-  const [selectedColor, setSelectedColor] = useState(product && product.colors && product.colors[0] ? product.colors[0] : "");
+  const [selectedColor, setSelectedColor] = useState(
+    product && product.isGroupOrder
+      ? "Mix Color"
+      : (product && product.colors && product.colors[0] ? product.colors[0] : "")
+  );
 
   const hasOffer = product && product.offerPrice !== undefined && product.offerPrice < product.price;
   const activePrice = hasOffer ? product.offerPrice! : (product ? product.price : 0);
@@ -208,7 +212,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
         </div>
 
         {/* Color Swatch Selection inside Card */}
-        {product.colors && product.colors.length > 0 && (
+        {product.colors && product.colors.length > 0 && !product.isGroupOrder && (
           <div className="flex items-center gap-1.5 mt-1 mb-3 flex-wrap">
             {product.colors.map((color) => {
               const isActive = selectedColor === color;

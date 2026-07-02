@@ -146,25 +146,26 @@ export default function App() {
         if (cachedAreas) setAreas(JSON.parse(cachedAreas));
         if (cachedSettings) setSettings(JSON.parse(cachedSettings));
 
-        const [prodRes, catRes, areaRes, setRes] = await Promise.all([
-          fetch(`${API_URL}/products?${params.toString()}`),
-          fetch(API_URL + "/categories"),
-          fetch(API_URL + "/areas"),
-          fetch(API_URL + "/settings")
-        ]);
-
-        if (!prodRes.ok || !catRes.ok || !areaRes.ok || !setRes.ok) {
+        const initRes = await fetch(`${API_URL}/storefront/init?${params.toString()}`);
+        if (!initRes.ok) {
           throw new Error("Failed to load storefront data resources");
         }
 
-        productsData = await prodRes.json();
-        categoriesData = await catRes.json();
-        areasData = await areaRes.json();
-        settingsData = await setRes.json();
+        const initData = await initRes.json();
+        productsData = initData;
+        categoriesData = initData.categories;
+        areasData = initData.areas;
+        settingsData = initData.settings;
 
         setCategories(categoriesData);
         setAreas(areasData);
         setSettings(settingsData);
+
+        // Preload the next hero image in the background for instant transitions
+        if (settingsData.bannerImages && settingsData.bannerImages.length > 1) {
+          const nextImg = new Image();
+          nextImg.src = getOptimizedImageUrl(settingsData.bannerImages[1], window.innerWidth < 640 ? 600 : 1200);
+        }
       } else {
         const prodRes = await fetch(`${API_URL}/products?${params.toString()}`);
         if (!prodRes.ok) {
