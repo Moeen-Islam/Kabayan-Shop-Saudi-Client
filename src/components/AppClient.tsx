@@ -1318,6 +1318,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
             }}
             onOrderSuccess={() => {
               setIsCheckoutOpen(false);
+              handleGoHome();
               fetchAllData(); // refresh stock numbers on storefront!
             }}
             onSelectProductById={(id) => {
