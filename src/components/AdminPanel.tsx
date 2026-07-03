@@ -6,7 +6,7 @@ import {
   Search, Plus, Edit, Trash2, Check, X, Eye,
   TrendingUp, CircleDollarSign, CalendarDays, ExternalLink,
   MapPin, Sliders, ChevronRight, RefreshCw, MessageSquare,
-  UploadCloud
+  UploadCloud, CheckCircle, ShieldAlert
 } from "lucide-react";
 import { Product, Category, Order, DeliveryArea, Coupon, ShopSettings, DashboardStats } from "../types";
 import { safeStorage } from "../lib/safeStorage";
@@ -117,6 +117,16 @@ export default function AdminPanel({
 
   // Category State
   const [newCatName, setNewCatName] = useState("");
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
+    show: false,
+    message: "",
+    type: "success"
+  });
+
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
+  };
   // Delivery Area State
   const [editingArea, setEditingArea] = useState<DeliveryArea | null>(null);
   const [areaForm, setAreaForm] = useState({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
@@ -275,7 +285,7 @@ export default function AdminPanel({
         }
       } else {
         const err = await response.json();
-        alert(`Error updating order status: ${err.error}`);
+        showToast(`Error updating order status: ${err.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to update status", err);
@@ -306,7 +316,7 @@ export default function AdminPanel({
         setEditingPhoneOrderId(null);
       } else {
         const err = await response.json();
-        alert(`Error updating phone number: ${err.error}`);
+        showToast(`Error updating phone number: ${err.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to update phone number", err);
@@ -335,7 +345,7 @@ export default function AdminPanel({
         }
       } else {
         const err = await response.json();
-        alert(`Error deleting order: ${err.error}`);
+        showToast(`Error deleting order: ${err.error}`, "error");
       }
     } catch (err) {
       console.error("Failed to delete order", err);
@@ -598,10 +608,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         setIsAddingProduct(false);
         resetProductForm();
         onRefreshAll();
-        alert("Product added successfully!");
+        showToast("Product added successfully!");
       } else {
         const err = await response.json();
-        alert(err.error || "Failed to add product");
+        showToast(err.error || "Failed to add product", "error");
       }
     } catch (err) {
       console.error("Failed to add product", err);
@@ -653,10 +663,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         setEditingProduct(null);
         resetProductForm();
         onRefreshAll();
-        alert("Product updated successfully!");
+        showToast("Product updated successfully!");
       } else {
         const err = await response.json();
-        alert(err.error || "Failed to update product");
+        showToast(err.error || "Failed to update product", "error");
       }
     } catch (err) {
       console.error("Failed to edit product", err);
@@ -674,7 +684,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       });
       if (response.ok) {
         onRefreshAll();
-        alert("Product deleted!");
+        showToast("Product deleted!");
       }
     } catch (err) {
       console.error(err);
@@ -700,7 +710,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         onRefreshAll();
       } else {
         const err = await response.json();
-        alert(err.error || "Error adding category");
+        showToast(err.error || "Error adding category", "error");
       }
     } catch (err) {
       console.error(err);
@@ -823,7 +833,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         onRefreshAll();
       } else {
         const err = await response.json();
-        alert(err.error || "Failed to add coupon");
+        showToast(err.error || "Failed to add coupon", "error");
       }
     } catch (err) {
       console.error(err);
@@ -877,7 +887,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       if (response.ok) {
         onRefreshAll();
         setShopSettingsForm(prev => ({ ...prev, adminPassword: "" }));
-        alert("Shop settings saved successfully!");
+        showToast("Shop settings saved successfully!");
       }
     } catch (err) {
       console.error(err);
@@ -3067,6 +3077,21 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         </div>
       )}
 
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] bg-neutral-900 text-white px-6 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-neutral-800 animate-slide-in-down max-w-sm w-[90%] md:w-full">
+          <div className={`p-1.5 rounded-full ${toast.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+            {toast.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <ShieldAlert className="w-5 h-5 text-red-500" />
+            )}
+          </div>
+          <div className="flex-1 text-sm font-semibold tracking-wide">
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

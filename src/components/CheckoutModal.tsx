@@ -303,12 +303,22 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     const finalWhatsapp = `${selectedCountryCode}${phoneNumber.trim()}`;
 
     if (!fullName.trim() || !phoneNumber.trim() || !selectedAreaId || !fullAddress.trim()) {
-      alert("Please fill in all required fields marked with *");
+      setToast({
+        show: true,
+        message: "Please fill in all required fields marked with *",
+        type: "error"
+      });
+      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
       return;
     }
 
     if (!latitude || !longitude) {
-      alert("⚠️ EXACT HOUSE LOCATION IS REQUIRED!\n\nPlease click the 'Share My Location' button to confirm your live coordinates location.");
+      setToast({
+        show: true,
+        message: "EXACT HOUSE LOCATION IS REQUIRED! Please pin your location on the map to confirm coordinates.",
+        type: "error"
+      });
+      setTimeout(() => setToast(prev => ({ ...prev, show: false })), 5000);
       return;
     }
 

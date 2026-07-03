@@ -613,7 +613,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  if (loading && products.length === 0) {
+  if (loading && products.length === 0 && categories.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
         <div className="text-center space-y-6 max-w-sm mx-auto">

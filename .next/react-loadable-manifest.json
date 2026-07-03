@@ -14,14 +14,14 @@
   "components\\AppClient.tsx -> ./AdminPanel": {
     "id": 8399,
     "files": [
-      "static/chunks/399.ef7ffb81d84592e4.js"
+      "static/chunks/399.c4bfc7ad4ef47ac9.js"
     ]
   },
   "components\\AppClient.tsx -> ./CheckoutModal": {
     "id": 2873,
     "files": [
       "static/chunks/d0deef33.cac6acee3fffe7af.js",
-      "static/chunks/873.b8e506e30027389b.js"
+      "static/chunks/873.ab1193e403cccae5.js"
     ]
   },
   "components\\AppClient.tsx -> ./ProductDetailsModal": {
