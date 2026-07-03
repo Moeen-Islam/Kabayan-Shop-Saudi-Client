@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { ShoppingBag, Search, ShieldAlert, Sparkles, MapPin, Phone, ChevronDown, Menu, X, Languages } from "lucide-react";
 import { useCart } from "../lib/cartStore";
@@ -143,7 +145,6 @@ export default function Header({
                 <button
                   onClick={() => {
                     setSelectedCategory("");
-                    setSearchQuery("");
                     if (isAdminMode) onExitAdmin();
                     scrollToProducts();
                   }}
@@ -156,7 +157,6 @@ export default function Header({
                     key={cat.id}
                     onClick={() => {
                       setSelectedCategory(cat.slug);
-                      setSearchQuery("");
                       if (isAdminMode) onExitAdmin();
                       scrollToProducts();
                     }}
@@ -340,7 +340,6 @@ export default function Header({
                     <button
                       onClick={() => {
                         setSelectedCategory("");
-                        setSearchQuery("");
                         if (isAdminMode) onExitAdmin();
                         setIsMobileMenuOpen(false);
                         scrollToProducts();
@@ -354,7 +353,6 @@ export default function Header({
                         key={cat.id}
                         onClick={() => {
                           setSelectedCategory(cat.slug);
-                          setSearchQuery("");
                           if (isAdminMode) onExitAdmin();
                           setIsMobileMenuOpen(false);
                           scrollToProducts();

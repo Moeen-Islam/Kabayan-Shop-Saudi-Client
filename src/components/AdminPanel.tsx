@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   BarChart3, ShoppingCart, FolderHeart, Truck, Key,
@@ -14,7 +16,7 @@ const API_URL = (() => {
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
     return envUrl + "/api";
   }
-  const hostname = window.location.hostname;
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
     const isIp = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
     if (isIp) {

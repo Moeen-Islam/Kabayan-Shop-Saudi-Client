@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { X, MapPin, Send, MessageSquare, Sparkles, ShoppingBag, CheckCircle, Ticket, Compass, ArrowLeft, RefreshCw, Navigation } from "lucide-react";
 import { useCart } from "../lib/cartStore";
@@ -12,7 +14,7 @@ const API_URL = (() => {
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
     return envUrl + "/api";
   }
-  const hostname = window.location.hostname;
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
     const isIp = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname);
     if (isIp) {
@@ -356,9 +358,8 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       // Notify the customer with a beautiful non-blocking toast
       alert(t("order_success"));
 
-      // Display the order summary receipt screen and trigger WhatsApp
+      // Display the order summary receipt screen without auto-triggering WhatsApp
       setPlacedOrder(data.order);
-      triggerWhatsApp(data.order);
     } catch (err: any) {
       alert(err.message || "Something went wrong while placing your order. Please try again.");
     } finally {
@@ -446,7 +447,11 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
             ORDER PLACED SUCCESSFULLY!
           </h2>
           <p className="text-sm text-neutral-500 mb-6 max-w-md mx-auto">
-            Your order has been recorded in our system. Please complete the final step by sending your receipt to our WhatsApp system below.
+            {lang === "ar"
+              ? "تم تسجيل طلبك بنجاح في نظامنا. شكراً لتسوقك معنا!"
+              : lang === "fil"
+                ? "Matagumpay na naitala ang iyong order sa aming system. Maraming salamat sa iyong pamimili!"
+                : "Your order has been recorded in our system. Thank you for shopping with us!"}
           </p>
 
           {/* Order Summary Receipt */}
@@ -516,23 +521,19 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
             </div>
           </div>
 
-          {/* Golden WhatsApp Action Button */}
+          {/* Highlighted Back to Storefront Action Button */}
           <div className="flex flex-col gap-3">
-            <button
-              onClick={handleSendToWhatsApp}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold text-sm uppercase py-4 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-green-500/20 text-center tracking-wider scale-102 hover:scale-105"
-            >
-              <MessageSquare className="w-5 h-5 fill-current" />
-              <span>ORDER CONFIRMED</span>
-            </button>
             <button
               onClick={() => {
                 onOrderSuccess();
                 onClose();
               }}
-              className="text-xs text-neutral-400 hover:text-neutral-600 font-bold uppercase tracking-widest py-2"
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-extrabold text-sm uppercase py-4 rounded-full flex items-center justify-center gap-2.5 transition-all shadow-lg shadow-green-500/20 text-center tracking-wider scale-102 hover:scale-105 cursor-pointer font-sans"
             >
-              Back To Storefront
+              <ShoppingBag className="w-5 h-5" />
+              <span>
+                {lang === "ar" ? "العودة إلى المتجر" : lang === "fil" ? "BUMALIK SA STOREFRONT" : "BACK TO STOREFRONT"}
+              </span>
             </button>
           </div>
         </div>

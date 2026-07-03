@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Heart, Minus, Plus, ArrowLeft } from "lucide-react";
 import { useCart } from "../lib/cartStore";

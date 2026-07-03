@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { OrderItem } from "../types";
 import { safeStorage } from "./safeStorage";
