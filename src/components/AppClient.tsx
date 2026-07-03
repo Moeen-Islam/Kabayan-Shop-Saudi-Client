@@ -737,13 +737,18 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
             {settings.bannerImages && settings.bannerImages.length > 0 && (
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
                 <section className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden shadow-lg rounded-2xl min-h-[320px] sm:min-h-0">
-                  <img
-                    src={getOptimizedImageUrl(settings.bannerImages[currentHeroIdx], window.innerWidth < 640 ? 600 : 1200)}
-                    alt="Shop Luxury Banner"
-                    referrerPolicy="no-referrer"
-                    fetchPriority="high"
-                    className="absolute inset-0 w-full h-full object-cover object-center brightness-50 transition-all duration-1000"
-                  />
+                  {settings.bannerImages.map((image, idx) => (
+                    <img
+                      key={idx}
+                      src={getOptimizedImageUrl(image, typeof window !== "undefined" && window.innerWidth < 640 ? 600 : 1200)}
+                      alt={`Shop Luxury Banner ${idx + 1}`}
+                      referrerPolicy="no-referrer"
+                      fetchPriority={idx === 0 ? "high" : "low"}
+                      className={`absolute inset-0 w-full h-full object-cover object-center brightness-50 transition-opacity duration-1000 ${
+                        idx === currentHeroIdx ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
+                  ))}
 
                   {/* Text overlays */}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent flex items-center px-4 sm:px-12 md:px-20">
@@ -771,26 +776,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                     </div>
                   </div>
 
-                  {/* Prev/Next Slides navigation buttons */}
-                  {settings.bannerImages.length > 1 && (
-                    <div className="absolute bottom-4 right-4 flex items-center gap-1.5">
-                      <button
-                        onClick={() => setCurrentHeroIdx((prev) => (prev - 1 + settings.bannerImages.length) % settings.bannerImages.length)}
-                        className="p-1.5 bg-black/60 hover:bg-amber-400 hover:text-black rounded-full text-white transition"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </button>
-                      <span className="text-[11px] font-mono text-white/80 font-bold bg-black/50 px-2.5 py-0.5 rounded-full">
-                        {currentHeroIdx + 1} / {settings.bannerImages.length}
-                      </span>
-                      <button
-                        onClick={() => setCurrentHeroIdx((prev) => (prev + 1) % settings.bannerImages.length)}
-                        className="p-1.5 bg-black/60 hover:bg-amber-400 hover:text-black rounded-full text-white transition"
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+
                 </section>
               </div>
             )}
