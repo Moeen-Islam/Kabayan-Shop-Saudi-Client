@@ -600,16 +600,20 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
   // Sort (Trending products pinned to the top first, then sorted by selection)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === "price-low") {
+      const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
+      const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
+      return aPrice - bPrice;
+    }
+    if (sortBy === "price-high") {
+      const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
+      const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
+      return bPrice - aPrice;
+    }
+
+    // Default newest: Trending first, then newest
     if (a.isTrending && !b.isTrending) return -1;
     if (!a.isTrending && b.isTrending) return 1;
- 
-    const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
-    const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
- 
-    if (sortBy === "price-low") return aPrice - bPrice;
-    if (sortBy === "price-high") return bPrice - aPrice;
- 
-    // Default: newest
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
