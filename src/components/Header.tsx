@@ -37,6 +37,14 @@ export default function Header({
   const { lang, setLang, t } = useLanguage();
   const totalItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  const getCategoryName = (cat: Category) => {
+    if (lang === "ar" && cat.nameAr) return cat.nameAr;
+    if (lang === "fil" && cat.nameFil) return cat.nameFil;
+    const keyTrans = t(cat.slug);
+    if (keyTrans !== cat.slug) return keyTrans;
+    return cat.name;
+  };
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoriesDropdownOpen, setIsCategoriesDropdownOpen] = useState(false);
 
@@ -162,7 +170,7 @@ export default function Header({
                     }}
                     className="w-full text-left px-4 py-2 text-xs font-semibold uppercase tracking-wider text-neutral-600 hover:bg-neutral-50 hover:text-amber-600 transition"
                   >
-                    {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
+                    {getCategoryName(cat)}
                   </button>
                 ))}
               </div>
@@ -350,7 +358,7 @@ export default function Header({
                         }}
                         className="text-left py-1.5 px-3 text-[11px] font-semibold uppercase text-neutral-500 hover:text-amber-600"
                       >
-                        {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
+                        {getCategoryName(cat)}
                       </button>
                     ))}
                   </div>

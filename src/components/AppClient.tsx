@@ -60,6 +60,14 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   const { items, subtotal } = useCart();
   const { lang, t } = useLanguage();
 
+  const getCategoryName = (cat: Category) => {
+    if (lang === "ar" && cat.nameAr) return cat.nameAr;
+    if (lang === "fil" && cat.nameFil) return cat.nameFil;
+    const keyTrans = t(cat.slug);
+    if (keyTrans !== cat.slug) return keyTrans;
+    return cat.name;
+  };
+
   // Helper to parse cached storefront data for 0ms initial render
   const getCachedStorefrontData = () => {
     try {
@@ -803,7 +811,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                             : "bg-neutral-100 text-neutral-600 border-neutral-200 hover:bg-neutral-200 hover:text-neutral-900"
                           }`}
                       >
-                        {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
+                        {getCategoryName(cat)}
                       </button>
                     ))}
                     {categories.length > 5 && (
@@ -1195,7 +1203,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                       onClick={() => setSelectedCategory(cat.slug)}
                       className="hover:text-white transition uppercase text-[10px] font-semibold"
                     >
-                      {t(cat.slug) !== cat.slug ? t(cat.slug) : cat.name}
+                      {getCategoryName(cat)}
                     </button>
                   </li>
                 ))}
