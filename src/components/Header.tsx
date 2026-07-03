@@ -221,22 +221,13 @@ export default function Header({
               </button>
             )}
 
-            {/* Admin Option */}
-            {isAdminMode ? (
+            {/* Admin Option - Storefront exit only */}
+            {isAdminMode && (
               <button
                 onClick={onExitAdmin}
                 className="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-4 py-1.5 rounded-full transition shadow-md shadow-amber-500/20"
               >
                 {t("storefront")}
-              </button>
-            ) : (
-              <button
-                onClick={onOpenAdmin}
-                className="flex items-center gap-1 text-neutral-500 hover:text-amber-600 transition text-xs font-bold py-1.5 px-3 rounded-full hover:bg-neutral-100"
-                title="Admin Panel"
-              >
-                <ShieldAlert className="w-4 h-4" />
-                <span>{t("admin")}</span>
               </button>
             )}
           </div>
@@ -366,8 +357,8 @@ export default function Header({
                 )}
               </div>
 
-              {/* Admin Panel button for mobile */}
-              {isAdminMode ? (
+              {/* Admin Panel button for mobile - Storefront exit only */}
+              {isAdminMode && (
                 <button
                   onClick={() => {
                     onExitAdmin();
@@ -376,17 +367,6 @@ export default function Header({
                   className="text-left w-full mt-2 py-2 px-3 bg-amber-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider text-center"
                 >
                   {t("storefront")}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    onOpenAdmin();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-1.5 text-left w-full mt-2 py-2 px-3 hover:bg-neutral-50 rounded-lg text-xs font-bold uppercase tracking-wider text-neutral-500 hover:text-amber-600 transition"
-                >
-                  <ShieldAlert className="w-4 h-4" />
-                  <span>{t("admin")}</span>
                 </button>
               )}
 
