@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, MapPin, Send, MessageSquare, Sparkles, ShoppingBag, CheckCircle, Ticket, Compass, ArrowLeft, RefreshCw, Navigation } from "lucide-react";
+import { X, MapPin, Send, MessageSquare, Sparkles, ShoppingBag, CheckCircle, Ticket, Compass, ArrowLeft, RefreshCw, Navigation, ShieldAlert } from "lucide-react";
 import { useCart } from "../lib/cartStore";
 import { DeliveryArea, Coupon, Order, ShopSettings } from "../types";
 import L from "leaflet";
@@ -179,6 +179,11 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   // Order submission states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
+    show: false,
+    message: "",
+    type: "success"
+  });
 
   // Set default area when areas load
   useEffect(() => {
@@ -356,12 +361,26 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       clearCart(); // Wipe client cart
 
       // Notify the customer with a beautiful non-blocking toast
-      alert(t("order_success"));
+      setToast({
+        show: true,
+        message: t("order_success") || "Order Confirmed!",
+        type: "success"
+      });
+      setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+      }, 4000);
 
       // Display the order summary receipt screen without auto-triggering WhatsApp
       setPlacedOrder(data.order);
     } catch (err: any) {
-      alert(err.message || "Something went wrong while placing your order. Please try again.");
+      setToast({
+        show: true,
+        message: err.message || "Something went wrong while placing your order. Please try again.",
+        type: "error"
+      });
+      setTimeout(() => {
+        setToast(prev => ({ ...prev, show: false }));
+      }, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -1082,6 +1101,22 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
         </form>
       </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] bg-neutral-900 text-white px-6 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-neutral-800 animate-slide-in-down max-w-sm w-[90%] md:w-full">
+          <div className={`p-1.5 rounded-full ${toast.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+            {toast.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <ShieldAlert className="w-5 h-5 text-red-500" />
+            )}
+          </div>
+          <div className="flex-1 text-sm font-semibold tracking-wide">
+            {toast.message}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
