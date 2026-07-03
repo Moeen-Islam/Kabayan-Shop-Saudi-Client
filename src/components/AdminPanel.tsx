@@ -117,8 +117,6 @@ export default function AdminPanel({
 
   // Category State
   const [newCatName, setNewCatName] = useState("");
-  const [newCatNameAr, setNewCatNameAr] = useState("");
-  const [newCatNameFil, setNewCatNameFil] = useState("");
   // Delivery Area State
   const [editingArea, setEditingArea] = useState<DeliveryArea | null>(null);
   const [areaForm, setAreaForm] = useState({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
@@ -695,16 +693,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           "Content-Type": "application/json",
           "Authorization": token || ""
         },
-        body: JSON.stringify({ 
-          name: newCatName,
-          nameAr: newCatNameAr,
-          nameFil: newCatNameFil
-        })
+        body: JSON.stringify({ name: newCatName })
       });
       if (response.ok) {
         setNewCatName("");
-        setNewCatNameAr("");
-        setNewCatNameFil("");
         onRefreshAll();
       } else {
         const err = await response.json();
@@ -2515,59 +2507,27 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 Category Manager
               </h3>
 
-              <form onSubmit={handleAddCategory} className="space-y-3">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                  <div>
-                    <label className="block text-[10px] text-neutral-400 font-bold uppercase tracking-wider mb-1">English Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={newCatName}
-                      onChange={(e) => setNewCatName(e.target.value)}
-                      placeholder="e.g. Tops"
-                      className="w-full px-3 py-1.5 border border-neutral-300 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-neutral-400 font-bold uppercase tracking-wider mb-1">Arabic Name</label>
-                    <input
-                      type="text"
-                      value={newCatNameAr}
-                      onChange={(e) => setNewCatNameAr(e.target.value)}
-                      placeholder="e.g. بلايز"
-                      className="w-full px-3 py-1.5 border border-neutral-300 rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-neutral-400 font-bold uppercase tracking-wider mb-1">Filipino Name</label>
-                    <input
-                      type="text"
-                      value={newCatNameFil}
-                      onChange={(e) => setNewCatNameFil(e.target.value)}
-                      placeholder="e.g. Tops"
-                      className="w-full px-3 py-1.5 border border-neutral-300 rounded-lg text-xs"
-                    />
-                  </div>
-                </div>
+              <form onSubmit={handleAddCategory} className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  placeholder="e.g. Tops, Bra-Panty, Skirts"
+                  className="flex-grow px-3.5 py-2 border border-neutral-300 rounded-lg text-xs"
+                />
                 <button
                   type="submit"
-                  className="w-full bg-black hover:bg-neutral-900 text-amber-400 font-bold py-2 rounded-lg transition"
+                  className="bg-black hover:bg-neutral-900 text-amber-400 font-bold px-4 rounded-lg transition shrink-0"
                 >
-                  Create Category
+                  Create
                 </button>
               </form>
 
               <div className="divide-y divide-neutral-100 max-h-48 overflow-y-auto">
                 {categories.map((cat) => (
                   <div key={cat.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-neutral-900">{cat.name}</span>
-                      {(cat.nameAr || cat.nameFil) && (
-                        <span className="text-[10px] text-neutral-400 ml-2">
-                          ({cat.nameAr || "-"} / {cat.nameFil || "-"})
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-bold text-neutral-900">{cat.name}</span>
                     <button
                       onClick={() => handleDeleteCategory(cat.id)}
                       className="text-red-500 hover:text-red-600 transition"

@@ -38,10 +38,40 @@ export default function Header({
   const totalItemsCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const getCategoryName = (cat: Category) => {
-    if (lang === "ar" && cat.nameAr) return cat.nameAr;
-    if (lang === "fil" && cat.nameFil) return cat.nameFil;
     const keyTrans = t(cat.slug);
     if (keyTrans !== cat.slug) return keyTrans;
+
+    const slugKey = cat.slug.toLowerCase().trim();
+    const fallbackMap: Record<string, Record<string, string>> = {
+      ar: {
+        "bra-panty": "ملابس داخلية",
+        "tops": "بلايز",
+        "skirts": "تنانير",
+        "pants": "بنطلونات",
+        "jackets": "جاكيتات",
+        "coats": "معاطف",
+        "jeans": "جينز",
+        "accessories": "إكسسوارات",
+        "bags": "حقائب",
+        "socks": "جوارب"
+      },
+      fil: {
+        "bra-panty": "Bra at Panty",
+        "tops": "Tops",
+        "skirts": "Palda",
+        "pants": "Pantalon",
+        "jackets": "Jacket",
+        "coats": "Kapa",
+        "jeans": "Jeans",
+        "accessories": "Aksesorya",
+        "bags": "Mga Bag",
+        "socks": "Medyas"
+      }
+    };
+
+    if (lang === "ar" && fallbackMap.ar[slugKey]) return fallbackMap.ar[slugKey];
+    if (lang === "fil" && fallbackMap.fil[slugKey]) return fallbackMap.fil[slugKey];
+
     return cat.name;
   };
 
