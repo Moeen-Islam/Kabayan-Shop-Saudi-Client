@@ -6,6 +6,7 @@ import { Product } from "../types";
 import { cartStore } from "../lib/cartStore";
 import { trackPixelEvent } from "../lib/metaPixel";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
+import { useLanguage } from "../lib/translationStore";
 
 const API_URL = (() => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -134,6 +135,7 @@ export default function ProductDetailsModal({
   onSelectRelated,
   isFullPage = false
 }: ProductDetailsModalProps) {
+  const { lang, t } = useLanguage();
   const [fullProduct, setFullProduct] = useState<Product | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [addingState, setAddingState] = useState<"idle" | "adding" | "added">("idle");
@@ -535,12 +537,12 @@ export default function ProductDetailsModal({
                 {product.stock > 0 ? (
                   <span className="inline-flex items-center gap-1.5 text-xs text-green-700 bg-green-50 px-2.5 py-1 rounded-full font-semibold">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse" />
-                    In Stock ({product.stock} units available)
+                    {t("in_stock", { units: product.stock })}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs text-red-700 bg-red-50 px-2.5 py-1 rounded-full font-semibold">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-600" />
-                    Out of Stock / Restocking Soon
+                    {t("out_of_stock")}
                   </span>
                 )}
               </div>
@@ -598,7 +600,7 @@ export default function ProductDetailsModal({
                 {product.packageTypes && product.packageTypes.length > 0 && (
                   <div>
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
-                      1. Select Package Option:
+                      {t("select_package_option")}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {product.packageTypes.map((pkg) => {
@@ -650,7 +652,7 @@ export default function ProductDetailsModal({
                       className="w-4 h-4 text-neutral-900 border-neutral-300 rounded focus:ring-neutral-500 accent-neutral-900 cursor-pointer"
                     />
                     <label htmlFor="choose-custom-colors" className="text-xs font-bold text-neutral-700 cursor-pointer select-none">
-                      I want to choose specific colors (Default: Mix Color)
+                      {t("choose_specific_colors")}
                     </label>
                   </div>
                 )}
@@ -662,17 +664,17 @@ export default function ProductDetailsModal({
                 ) && (
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
-                      2. Select Color{quantity > 1 ? `s (${quantity} Items)` : ""}:
+                      {t("select_color") + (quantity > 1 ? ` (${quantity} ${t("items")})` : "")}
                     </label>
                     {quantity > 1 ? (
                       <div className="space-y-3 bg-neutral-50 p-3.5 rounded-xl border border-neutral-200/80">
                         <p className="text-[10px] text-neutral-400 font-medium leading-normal mb-1">
-                          Select the color for each of your {quantity} items below:
+                          {t("choose_colors_for_each", { quantity })}
                         </p>
                         {Array.from({ length: quantity }).map((_, idx) => (
                           <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200/50 last:border-0 pb-2.5 last:pb-0">
                             <span className="text-xs font-bold text-neutral-700 font-mono">
-                              Item #{idx + 1} Color:
+                              {t("item_color_index", { index: idx + 1 })}
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                               {product.colors.map((color) => {
@@ -758,7 +760,7 @@ export default function ProductDetailsModal({
                 {/* 3. Size Selection */}
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
-                    3. Select Size{quantity > 1 ? `s (${quantity} Items)` : ""}:
+                    {t("select_size") + (quantity > 1 ? ` (${quantity} ${t("items")})` : "")}
                   </label>
  
                   {quantity > 1 && (
@@ -771,7 +773,7 @@ export default function ProductDetailsModal({
                         className="rounded text-amber-500 focus:ring-amber-400 cursor-pointer h-4 w-4"
                       />
                       <label htmlFor="same-size-checkbox" className="text-xs font-bold text-neutral-700 cursor-pointer select-none">
-                        Same size for all {quantity} items
+                        {t("same_size_all", { quantity })}
                       </label>
                     </div>
                   )}
@@ -779,12 +781,12 @@ export default function ProductDetailsModal({
                   {(quantity > 1 && !isSameSizeAll) ? (
                     <div className="space-y-4 bg-neutral-50 p-3.5 rounded-xl border border-neutral-200/80">
                       <p className="text-[10px] text-neutral-400 font-medium leading-normal mb-1">
-                        Select the size for each of your {quantity} items below:
+                        {t("size_customization_helper", { quantity })}
                       </p>
                       {Array.from({ length: quantity }).map((_, idx) => (
                         <div key={idx} className="flex flex-col gap-2 border-b border-neutral-200/50 last:border-0 pb-3.5 last:pb-0">
                           <span className="text-xs font-bold text-neutral-700 font-mono">
-                            Item #{idx + 1} Size:
+                            {t("item_size_index", { index: idx + 1 })}
                           </span>
                           
                           {product.hasDualSizes ? (
@@ -871,7 +873,7 @@ export default function ProductDetailsModal({
                         {product.sizes && product.sizes.length > 0 && (
                           <div>
                             <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-2">
-                              Select {product.dualSizesTitle1 || "Jacket Size"}:
+                              {t("select_size") + ` (${product.dualSizesTitle1 || "Size 1"}):`}
                             </label>
                             <div className="flex flex-wrap gap-2">
                               {product.sizes.map((size) => (
@@ -900,7 +902,7 @@ export default function ProductDetailsModal({
                         {product.sizes2 && product.sizes2.length > 0 && (
                           <div>
                             <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-2">
-                              Select {product.dualSizesTitle2 || "Jeans Waist Size"}:
+                              {t("select_size") + ` (${product.dualSizesTitle2 || "Size 2"}):`}
                             </label>
                             <div className="flex flex-wrap gap-2">
                               {product.sizes2.map((size) => (
@@ -952,7 +954,7 @@ export default function ProductDetailsModal({
                 {/* 4. Quantity Selector */}
                 <div>
                   <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
-                    4. Select Quantity:
+                    {t("select_quantity")}
                   </label>
                   <div className="flex items-center gap-1 w-32 border border-neutral-200 rounded-lg overflow-hidden bg-white">
                     <button
@@ -994,17 +996,17 @@ export default function ProductDetailsModal({
                   {addingState === "adding" ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Adding...</span>
+                      <span>{t("adding")}</span>
                     </>
                   ) : addingState === "added" ? (
                     <>
                       <Check className="w-4 h-4" />
-                      <span>Added!</span>
+                      <span>{t("added")}</span>
                     </>
                   ) : (
                     <>
                       <ShoppingCart className="w-4 h-4" />
-                      <span>Add To Cart</span>
+                      <span>{t("add_to_cart")}</span>
                     </>
                   )}
                 </button>
@@ -1014,7 +1016,7 @@ export default function ProductDetailsModal({
                   disabled={product.stock === 0}
                   className="flex items-center justify-center gap-2 bg-black hover:bg-neutral-900 font-bold text-sm text-white py-3.5 rounded-full transition shadow-lg shadow-black/15 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>Buy Now</span>
+                  <span>{t("buy_now")}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -1022,7 +1024,7 @@ export default function ProductDetailsModal({
               {/* Product description (Accordion style / text block) */}
               <div className="mt-6 pt-5 border-t border-neutral-100">
                 <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-widest mb-2">
-                  Product Description
+                  {t("product_description")}
                 </h4>
                 <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-sans">
                   {product.description}
@@ -1036,7 +1038,7 @@ export default function ProductDetailsModal({
           {relatedProducts.length > 0 && (
             <div className="mt-12 pt-8 border-t border-neutral-100">
               <h3 className="text-base font-bold text-neutral-900 uppercase tracking-wider mb-6">
-                You May Also Like
+                {t("related_products")}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {relatedProducts.map((rel) => {

@@ -128,7 +128,25 @@ export const translations = {
     related_products: "Related Products You May Like",
     load_more: "Load More Designs",
     explore_products: "Explore Products",
-    trending_now: "Trending Now"
+    trending_now: "Trending Now",
+    select_package_option: "1. Select Package Option:",
+    select_color: "2. Select Color:",
+    choose_specific_colors: "I want to choose specific colors (Default: Mix Color)",
+    select_size: "3. Select Size:",
+    select_quantity: "4. Select Quantity:",
+    product_description: "Product Description",
+    in_stock: "In Stock ({units} units available)",
+    out_of_stock: "Out of Stock",
+    mix_color_bracket: "Mix Color",
+    choose_colors_for_each: "Select the color for each of your {quantity} items below:",
+    item_color_index: "Item #{index} Color:",
+    item_size_index: "Item #{index} Size:",
+    bra_size: "Select Bra Size:",
+    panty_size: "Select Panty Size:",
+    same_size_all: "Choose same size for all {quantity} items",
+    size_customization_helper: "Select the size for each of your {quantity} items below:",
+    adding: "Adding...",
+    added: "Added!"
   },
   ar: {
     // Header
@@ -252,7 +270,25 @@ export const translations = {
     related_products: "منتجات ذات صلة قد تعجبك",
     load_more: "عرض المزيد من التصاميم",
     explore_products: "استكشف المنتجات",
-    trending_now: "الأكثر رواجاً الآن"
+    trending_now: "الأكثر رواجاً الآن",
+    select_package_option: "١. اختر خيار الحزمة:",
+    select_color: "٢. اختر اللون:",
+    choose_specific_colors: "أريد اختيار ألوان محددة (الافتراضي: لون عشوائي مشكل)",
+    select_size: "٣. اختر المقاس:",
+    select_quantity: "٤. اختر الكمية:",
+    product_description: "وصف المنتج",
+    in_stock: "متوفر في المخزون (متوفر {units} قطعة)",
+    out_of_stock: "نفذت الكمية",
+    mix_color_bracket: "لون مشكل",
+    choose_colors_for_each: "اختر لوناً لكل من المنتجات الـ {quantity} أدناه:",
+    item_color_index: "لون المنتج رقم {index}:",
+    item_size_index: "مقاس المنتج رقم {index}:",
+    bra_size: "اختر مقاس حمالة الصدر:",
+    panty_size: "اختر مقاس الكيلوت:",
+    same_size_all: "اختر نفس المقاس لجميع المنتجات الـ {quantity}",
+    size_customization_helper: "اختر مقاساً لكل من المنتجات الـ {quantity} أدناه:",
+    adding: "جاري الإضافة...",
+    added: "تمت الإضافة!"
   },
   fil: {
     // Header
@@ -376,7 +412,25 @@ export const translations = {
     related_products: "Mga Kaugnay na Produkto na Maaari Mong Magustuhan",
     load_more: "Tingnan ang Iba pa",
     explore_products: "I-explore ang mga Produkto",
-    trending_now: "Trending Ngayon"
+    trending_now: "Trending Ngayon",
+    select_package_option: "1. Pumili ng Package Option:",
+    select_color: "2. Pumili ng Kulay:",
+    choose_specific_colors: "Gusto kong pumili ng partikular na mga kulay (Default: Halo-halong Kulay)",
+    select_size: "3. Pumili ng Size:",
+    select_quantity: "4. Pumili ng Dami:",
+    product_description: "Paglalarawan ng Produkto",
+    in_stock: "May Stock ({units} units ang available)",
+    out_of_stock: "Walang Stock",
+    mix_color_bracket: "Halo-halong Kulay",
+    choose_colors_for_each: "Pumili ng kulay para sa bawat isa sa iyong {quantity} items sa ibaba:",
+    item_color_index: "Kulay ng Item #{index}:",
+    item_size_index: "Size ng Item #{index}:",
+    bra_size: "Pumili ng Bra Size:",
+    panty_size: "Pumili ng Panty Size:",
+    same_size_all: "Pumili ng parehong size para sa lahat ng {quantity} items",
+    size_customization_helper: "Pumili ng size para sa bawat isa sa iyong {quantity} items sa ibaba:",
+    adding: "Idinadagdag...",
+    added: "Naidagdag na!"
   }
 };
 
