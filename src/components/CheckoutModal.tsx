@@ -221,11 +221,11 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     if (appliedCoupon.discountType === "percentage") {
       discountAmount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
     } else {
-      discountAmount = Math.min(appliedCoupon.discountValue, subtotal);
+      discountAmount = Math.min(appliedCoupon.discountValue, subtotal + deliveryCharge);
     }
   }
 
-  const grandTotal = Math.max(0, subtotal - discountAmount) + deliveryCharge;
+  const grandTotal = Math.max(0, subtotal + deliveryCharge - discountAmount);
 
   // 1. Share My Location / Pin Live Location Trigger
   const handleShareLocation = () => {
