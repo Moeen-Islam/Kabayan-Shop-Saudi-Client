@@ -1,10 +1,10 @@
 {
   "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
   "/collections/[category]/page": "/collections/[category]",
   "/page": "/",
   "/cart/page": "/cart",
-  "/admin/page": "/admin",
   "/product/[slug]/page": "/product/[slug]",
-  "/collections/page": "/collections",
-  "/product/page": "/product"
+  "/product/page": "/product",
+  "/collections/page": "/collections"
 }

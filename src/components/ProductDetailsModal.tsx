@@ -177,6 +177,7 @@ export default function ProductDetailsModal({
   const [selectedSizes2, setSelectedSizes2] = useState<string[]>([]);
   const [isSameSizeAll, setIsSameSizeAll] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState("");
+  const [chooseCustomColors, setChooseCustomColors] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomStyle, setZoomStyle] = useState<React.CSSProperties>({});
@@ -201,11 +202,12 @@ export default function ProductDetailsModal({
     setSelectedPackage((product.packageTypes && product.packageTypes[0]) || "Single Piece");
     setQuantity(1);
     setIsZoomed(false);
+    setChooseCustomColors(false);
   }, [product]);
 
   useEffect(() => {
     if (!product) return;
-    const defaultColor = product.isGroupOrder
+    const defaultColor = (product.isGroupOrder && !chooseCustomColors)
       ? "Mix Color"
       : (selectedColor || (product.colors && product.colors[0]) || "Multi");
     setSelectedColors((prev) => {
@@ -219,7 +221,21 @@ export default function ProductDetailsModal({
       }
       return next;
     });
-  }, [quantity, product, selectedColor]);
+  }, [quantity, product, selectedColor, chooseCustomColors]);
+
+  // Sync color selection states when chooseCustomColors toggle is flipped
+  useEffect(() => {
+    if (!product || !product.isGroupOrder) return;
+    
+    if (chooseCustomColors) {
+      const defaultColor = (product.colors && product.colors[0]) || "Multi";
+      setSelectedColor(defaultColor);
+      setSelectedColors(Array.from({ length: quantity }, () => defaultColor));
+    } else {
+      setSelectedColor("Mix Color");
+      setSelectedColors(Array.from({ length: quantity }, () => "Mix Color"));
+    }
+  }, [chooseCustomColors, product, quantity]);
 
   // Keep selectedPackage and quantity in sync when quantity changes manually
   useEffect(() => {
@@ -308,7 +324,9 @@ export default function ProductDetailsModal({
           : selectedSize;
       }
 
-      const finalColor = multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor);
+      const finalColor = product.isGroupOrder
+        ? (chooseCustomColors ? (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor) : "Mix Color")
+        : (multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
 
       cartStore.addItem({
         productId: product.id,
@@ -363,7 +381,9 @@ export default function ProductDetailsModal({
         : selectedSize;
     }
 
-    const finalColor = multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor);
+    const finalColor = product.isGroupOrder
+      ? (chooseCustomColors ? (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor) : "Mix Color")
+      : (multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
 
     cartStore.addItem({
       productId: product.id,
@@ -619,8 +639,27 @@ export default function ProductDetailsModal({
                   </div>
                 )}
 
+                {/* 2. Color Selection Option for Group Orders */}
+                {product.colors && product.colors.length > 0 && product.isGroupOrder && (
+                  <div className="flex items-center gap-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200/50 mb-3">
+                    <input
+                      type="checkbox"
+                      id="choose-custom-colors"
+                      checked={chooseCustomColors}
+                      onChange={(e) => setChooseCustomColors(e.target.checked)}
+                      className="w-4 h-4 text-neutral-900 border-neutral-300 rounded focus:ring-neutral-500 accent-neutral-900 cursor-pointer"
+                    />
+                    <label htmlFor="choose-custom-colors" className="text-xs font-bold text-neutral-700 cursor-pointer select-none">
+                      I want to choose specific colors (Default: Mix Color)
+                    </label>
+                  </div>
+                )}
+
                 {/* 2. Color Selection */}
-                {product.colors && product.colors.length > 0 && !product.isGroupOrder && multiplier === 1 && (
+                {product.colors && product.colors.length > 0 && (
+                  (product.isGroupOrder && chooseCustomColors) ||
+                  (!product.isGroupOrder && multiplier === 1)
+                ) && (
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
                       2. Select Color{quantity > 1 ? `s (${quantity} Items)` : ""}:
