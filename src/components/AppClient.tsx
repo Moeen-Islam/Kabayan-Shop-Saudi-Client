@@ -17,6 +17,7 @@ import { safeStorage } from "../lib/safeStorage";
 import { useLanguage } from "../lib/translationStore";
 import { initMetaPixel } from "../lib/metaPixel";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
+import { initialDb } from "../lib/initialDb";
 
 const AdminPanel = dynamic(() => import("./AdminPanel"), { ssr: false });
 const ProductDetailsModal = dynamic(() => import("./ProductDetailsModal"), { ssr: false });
@@ -118,7 +119,14 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
     } catch (err) {
       console.error("Failed to parse cached storefront files:", err);
     }
-    return { hasCache: false };
+    // Fall back to initialDb to guarantee 0ms loading time on first visit!
+    return {
+      products: initialDb.products as Product[],
+      categories: initialDb.categories as Category[],
+      areas: initialDb.areas as DeliveryArea[],
+      settings: initialDb.settings as ShopSettings,
+      hasCache: true
+    };
   };
 
   const cached = getCachedStorefrontData();
