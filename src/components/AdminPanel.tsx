@@ -136,6 +136,8 @@ export default function AdminPanel({
 
   // Coupon State
   const [isAddingCoupon, setIsAddingCoupon] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+  const [localCoupons, setLocalCoupons] = useState<Coupon[]>([]);
   const [couponForm, setCouponForm] = useState({
     code: "",
     discountType: "percentage" as "percentage" | "fixed",
@@ -171,11 +173,17 @@ export default function AdminPanel({
     }
   }, []);
 
+  // Sync local coupons with props fallback
+  useEffect(() => {
+    setLocalCoupons(coupons);
+  }, [coupons]);
+
   // Fetch Admin Data
   useEffect(() => {
     if (isLoggedIn) {
       fetchDashboardStats();
       fetchOrders();
+      fetchCoupons();
       // Initialize settings form
       setShopSettingsForm({
         shopName: settings.shopName || "",
@@ -810,6 +818,21 @@ Thank you for shopping with Kabayan Shop! ❤️`;
   };
 
   // Coupons CRUD APIs
+  const fetchCoupons = async () => {
+    try {
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      const response = await fetch(API_URL + "/coupons", {
+        headers: { "Authorization": token || "" }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setLocalCoupons(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleAddCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -830,10 +853,43 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       if (response.ok) {
         setIsAddingCoupon(false);
         setCouponForm({ code: "", discountType: "percentage", discountValue: "", expiryDate: "" });
+        fetchCoupons();
         onRefreshAll();
       } else {
         const err = await response.json();
         showToast(err.error || "Failed to add coupon", "error");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEditCouponSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCoupon) return;
+    try {
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      const response = await fetch(`${API_URL}/coupons/${editingCoupon.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token || ""
+        },
+        body: JSON.stringify({
+          code: couponForm.code,
+          discountType: couponForm.discountType,
+          discountValue: Number(couponForm.discountValue),
+          expiryDate: couponForm.expiryDate
+        })
+      });
+      if (response.ok) {
+        setEditingCoupon(null);
+        setCouponForm({ code: "", discountType: "percentage", discountValue: "", expiryDate: "" });
+        fetchCoupons();
+        onRefreshAll();
+      } else {
+        const err = await response.json();
+        showToast(err.error || "Failed to update coupon", "error");
       }
     } catch (err) {
       console.error(err);
@@ -849,6 +905,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         headers: { "Authorization": token || "" }
       });
       if (response.ok) {
+        fetchCoupons();
         onRefreshAll();
       }
     } catch (err) {
@@ -2715,9 +2772,12 @@ Thank you for shopping with Kabayan Shop! ❤️`;
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400">
                 Coupons & Discounts Setup
               </h3>
-              {!isAddingCoupon && (
+              {!isAddingCoupon && !editingCoupon && (
                 <button
-                  onClick={() => setIsAddingCoupon(true)}
+                  onClick={() => {
+                    setCouponForm({ code: "", discountType: "percentage", discountValue: "", expiryDate: "" });
+                    setIsAddingCoupon(true);
+                  }}
                   className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -2726,10 +2786,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
               )}
             </div>
 
-            {isAddingCoupon && (
-              <form onSubmit={handleAddCoupon} className="bg-neutral-50 p-4 border border-neutral-200 rounded-xl space-y-3">
+            {(isAddingCoupon || editingCoupon) && (
+              <form onSubmit={isAddingCoupon ? handleAddCoupon : handleEditCouponSave} className="bg-neutral-50 p-4 border border-neutral-200 rounded-xl space-y-3">
                 <h4 className="font-bold text-neutral-800 uppercase text-[10px]">
-                  Add Coupon Code
+                  {isAddingCoupon ? "Add Coupon Code" : `Edit Coupon: ${editingCoupon?.code}`}
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -2779,7 +2839,11 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setIsAddingCoupon(false)}
+                    onClick={() => {
+                      setIsAddingCoupon(false);
+                      setEditingCoupon(null);
+                      setCouponForm({ code: "", discountType: "percentage", discountValue: "", expiryDate: "" });
+                    }}
                     className="border border-neutral-300 px-3 py-1 rounded text-neutral-500 hover:bg-neutral-100 transition"
                   >
                     Cancel
@@ -2788,14 +2852,14 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     type="submit"
                     className="bg-black text-amber-400 font-bold px-4 py-1 rounded hover:bg-neutral-900 transition"
                   >
-                    Save Code
+                    {isAddingCoupon ? "Save Code" : "Update Code"}
                   </button>
                 </div>
               </form>
             )}
 
             <div className="divide-y divide-neutral-100 max-h-72 overflow-y-auto">
-              {coupons.map((coupon) => (
+              {localCoupons.map((coupon) => (
                 <div key={coupon.id} className="py-2.5 flex items-center justify-between">
                   <div>
                     <span className="font-bold text-neutral-900 block font-mono tracking-wider">{coupon.code}</span>
@@ -2803,13 +2867,31 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       Saved {coupon.discountValue}{coupon.discountType === "percentage" ? "%" : " SAR"} • Expires: {coupon.expiryDate}
                     </span>
                   </div>
-                  <button
-                    onClick={() => handleDeleteCoupon(coupon.id)}
-                    className="text-red-500 hover:text-red-600"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => {
+                        setEditingCoupon(coupon);
+                        setIsAddingCoupon(false);
+                        setCouponForm({
+                          code: coupon.code,
+                          discountType: coupon.discountType,
+                          discountValue: String(coupon.discountValue),
+                          expiryDate: coupon.expiryDate
+                        });
+                      }}
+                      className="text-neutral-500 hover:text-black transition"
+                      title="Edit"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCoupon(coupon.id)}
+                      className="text-red-500 hover:text-red-600 transition"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
