@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Product, Category, Order, DeliveryArea, Coupon, ShopSettings, DashboardStats } from "../types";
 import { safeStorage } from "../lib/safeStorage";
+import ExcelJS from "exceljs";
 
 const API_URL = (() => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -252,50 +253,160 @@ export default function AdminPanel({
     };
   };
 
-  const handleExportReportToCSV = (month: string) => {
-    const report = getMonthlyReportStats(month);
-    const dateObj = new Date(`${month}-02`);
-    const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+  const handleExportReportToExcel = async (month: string) => {
+    try {
+      const report = getMonthlyReportStats(month);
+      const dateObj = new Date(`${month}-02`);
+      const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
 
-    let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Arabic / special characters compatibility
-    
-    // Title
-    csvContent += `Monthly Financial Report - ${monthLabel}\n`;
-    csvContent += `Generated Date,${new Date().toLocaleDateString("en-US")}\n\n`;
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(`Report - ${month}`);
 
-    // Summary Section
-    csvContent += `--- OVERALL SUMMARY ---\n`;
-    csvContent += `Metric,Value\n`;
-    csvContent += `Total Orders,${report.totalOrders}\n`;
-    csvContent += `Active Orders,${report.activeOrdersCount}\n`;
-    csvContent += `Delivered Orders,${report.deliveredOrdersCount}\n`;
-    csvContent += `Cancelled Orders,${report.cancelledOrdersCount}\n`;
-    csvContent += `Total Sales,${report.totalSales} SAR\n`;
-    csvContent += `Total Cost,${report.totalCost} SAR\n`;
-    csvContent += `Total Net Profit,${report.totalProfit} SAR\n\n`;
+      // Set column widths
+      worksheet.columns = [
+        { key: "colA", width: 30 },
+        { key: "colB", width: 15 },
+        { key: "colC", width: 22 },
+        { key: "colD", width: 22 },
+        { key: "colE", width: 22 },
+        { key: "colF", width: 15 }
+      ];
 
-    // Regional Section
-    csvContent += `--- REGIONAL PERFORMANCE ---\n`;
-    csvContent += `Delivery Area,Orders,Gross Sales (SAR),Product Cost (SAR),Net Profit (SAR),Margin (%)\n`;
-    
-    if (report.areaStats.length === 0) {
-      csvContent += `No order activity recorded,,,\n`;
-    } else {
-      report.areaStats.forEach(area => {
-        const profitMargin = area.sales > 0 ? Math.round((area.profit / area.sales) * 100) : 0;
-        csvContent += `"${area.areaName.replace(/"/g, '""')}",${area.orderCount},${area.sales},${area.cost},${area.profit},${profitMargin}%\n`;
+      // 1. Title Block
+      const titleRow = worksheet.addRow([`Monthly Financial Report - ${monthLabel}`]);
+      titleRow.getCell(1).font = { name: "Segoe UI", size: 16, bold: true, color: { argb: "FF111827" } };
+      
+      const dateRow = worksheet.addRow([`Generated Date: ${new Date().toLocaleDateString("en-US")}`]);
+      dateRow.getCell(1).font = { name: "Segoe UI", size: 10, italic: true, color: { argb: "FF6B7280" } };
+      
+      worksheet.addRow([]); // empty row
+
+      // 2. Summary Section
+      const summaryHeader = worksheet.addRow(["OVERALL MONTHLY SUMMARY"]);
+      summaryHeader.getCell(1).font = { name: "Segoe UI", size: 11, bold: true, color: { argb: "FFFFFFFF" } };
+      summaryHeader.getCell(1).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF111827" } // Dark grey/black background
+      };
+      summaryHeader.getCell(1).alignment = { vertical: "middle", indent: 1 };
+      summaryHeader.height = 28;
+      worksheet.mergeCells(`A${summaryHeader.number}:F${summaryHeader.number}`);
+
+      const summaryHeaderRow = worksheet.addRow(["Metric", "Value"]);
+      summaryHeaderRow.height = 22;
+      summaryHeaderRow.eachCell(cell => {
+        cell.font = { name: "Segoe UI", size: 10, bold: true, color: { argb: "FF374151" } };
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF3F4F6" } };
+        cell.alignment = { vertical: "middle" };
+        cell.border = { bottom: { style: "thin", color: { argb: "FFE5E7EB" } } };
       });
-    }
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Monthly_Financial_Report_${month}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast("Report exported to Excel successfully!", "success");
+      const summaryData = [
+        ["Total Orders", report.totalOrders],
+        ["Active Orders", report.activeOrdersCount],
+        ["Delivered Orders", report.deliveredOrdersCount],
+        ["Cancelled Orders", report.cancelledOrdersCount],
+        ["Total Sales", `${report.totalSales} SAR`],
+        ["Total Cost", `${report.totalCost} SAR`],
+        ["Total Net Profit", `${report.totalProfit} SAR`]
+      ];
+
+      summaryData.forEach(item => {
+        const row = worksheet.addRow(item);
+        row.height = 20;
+        row.getCell(1).font = { name: "Segoe UI", size: 10, color: { argb: "FF4B5563" } };
+        row.getCell(1).alignment = { vertical: "middle" };
+        row.getCell(2).font = { name: "Segoe UI", size: 10, bold: true, color: { argb: "FF111827" } };
+        row.getCell(2).alignment = { horizontal: "right", vertical: "middle" };
+        
+        row.eachCell(cell => {
+          cell.border = { bottom: { style: "thin", color: { argb: "FFF3F4F6" } } };
+        });
+      });
+
+      worksheet.addRow([]); // empty row
+      worksheet.addRow([]); // empty row
+
+      // 3. Regional Matrix Section
+      const regionalHeader = worksheet.addRow(["REGIONAL PERFORMANCE MATRIX (SAUDI CITIES)"]);
+      regionalHeader.getCell(1).font = { name: "Segoe UI", size: 11, bold: true, color: { argb: "FFFFFFFF" } };
+      regionalHeader.getCell(1).fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF111827" }
+      };
+      regionalHeader.getCell(1).alignment = { vertical: "middle", indent: 1 };
+      regionalHeader.height = 28;
+      worksheet.mergeCells(`A${regionalHeader.number}:F${regionalHeader.number}`);
+
+      const regionalHeaderRow = worksheet.addRow(["Delivery Area / City", "Orders", "Gross Sales (SAR)", "Product Cost (SAR)", "Net Profit (SAR)", "Margin (%)"]);
+      regionalHeaderRow.height = 22;
+      regionalHeaderRow.eachCell((cell, i) => {
+        cell.font = { name: "Segoe UI", size: 10, bold: true, color: { argb: "FF374151" } };
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF3F4F6" } };
+        cell.alignment = { horizontal: i === 1 ? "left" : "right", vertical: "middle" };
+        cell.border = { bottom: { style: "medium", color: { argb: "FFD1D5DB" } } };
+      });
+
+      if (report.areaStats.length === 0) {
+        const emptyRow = worksheet.addRow(["No order activity recorded for this month"]);
+        worksheet.mergeCells(`A${emptyRow.number}:F${emptyRow.number}`);
+        emptyRow.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
+        emptyRow.getCell(1).font = { name: "Segoe UI", italic: true, color: { argb: "FF9CA3AF" } };
+        emptyRow.height = 30;
+      } else {
+        report.areaStats.forEach(area => {
+          const profitMargin = area.sales > 0 ? Math.round((area.profit / area.sales) * 100) : 0;
+          const row = worksheet.addRow([
+            area.areaName,
+            area.orderCount,
+            area.sales,
+            area.cost,
+            area.profit,
+            `${profitMargin}%`
+          ]);
+
+          row.height = 20;
+          row.getCell(1).font = { name: "Segoe UI", size: 10, bold: true, color: { argb: "FF111827" } };
+          row.getCell(1).alignment = { vertical: "middle" };
+          
+          row.getCell(2).font = { name: "Segoe UI", size: 10, color: { argb: "FF4B5563" } };
+          row.getCell(2).alignment = { horizontal: "right", vertical: "middle" };
+          
+          row.getCell(3).font = { name: "Segoe UI", size: 10, color: { argb: "FF4B5563" } };
+          row.getCell(3).alignment = { horizontal: "right", vertical: "middle" };
+          
+          row.getCell(4).font = { name: "Segoe UI", size: 10, color: { argb: "FF9CA3AF" } };
+          row.getCell(4).alignment = { horizontal: "right", vertical: "middle" };
+          
+          const marginColor = area.profit > 0 ? "FF10B981" : "FF4B5563";
+          row.getCell(5).font = { name: "Segoe UI", size: 10, bold: true, color: { argb: marginColor } };
+          row.getCell(5).alignment = { horizontal: "right", vertical: "middle" };
+          
+          row.getCell(6).font = { name: "Segoe UI", size: 10, bold: true, color: { argb: marginColor } };
+          row.getCell(6).alignment = { horizontal: "right", vertical: "middle" };
+
+          row.eachCell(cell => {
+            cell.border = { bottom: { style: "thin", color: { argb: "FFE5E7EB" } } };
+          });
+        });
+      }
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Monthly_Financial_Report_${month}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Report exported to Excel successfully!", "success");
+    } catch (err) {
+      console.error("Failed to export Excel:", err);
+      showToast("Failed to generate Excel report.", "error");
+    }
   };
 
   // Settings State
@@ -1628,7 +1739,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                     </div>
 
                     <button
-                      onClick={() => handleExportReportToCSV(selectedReportMonth)}
+                      onClick={() => handleExportReportToExcel(selectedReportMonth)}
                       className="bg-black hover:bg-neutral-900 text-amber-400 text-xs font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition shadow-sm border border-neutral-800"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
