@@ -194,14 +194,13 @@ export default function AdminPanel({
         return sum + (pPrice * item.quantity);
       }, 0);
       const driverCost = o.driverDeliveryCharge !== undefined ? o.driverDeliveryCharge : 0;
-      const profit = o.status === "Delivered" ? (o.grandTotal - cost - driverCost) : 0;
+      const profit = o.status !== "Cancelled" ? (o.grandTotal - cost - driverCost) : 0;
       return { cost, profit };
     };
 
     const totalCost = activeOrders.reduce((sum, o) => sum + calculateOrderStats(o).cost, 0);
 
-    const deliveredOrders = monthOrders.filter(o => o.status === "Delivered");
-    const totalProfit = deliveredOrders.reduce((sum, o) => sum + calculateOrderStats(o).profit, 0);
+    const totalProfit = activeOrders.reduce((sum, o) => sum + calculateOrderStats(o).profit, 0);
 
     const areaStatsMap: {
       [key: string]: {
@@ -229,12 +228,8 @@ export default function AdminPanel({
 
       if (o.status !== "Cancelled") {
         areaStatsMap[areaName].sales += o.grandTotal;
-        const { cost } = calculateOrderStats(o);
+        const { cost, profit } = calculateOrderStats(o);
         areaStatsMap[areaName].cost += cost;
-      }
-
-      if (o.status === "Delivered") {
-        const { profit } = calculateOrderStats(o);
         areaStatsMap[areaName].profit += profit;
       }
     });
@@ -244,7 +239,7 @@ export default function AdminPanel({
     return {
       totalOrders: monthOrders.length,
       activeOrdersCount: activeOrders.length,
-      deliveredOrdersCount: deliveredOrders.length,
+      deliveredOrdersCount: monthOrders.filter(o => o.status === "Delivered").length,
       cancelledOrdersCount: monthOrders.filter(o => o.status === "Cancelled").length,
       totalSales,
       totalCost,
@@ -1779,7 +1774,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                             {report.totalProfit} <span className="text-[10px] font-semibold">SAR</span>
                           </span>
                           <span className="text-[9px] text-amber-700 font-semibold block mt-1">
-                            From {report.deliveredOrdersCount} delivered orders
+                            From active orders
                           </span>
                         </div>
                         <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/50">
