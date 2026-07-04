@@ -145,6 +145,28 @@ export default function AdminPanel({
     expiryDate: ""
   });
 
+  // Custom Delete Confirm Modal State
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {}
+  });
+
+  const confirmDeleteAction = (title: string, message: string, onConfirm: () => void) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title,
+      message,
+      onConfirm
+    });
+  };
+
   // Settings State
   const [shopSettingsForm, setShopSettingsForm] = useState({
     shopName: "",
@@ -332,10 +354,7 @@ export default function AdminPanel({
   };
 
   // Delete Order API
-  const handleDeleteOrder = async (orderId: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this order? This action cannot be undone.")) {
-      return;
-    }
+  const executeDeleteOrder = async (orderId: string) => {
     try {
       const token = adminToken || localStorage.getItem("kabayan_admin_token");
       const response = await fetch(`${API_URL}/orders/${orderId}`, {
@@ -345,6 +364,7 @@ export default function AdminPanel({
         }
       });
       if (response.ok) {
+        showToast("Order permanently deleted successfully!", "success");
         fetchOrders();
         fetchDashboardStats();
         onRefreshAll();
@@ -357,7 +377,16 @@ export default function AdminPanel({
       }
     } catch (err) {
       console.error("Failed to delete order", err);
+      showToast("Failed to delete order. Please try again.", "error");
     }
+  };
+
+  const handleDeleteOrder = (orderId: string) => {
+    confirmDeleteAction(
+      "Delete Order",
+      "Are you sure you want to permanently delete this order? This action cannot be undone.",
+      () => executeDeleteOrder(orderId)
+    );
   };
 
   // Send Delivery details to customer via WhatsApp
@@ -682,8 +711,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
   };
 
   // Delete Product API
-  const handleDeleteProduct = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  const executeDeleteProduct = async (id: string) => {
     try {
       const token = adminToken || localStorage.getItem("kabayan_admin_token");
       const response = await fetch(`${API_URL}/products/${id}`, {
@@ -692,11 +720,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       });
       if (response.ok) {
         onRefreshAll();
-        showToast("Product deleted!");
+        showToast("Product deleted successfully!");
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    confirmDeleteAction(
+      "Delete Product",
+      "Are you sure you want to delete this product?",
+      () => executeDeleteProduct(id)
+    );
   };
 
   // Categories CRUD APIs
@@ -725,8 +761,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
+  const executeDeleteCategory = async (id: string) => {
     try {
       const token = adminToken || localStorage.getItem("kabayan_admin_token");
       const response = await fetch(`${API_URL}/categories/${id}`, {
@@ -735,10 +770,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       });
       if (response.ok) {
         onRefreshAll();
+        showToast("Category deleted successfully!");
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    confirmDeleteAction(
+      "Delete Category",
+      "Are you sure you want to delete this category?",
+      () => executeDeleteCategory(id)
+    );
   };
 
   // Shipping Area CRUD APIs
@@ -801,8 +845,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
     }
   };
 
-  const handleDeleteArea = async (id: string) => {
-    if (!window.confirm("Delete this shipping area?")) return;
+  const executeDeleteArea = async (id: string) => {
     try {
       const token = adminToken || localStorage.getItem("kabayan_admin_token");
       const response = await fetch(`${API_URL}/areas/${id}`, {
@@ -811,10 +854,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       });
       if (response.ok) {
         onRefreshAll();
+        showToast("Shipping area rate deleted successfully!");
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleDeleteArea = (id: string) => {
+    confirmDeleteAction(
+      "Delete Shipping Area",
+      "Delete this shipping area?",
+      () => executeDeleteArea(id)
+    );
   };
 
   // Coupons CRUD APIs
@@ -896,8 +948,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
     }
   };
 
-  const handleDeleteCoupon = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this coupon code?")) return;
+  const executeDeleteCoupon = async (id: string) => {
     try {
       const token = adminToken || localStorage.getItem("kabayan_admin_token");
       const response = await fetch(`${API_URL}/coupons/${id}`, {
@@ -907,10 +958,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       if (response.ok) {
         fetchCoupons();
         onRefreshAll();
+        showToast("Coupon deleted successfully!");
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleDeleteCoupon = (id: string) => {
+    confirmDeleteAction(
+      "Delete Coupon",
+      "Are you sure you want to delete this coupon code?",
+      () => executeDeleteCoupon(id)
+    );
   };
 
   // Shop Settings save API
@@ -3159,9 +3219,9 @@ Thank you for shopping with Kabayan Shop! ❤️`;
         </div>
       )}
 
-      {/* Toast Notification */}
+      {/* Toast Notification (Top Right) */}
       {toast.show && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] bg-neutral-900 text-white px-6 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-neutral-800 animate-slide-in-down max-w-sm w-[90%] md:w-full">
+        <div className="fixed top-5 right-5 z-[9999] bg-neutral-900 text-white px-6 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-neutral-800 animate-in fade-in slide-in-from-top-5 md:slide-in-from-right-5 duration-300 max-w-sm w-[90%] md:w-full">
           <div className={`p-1.5 rounded-full ${toast.type === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
             {toast.type === 'success' ? (
               <CheckCircle className="w-5 h-5 text-emerald-500" />
@@ -3171,6 +3231,44 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           </div>
           <div className="flex-1 text-sm font-semibold tracking-wide">
             {toast.message}
+          </div>
+        </div>
+      )}
+
+      {/* Custom Delete Confirmation Modal */}
+      {deleteConfirm.isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-neutral-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-neutral-800 text-sm tracking-wide uppercase">
+                {deleteConfirm.title}
+              </h3>
+            </div>
+            <p className="text-xs text-neutral-500 leading-relaxed font-semibold">
+              {deleteConfirm.message}
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(prev => ({ ...prev, isOpen: false }))}
+                className="border border-neutral-300 px-4 py-2 rounded-lg text-neutral-600 hover:bg-neutral-50 text-xs font-bold uppercase transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteConfirm.onConfirm();
+                  setDeleteConfirm(prev => ({ ...prev, isOpen: false }));
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase transition shadow-md shadow-red-600/10"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
