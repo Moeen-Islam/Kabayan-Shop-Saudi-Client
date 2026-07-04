@@ -252,6 +252,52 @@ export default function AdminPanel({
     };
   };
 
+  const handleExportReportToCSV = (month: string) => {
+    const report = getMonthlyReportStats(month);
+    const dateObj = new Date(`${month}-02`);
+    const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+
+    let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Arabic / special characters compatibility
+    
+    // Title
+    csvContent += `Monthly Financial Report - ${monthLabel}\n`;
+    csvContent += `Generated Date,${new Date().toLocaleDateString("en-US")}\n\n`;
+
+    // Summary Section
+    csvContent += `--- OVERALL SUMMARY ---\n`;
+    csvContent += `Metric,Value\n`;
+    csvContent += `Total Orders,${report.totalOrders}\n`;
+    csvContent += `Active Orders,${report.activeOrdersCount}\n`;
+    csvContent += `Delivered Orders,${report.deliveredOrdersCount}\n`;
+    csvContent += `Cancelled Orders,${report.cancelledOrdersCount}\n`;
+    csvContent += `Total Sales,${report.totalSales} SAR\n`;
+    csvContent += `Total Cost,${report.totalCost} SAR\n`;
+    csvContent += `Total Net Profit,${report.totalProfit} SAR\n\n`;
+
+    // Regional Section
+    csvContent += `--- REGIONAL PERFORMANCE ---\n`;
+    csvContent += `Delivery Area,Orders,Gross Sales (SAR),Product Cost (SAR),Net Profit (SAR),Margin (%)\n`;
+    
+    if (report.areaStats.length === 0) {
+      csvContent += `No order activity recorded,,,\n`;
+    } else {
+      report.areaStats.forEach(area => {
+        const profitMargin = area.sales > 0 ? Math.round((area.profit / area.sales) * 100) : 0;
+        csvContent += `"${area.areaName.replace(/"/g, '""')}",${area.orderCount},${area.sales},${area.cost},${area.profit},${profitMargin}%\n`;
+      });
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Monthly_Financial_Report_${month}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast("Report exported to Excel successfully!", "success");
+  };
+
   // Settings State
   const [shopSettingsForm, setShopSettingsForm] = useState({
     shopName: "",
@@ -1562,22 +1608,32 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                       Compile aggregated total sales, cost, profit margins, and regional matrices.
                     </p>
                   </div>
-                  {/* Select month dropdown */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <label className="text-[10px] font-black uppercase text-neutral-400 font-sans">Month:</label>
-                    <select
-                      value={selectedReportMonth}
-                      onChange={(e) => setSelectedReportMonth(e.target.value)}
-                      className="px-3 py-1.5 border border-neutral-300 bg-white rounded-lg text-xs font-bold focus:outline-none focus:border-amber-500"
+                  {/* Select month dropdown & Export */}
+                  <div className="flex flex-wrap items-center gap-3 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] font-black uppercase text-neutral-400 font-sans">Month:</label>
+                      <select
+                        value={selectedReportMonth}
+                        onChange={(e) => setSelectedReportMonth(e.target.value)}
+                        className="px-3 py-1.5 border border-neutral-300 bg-white rounded-lg text-xs font-bold focus:outline-none focus:border-amber-500"
+                      >
+                        {getAvailableReportMonths().map(month => {
+                          const dateObj = new Date(`${month}-02`); // Avoid timezone offsets
+                          const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+                          return (
+                            <option key={month} value={month}>{monthLabel}</option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    <button
+                      onClick={() => handleExportReportToCSV(selectedReportMonth)}
+                      className="bg-black hover:bg-neutral-900 text-amber-400 text-xs font-bold px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition shadow-sm border border-neutral-800"
                     >
-                      {getAvailableReportMonths().map(month => {
-                        const dateObj = new Date(`${month}-02`); // Avoid timezone offsets
-                        const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
-                        return (
-                          <option key={month} value={month}>{monthLabel}</option>
-                        );
-                      })}
-                    </select>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Export Excel</span>
+                    </button>
                   </div>
                 </div>
 
