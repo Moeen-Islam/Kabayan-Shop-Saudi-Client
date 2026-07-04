@@ -2507,10 +2507,10 @@ Thank you for shopping with Kabayan Shop! ❤️`;
       {/* TAB 4: SHIPPING & COUPONS */}
       {/* ---------------------------------------------------------------------- */}
       {activeTab === "shipping-coupons" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-xs font-medium">
+        <div className="space-y-8 text-xs font-medium">
 
-          {/* Categories Management & Delivery Area Setup */}
-          <div className="space-y-8">
+          {/* Top Row: Category Manager & Shipping Rate Matrix side-by-side */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* A. CATEGORIES CRUD */}
             <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-4">
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400 border-b border-neutral-100 pb-2">
@@ -2709,7 +2709,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
           </div>
 
-          {/* Coupon Management Panel */}
+          {/* Coupon Management Panel (Bottom Row) */}
           <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-4 h-fit">
             <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
               <h3 className="text-xs font-black uppercase tracking-widest text-neutral-400">

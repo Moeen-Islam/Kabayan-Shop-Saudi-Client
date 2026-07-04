@@ -5,6 +5,6 @@
   "/cart/page": "app/cart/page.js",
   "/collections/[category]/page": "app/collections/[category]/page.js",
   "/collections/page": "app/collections/page.js",
-  "/product/[slug]/page": "app/product/[slug]/page.js",
-  "/product/page": "app/product/page.js"
+  "/product/page": "app/product/page.js",
+  "/product/[slug]/page": "app/product/[slug]/page.js"
 }
