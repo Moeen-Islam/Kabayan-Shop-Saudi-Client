@@ -308,7 +308,7 @@ export default function ProductDetailsModal({
           : selectedSize;
       }
 
-      const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
+      const finalColor = multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor);
 
       cartStore.addItem({
         productId: product.id,
@@ -363,7 +363,7 @@ export default function ProductDetailsModal({
         : selectedSize;
     }
 
-    const finalColor = selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor;
+    const finalColor = multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor);
 
     cartStore.addItem({
       productId: product.id,
@@ -620,7 +620,7 @@ export default function ProductDetailsModal({
                 )}
 
                 {/* 2. Color Selection */}
-                {product.colors && product.colors.length > 0 && !product.isGroupOrder && (
+                {product.colors && product.colors.length > 0 && !product.isGroupOrder && multiplier === 1 && (
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">
                       2. Select Color{quantity > 1 ? `s (${quantity} Items)` : ""}:
