@@ -302,7 +302,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     const selectedCountryCode = countryCode === "custom" ? customCode.trim() : countryCode;
     const finalWhatsapp = `${selectedCountryCode}${phoneNumber.trim()}`;
 
-    if (!fullName.trim() || !phoneNumber.trim() || !selectedAreaId || !fullAddress.trim()) {
+    if (!fullName.trim() || !phoneNumber.trim() || !selectedAreaId) {
       setToast({
         show: true,
         message: "Please fill in all required fields marked with *",
@@ -330,7 +330,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
         whatsapp: finalWhatsapp,
         areaId: selectedAreaId,
         houseNo,
-        fullAddress,
+        fullAddress: houseNo.trim() ? `House No: ${houseNo.trim()}` : "Pinned Location",
         notes,
         lat: latitude,
         lng: longitude,
@@ -695,28 +695,13 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
             {/* House No. / Villa */}
             <div>
               <label className="text-xs font-bold text-neutral-700 block mb-1">
-                House / Flat / Villa No.
+                House / Flat / Villa No. <span className="text-neutral-400 font-normal text-[10px]">(Optional)</span>
               </label>
               <input
                 type="text"
                 value={houseNo}
                 onChange={(e) => setHouseNo(e.target.value)}
                 placeholder="e.g. Villa 12, Flat 3B"
-                className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm text-neutral-950 placeholder-neutral-400 focus:outline-none focus:border-amber-500 transition bg-neutral-50 focus:bg-white"
-              />
-            </div>
-
-            {/* Full Address */}
-            <div>
-              <label className="text-xs font-bold text-neutral-700 block mb-1">
-                {t("custom_address_landmark")} <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={fullAddress}
-                onChange={(e) => setFullAddress(e.target.value)}
-                placeholder="e.g. King Fahd Road, Near Olaya Mall"
                 className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm text-neutral-950 placeholder-neutral-400 focus:outline-none focus:border-amber-500 transition bg-neutral-50 focus:bg-white"
               />
             </div>
