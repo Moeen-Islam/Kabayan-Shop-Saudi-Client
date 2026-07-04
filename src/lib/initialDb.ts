@@ -1,278 +1,184 @@
 export const initialDb = {
   "products": [
     {
-      "id": "prod-1",
-      "name": "Elegant Black Georgette Abaya with Gold Lace",
-      "slug": "elegant-black-abaya-gold-lace",
-      "category": "Abaya",
-      "description": "Premium quality lightweight georgette abaya featuring intricate golden lace embroidery on the sleeves and borders. Styled with a matching sheila. Ideal for everyday wear or formal gatherings.",
-      "images": [
-        "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000",
-        "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?q=80&w=1000"
-      ],
-      "price": 180,
-      "offerPrice": 145,
-      "purchasePrice": 65,
-      "stock": 25,
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL",
-        "Free Size"
-      ],
-      "colors": [
-        "Jet Black",
-        "Midnight Blue",
-        "Emerald Green"
-      ],
-      "packageTypes": [
-        "Single Piece",
-        "2pcs Combo (Abaya + Sheila)"
-      ],
-      "status": "active",
-      "createdAt": "2026-07-02T04:56:31.077Z",
-      "isTrending": true
-    },
-    {
-      "id": "prod-2",
-      "name": "Classic Modest Linen A-Line Maxi Dress",
-      "slug": "classic-modest-linen-maxi-dress",
-      "category": "Dresses",
-      "description": "A beautifully structured modest dress made of breathable Turkish linen. It features a high waistband, comfortable round neck, and a full flare skirt. Comes with a matching fabric belt.",
-      "images": [
-        "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000",
-        "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=1000"
-      ],
-      "price": 210,
-      "offerPrice": 169,
-      "purchasePrice": 85,
-      "stock": 15,
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL"
-      ],
-      "colors": [
-        "Beige",
-        "Dusty Pink",
-        "Sage Green",
-        "Black"
-      ],
-      "packageTypes": [
-        "Single Piece"
-      ],
-      "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z"
-    },
-    {
-      "id": "prod-3",
-      "name": "Premium Denim Boyfriend Jacket - Midnight Wash",
-      "slug": "premium-denim-boyfriend-jacket",
-      "category": "Denim",
-      "description": "Authentic, high-density cotton denim jacket featuring classic metal buttons, functional chest pockets, and a clean structured oversize design. Soft-washed for instant comfort.",
-      "images": [
-        "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=1000",
-        "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?q=80&w=1000"
-      ],
-      "price": 160,
-      "offerPrice": 120,
-      "purchasePrice": 55,
-      "stock": 8,
-      "sizes": [
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "colors": [
-        "Dark Blue Wash",
-        "Black Washed",
-        "Light Bleach Wash"
-      ],
-      "packageTypes": [
-        "Single Piece"
-      ],
-      "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z"
-    },
-    {
-      "id": "prod-4",
-      "name": "Summer Linen 2-Piece Terno Set (Top & Wide Pants)",
-      "slug": "summer-linen-2pc-terno-set",
+      "id": "prod-1782749466873",
+      "name": "Premium Cotton Terno Set (Top & Pants)",
+      "slug": "premium-cotton-terno-set-top-pants-5512",
       "category": "Terno",
-      "description": "A comfortable, ultra-stylish 2-piece modern terno outfit featuring a relaxed button-down side-slit top and high-rise elasticated wide-leg pants. Made from premium, anti-shrink linen fabric.",
+      "price": 60,
+      "offerPrice": 55,
       "images": [
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000",
-        "https://images.unsplash.com/photo-1549064482-6779ba3292fe?q=80&w=1000"
+        "https://i.ibb.co/4gm9qYnw/7f59b5dbe0f7.jpg"
       ],
-      "price": 220,
-      "offerPrice": 185,
-      "purchasePrice": 90,
-      "stock": 3,
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "Free Size"
-      ],
-      "colors": [
-        "Oatmeal Beige",
-        "Terracotta",
-        "Olive Green",
-        "White"
-      ],
-      "packageTypes": [
-        "2pcs Set (Top + Pants)",
-        "Buy 2 Sets Promo (4pcs)"
-      ],
+      "isTrending": true,
       "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z",
-      "isTrending": true
+      "createdAt": "2026-06-29T16:11:06.873Z",
+      "stock": 99
     },
     {
-      "id": "prod-5",
-      "name": "Soft Cotton Ribbed Night Wear Sleepwear",
-      "slug": "soft-cotton-ribbed-sleepwear",
-      "category": "Night Wear",
-      "description": "Extremely soft, high-elastic ribbed cotton loungewear set. Includes a cozy long-sleeve tee and matching draw-string joggers. Breathable and gentle on sensitive skin.",
+      "id": "prod-1782748107827",
+      "name": "Classic Denim Terno Set (Jacket & Jeans)",
+      "slug": "classic-denim-terno-set-jacket-jeans-3651",
+      "category": "Denim",
+      "price": 140,
+      "offerPrice": 120,
       "images": [
-        "https://images.unsplash.com/photo-1562572159-4ebcd318f4dd?q=80&w=1000",
-        "https://images.unsplash.com/photo-1618333747975-650a4c9c3971?q=80&w=1000"
+        "https://i.ibb.co/PvgJZYVr/9a72b83514b8.jpg"
       ],
-      "price": 130,
-      "offerPrice": 95,
-      "purchasePrice": 40,
-      "stock": 45,
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "colors": [
-        "Dusty Lilac",
-        "Soft Cream",
-        "Charcoal Gray"
-      ],
-      "packageTypes": [
-        "1 Set",
-        "2 Sets Bundle (Super Value Offer!)"
-      ],
+      "isTrending": true,
       "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z"
+      "createdAt": "2026-06-29T15:48:27.828Z",
+      "stock": 28
     },
     {
-      "id": "prod-6",
-      "name": "Ultra-Comfort Suede Loafers",
-      "slug": "ultra-comfort-suede-loafers",
-      "category": "Shoes",
-      "description": "Fine Italian suede loafers featuring hand-stitched detailing, arch-support cushions, and a highly durable, flexible anti-slip rubber outsole. Timeless design that complements casual or smart-casual outfits.",
+      "id": "prod-1783098204772",
+      "name": "Elegant Ruffle Jumpsuit Collection – Stylish One-Piece Party & Casual Wear",
+      "slug": "elegant-ruffle-jumpsuit-collection-stylish-one-piece-party-casual-wear-1100",
+      "category": "Dresses",
+      "price": 65,
+      "offerPrice": 60,
       "images": [
-        "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1000",
-        "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=1000"
+        "https://i.ibb.co/4ZFgLsLq/9ae180d8c87d.jpg"
       ],
-      "price": 250,
-      "offerPrice": 199,
-      "purchasePrice": 100,
-      "stock": 12,
-      "sizes": [
-        "37",
-        "38",
-        "39",
-        "40",
-        "41"
-      ],
-      "colors": [
-        "Honey Tan",
-        "Classic Camel",
-        "Rich Onyx"
-      ],
-      "packageTypes": [
-        "Single Pair"
-      ],
-      "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z"
-    },
-    {
-      "id": "prod-7",
-      "name": "Premium Breathable Cotton Everyday Tees (Pack of 3)",
-      "slug": "premium-breathable-cotton-everyday-tees",
-      "category": "T-Shirts",
-      "description": "Heavyweight 220GSM organic cotton crewneck t-shirts. Features side-seam split hem, relaxed drape, and high-elastic ribbed collar. Built to retain its shape and soft texture even after many washes.",
-      "images": [
-        "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=1000",
-        "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1000"
-      ],
-      "price": 120,
-      "offerPrice": 85,
-      "purchasePrice": 35,
-      "stock": 50,
-      "sizes": [
-        "M",
-        "L",
-        "XL",
-        "XXL"
-      ],
-      "colors": [
-        "Mixed Pack (White/Black/Beige)",
-        "All White Trio",
-        "All Black Trio"
-      ],
-      "packageTypes": [
-        "3pcs Combo Pack",
-        "6pcs Ultimate Combo Pack"
-      ],
-      "status": "active",
-      "createdAt": "2026-07-02T04:56:31.078Z"
-    },
-    {
-      "id": "prod-1782968533689",
-      "name": "Premium 6pcs Combo Set (Group Order Test)",
-      "slug": "premium-6pcs-combo-set-group-order-test-1537",
-      "category": "Abaya",
-      "description": "",
-      "images": [
-        "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200"
-      ],
-      "price": 150,
-      "purchasePrice": 80,
-      "stock": 50,
-      "sizes": [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "Free Size"
-      ],
-      "colors": [
-        "Multi"
-      ],
-      "packageTypes": [
-        "Single Piece",
-        "3pcs Combo Pack",
-        "12pcs Combo"
-      ],
-      "packagePrices": {},
-      "status": "active",
-      "createdAt": "2026-07-02T05:02:13.689Z",
-      "hasDualSizes": false,
-      "dualSizesTitle1": "Jacket Size",
-      "dualSizesTitle2": "Jeans Waist Size",
-      "sizes2": [
-        "28",
-        "30",
-        "32",
-        "34",
-        "36"
-      ],
-      "colorImageMap": {},
       "isTrending": false,
-      "isGroupOrder": true
+      "status": "active",
+      "createdAt": "2026-07-03T17:03:24.772Z",
+      "stock": 46
+    },
+    {
+      "id": "prod-1783097229592",
+      "name": "Elegant Floral Pajama Terno Set – Soft & Comfortable Homewear Collection",
+      "slug": "elegant-floral-pajama-terno-set-soft-comfortable-homewear-collection-1798",
+      "category": "Night Wear",
+      "price": 55,
+      "offerPrice": 45,
+      "images": [
+        "https://i.ibb.co/rK5Zj1Vf/94aecf01166f.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-03T16:47:09.592Z",
+      "stock": 88
+    },
+    {
+      "id": "prod-1783096231695",
+      "name": "Premium Co-Ord Terno Set – Elegant Casual Shirt & Wide-Leg Pants Collection",
+      "slug": "premium-co-ord-terno-set-elegant-casual-shirt-wide-leg-pants-collection-4482",
+      "category": "Terno",
+      "price": 70,
+      "offerPrice": 60,
+      "images": [
+        "https://i.ibb.co/3y0tsZv7/34917e2dc619.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-03T16:30:31.695Z",
+      "stock": 55
+    },
+    {
+      "id": "prod-1782980637006",
+      "name": "Classic Athleisure Terno Set – Premium Minimal T-Shirt & Jogger Collection",
+      "slug": "classic-athleisure-terno-set-premium-minimal-t-shirt-jogger-collection-7414",
+      "category": "Terno",
+      "price": 65,
+      "offerPrice": 60,
+      "images": [
+        "https://i.ibb.co/MyGGdLGh/a97e9385ae54.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-02T08:23:57.006Z",
+      "stock": 76
+    },
+    {
+      "id": "prod-1782974519051",
+      "name": "Sporty Casual Terno Set – Trendy Athletic T-Shirt & Shorts Collection",
+      "slug": "sporty-casual-terno-set-trendy-athletic-t-shirt-shorts-collection-8794",
+      "category": "Terno",
+      "price": 35,
+      "offerPrice": 30,
+      "images": [
+        "https://i.ibb.co/5hrt5M70/2ebac5fd5e2c.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-02T06:41:59.051Z",
+      "stock": 99
+    },
+    {
+      "id": "prod-1782970685538",
+      "name": "Premium Women’s Co-Ord Terno Set – Elegant Casual Shirt & Wide-Leg Pants Collection",
+      "slug": "premium-women-s-co-ord-terno-set-elegant-casual-shirt-wide-leg-pants-collection-6652",
+      "category": "Terno",
+      "price": 70,
+      "offerPrice": 60,
+      "images": [
+        "https://i.ibb.co/TBFygW1X/7d1de2fbdb0b.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-02T05:38:05.538Z",
+      "stock": 86
+    },
+    {
+      "id": "prod-1782916704390",
+      "name": "Elegant Ribbed Camisole Tank Tops – Soft Pastel & Classic Color Collection",
+      "slug": "elegant-ribbed-camisole-tank-tops-soft-pastel-classic-color-collection-3733",
+      "category": "Tops",
+      "price": 35,
+      "offerPrice": 30,
+      "images": [
+        "https://i.ibb.co/1GX214YY/05bdaf190c64.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-01T14:38:24.390Z",
+      "stock": 255
+    },
+    {
+      "id": "prod-1782893008023",
+      "name": "Elegant Women’s Terno Co-Ord Set – Premium Modest Fashion Dress Collection",
+      "slug": "elegant-women-s-terno-co-ord-set-premium-modest-fashion-dress-collection-6368",
+      "category": "Terno",
+      "price": 70,
+      "offerPrice": 65,
+      "images": [
+        "https://i.ibb.co/Jwn9krLz/cb49e7d8756c.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-01T08:03:28.023Z",
+      "stock": 90
+    },
+    {
+      "id": "prod-1782891138362",
+      "name": "Elegant Modest Co-Ord Set Collection – Premium Soft Fabric Dresses",
+      "slug": "elegant-modest-co-ord-set-collection-premium-soft-fabric-dresses-9485",
+      "category": "Dresses",
+      "price": 65,
+      "offerPrice": 55,
+      "images": [
+        "https://i.ibb.co/Hpnnh6MV/4b95b0ab93d8.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-01T07:32:18.362Z",
+      "stock": 150
+    },
+    {
+      "id": "prod-1782890884925",
+      "name": "TRENDY Modest Co-Ord Set – Premium Soft Fabric Abaya Style Outfit ",
+      "slug": "trendy-modest-co-ord-set-premium-soft-fabric-abaya-style-outfit-3417",
+      "category": "Terno",
+      "price": 70,
+      "offerPrice": 65,
+      "images": [
+        "https://i.ibb.co/F4jJTcZT/f36ae33d9711.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-01T07:28:04.925Z",
+      "stock": 60
     }
   ],
   "categories": [
@@ -330,27 +236,45 @@ export const initialDb = {
       "id": "cat-11",
       "name": "Watch",
       "slug": "watch"
+    },
+    {
+      "id": "cat-1782710725940",
+      "name": "Bra-Panty",
+      "slug": "bra-panty"
+    },
+    {
+      "id": "cat-1782916725153",
+      "name": "Tops",
+      "slug": "tops"
     }
   ],
-  "orders": [],
   "areas": [
     {
       "id": "area-1",
       "name": "Riyadh",
       "charge": 15,
-      "freeDeliveryAbove": 130
+      "freeDeliveryAbove": 130,
+      "minOrderValue": 50,
+      "driverCharge": 30,
+      "deliveryTime": "1-2 Days"
     },
     {
       "id": "area-2",
       "name": "Jeddah",
       "charge": 25,
-      "freeDeliveryAbove": 160
+      "freeDeliveryAbove": 160,
+      "minOrderValue": 100,
+      "driverCharge": 45,
+      "deliveryTime": "Wednesday-Saturday"
     },
     {
       "id": "area-3",
       "name": "Dammam",
       "charge": 20,
-      "freeDeliveryAbove": 160
+      "freeDeliveryAbove": 160,
+      "minOrderValue": 100,
+      "driverCharge": 40,
+      "deliveryTime": "Sunday-Monday"
     },
     {
       "id": "area-4",
@@ -373,36 +297,21 @@ export const initialDb = {
       "charge": 40
     }
   ],
-  "coupons": [
-    {
-      "id": "coup-1",
-      "code": "KABAYAN10",
-      "discountType": "percentage",
-      "discountValue": 10,
-      "expiryDate": "2026-12-31"
-    },
-    {
-      "id": "coup-2",
-      "code": "WELCOME15",
-      "discountType": "fixed",
-      "discountValue": 15,
-      "expiryDate": "2026-12-31"
-    }
-  ],
   "settings": {
     "shopName": "Kabayan Shop Saudi",
-    "whatsappContact": "966501234567",
+    "whatsappContact": "8801765865757",
     "currency": "SAR",
     "bannerImages": [
       "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200",
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200"
     ],
     "aboutUs": "Kabayan Shop Saudi is the ultimate fashion destination for premium modest clothing, dresses, denim, shoes, and nightwear in the Kingdom of Saudi Arabia. We deliver directly to your doorstep with instant location sharing and fast order updates on WhatsApp.",
-    "contactEmail": "info@kabayanshopksa.com",
+    "contactEmail": "moeenislam8089@gmail.com",
     "contactAddress": "Olaya District, Riyadh, Kingdom of Saudi Arabia",
     "metaPixelId": "802803573462056",
     "metaTitle": "Kabayan Shop Saudi | Premium Modest Fashion & Abayas KSA",
     "metaDescription": "Discover luxury modest fashion, modern abayas, elegant dresses, and terno sets at Kabayan Shop Saudi. Cash on Delivery (COD) across Saudi Arabia with fast home delivery.",
-    "metaKeywords": "kabayan shop saudi, abaya riyadh, modest clothing ksa, buy dress saudi arabia, terno sets online, cod modest fashion"
+    "metaKeywords": "kabayan shop saudi, abaya riyadh, modest clothing ksa, buy dress saudi arabia, terno sets online, cod modest fashion",
+    "messengerPageId": "kabayanshopSaudi1"
   }
 };
