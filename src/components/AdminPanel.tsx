@@ -2393,14 +2393,9 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           {/* ADD / EDIT PRODUCT MODAL FORM */}
           {(isAddingProduct || editingProduct) && (
             <div 
-              onClick={() => {
-                setIsAddingProduct(false);
-                setEditingProduct(null);
-              }}
               className="fixed inset-0 z-[100] overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
             >
               <div 
-                onClick={(e) => e.stopPropagation()}
                 className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-4.5 sm:p-7 flex flex-col max-h-[85vh]"
               >
                 <div className="flex justify-between items-center pb-4 border-b border-neutral-100 mb-5">
