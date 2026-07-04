@@ -179,6 +179,36 @@ export const initialDb = {
       "status": "active",
       "createdAt": "2026-07-01T07:28:04.925Z",
       "stock": 60
+    },
+    {
+      "id": "prod-1782890664359",
+      "name": "Elegant Modest Co-Ord Set – Premium Soft Fabric Abaya Style Outfit",
+      "slug": "elegant-modest-co-ord-set-premium-soft-fabric-abaya-style-outfit-8790",
+      "category": "Terno",
+      "price": 70,
+      "offerPrice": 65,
+      "images": [
+        "https://i.ibb.co/xSRqqcgc/85811f4b179a.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-07-01T07:24:24.359Z",
+      "stock": 100
+    },
+    {
+      "id": "prod-1782751440007",
+      "name": "Elegant Premium Black Abaya – Modest & Stylish Everyday Wear",
+      "slug": "elegant-premium-black-abaya-modest-stylish-everyday-wear-9195",
+      "category": "Abaya",
+      "price": 85,
+      "offerPrice": 70,
+      "images": [
+        "https://i.ibb.co/5WHyDz56/6585e05bef05.jpg"
+      ],
+      "isTrending": false,
+      "status": "active",
+      "createdAt": "2026-06-29T16:44:00.007Z",
+      "stock": 65
     }
   ],
   "categories": [
