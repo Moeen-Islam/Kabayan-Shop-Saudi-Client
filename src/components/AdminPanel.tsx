@@ -167,6 +167,91 @@ export default function AdminPanel({
     });
   };
 
+  // Monthly Report Generator State
+  const [selectedReportMonth, setSelectedReportMonth] = useState(() => new Date().toISOString().substring(0, 7));
+
+  const getAvailableReportMonths = () => {
+    const months = new Set<string>();
+    orders.forEach(o => {
+      if (o.createdAt) {
+        months.add(o.createdAt.substring(0, 7));
+      }
+    });
+    months.add(new Date().toISOString().substring(0, 7));
+    return Array.from(months).sort((a, b) => b.localeCompare(a));
+  };
+
+  const getMonthlyReportStats = (month: string) => {
+    const monthOrders = orders.filter(o => o.createdAt && o.createdAt.startsWith(month));
+    const activeOrders = monthOrders.filter(o => o.status !== "Cancelled");
+    
+    const totalSales = activeOrders.reduce((sum, o) => sum + o.grandTotal, 0);
+
+    const calculateOrderStats = (o: Order) => {
+      const cost = o.items.reduce((sum, item) => {
+        const pPrice = item.purchasePrice !== undefined ? item.purchasePrice : 0;
+        return sum + (pPrice * item.quantity);
+      }, 0);
+      const driverCost = o.driverDeliveryCharge !== undefined ? o.driverDeliveryCharge : 0;
+      const profit = o.status === "Delivered" ? (o.grandTotal - cost - driverCost) : 0;
+      return { cost, profit };
+    };
+
+    const totalCost = activeOrders.reduce((sum, o) => sum + calculateOrderStats(o).cost, 0);
+
+    const deliveredOrders = monthOrders.filter(o => o.status === "Delivered");
+    const totalProfit = deliveredOrders.reduce((sum, o) => sum + calculateOrderStats(o).profit, 0);
+
+    const areaStatsMap: {
+      [key: string]: {
+        areaName: string;
+        sales: number;
+        orderCount: number;
+        cost: number;
+        profit: number;
+      }
+    } = {};
+
+    monthOrders.forEach(o => {
+      const areaName = o.areaName || "Unknown Area";
+      if (!areaStatsMap[areaName]) {
+        areaStatsMap[areaName] = {
+          areaName,
+          sales: 0,
+          orderCount: 0,
+          cost: 0,
+          profit: 0
+        };
+      }
+
+      areaStatsMap[areaName].orderCount += 1;
+
+      if (o.status !== "Cancelled") {
+        areaStatsMap[areaName].sales += o.grandTotal;
+        const { cost } = calculateOrderStats(o);
+        areaStatsMap[areaName].cost += cost;
+      }
+
+      if (o.status === "Delivered") {
+        const { profit } = calculateOrderStats(o);
+        areaStatsMap[areaName].profit += profit;
+      }
+    });
+
+    const areaStats = Object.values(areaStatsMap).sort((a, b) => b.sales - a.sales);
+
+    return {
+      totalOrders: monthOrders.length,
+      activeOrdersCount: activeOrders.length,
+      deliveredOrdersCount: deliveredOrders.length,
+      cancelledOrdersCount: monthOrders.filter(o => o.status === "Cancelled").length,
+      totalSales,
+      totalCost,
+      totalProfit,
+      areaStats
+    };
+  };
+
   // Settings State
   const [shopSettingsForm, setShopSettingsForm] = useState({
     shopName: "",
@@ -1463,6 +1548,140 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                   </div>
                 </div>
 
+              </div>
+
+              {/* 3. Monthly Report Generator */}
+              <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-100 pb-4">
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-widest text-neutral-400 flex items-center gap-1.5">
+                      <CalendarDays className="w-4 h-4 text-amber-600" />
+                      <span>MONTHLY FINANCIAL REPORT GENERATOR</span>
+                    </h4>
+                    <p className="text-[10px] text-neutral-500 font-semibold mt-1">
+                      Compile aggregated total sales, cost, profit margins, and regional matrices.
+                    </p>
+                  </div>
+                  {/* Select month dropdown */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <label className="text-[10px] font-black uppercase text-neutral-400 font-sans">Month:</label>
+                    <select
+                      value={selectedReportMonth}
+                      onChange={(e) => setSelectedReportMonth(e.target.value)}
+                      className="px-3 py-1.5 border border-neutral-300 bg-white rounded-lg text-xs font-bold focus:outline-none focus:border-amber-500"
+                    >
+                      {getAvailableReportMonths().map(month => {
+                        const dateObj = new Date(`${month}-02`); // Avoid timezone offsets
+                        const monthLabel = dateObj.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+                        return (
+                          <option key={month} value={month}>{monthLabel}</option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Report Content */}
+                {(() => {
+                  const report = getMonthlyReportStats(selectedReportMonth);
+                  return (
+                    <div className="space-y-6">
+                      {/* Financial Aggregates Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/50">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block font-sans">Total Sales</span>
+                          <span className="text-lg font-black text-neutral-800 mt-1 block">
+                            {report.totalSales} <span className="text-[10px] font-semibold">SAR</span>
+                          </span>
+                          <span className="text-[9px] text-neutral-500 font-semibold block mt-1">
+                            {report.activeOrdersCount} non-cancelled orders
+                          </span>
+                        </div>
+                        <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/50">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block font-sans">Total Cost</span>
+                          <span className="text-lg font-black text-neutral-800 mt-1 block">
+                            {report.totalCost} <span className="text-[10px] font-semibold">SAR</span>
+                          </span>
+                          <span className="text-[9px] text-neutral-500 font-semibold block mt-1">
+                            Item purchase costs
+                          </span>
+                        </div>
+                        <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200/60">
+                          <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block font-sans">Total Net Profit</span>
+                          <span className="text-lg font-black text-amber-900 mt-1 block">
+                            {report.totalProfit} <span className="text-[10px] font-semibold">SAR</span>
+                          </span>
+                          <span className="text-[9px] text-amber-700 font-semibold block mt-1">
+                            From {report.deliveredOrdersCount} delivered orders
+                          </span>
+                        </div>
+                        <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/50">
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block font-sans">Order Stats</span>
+                          <span className="text-lg font-black text-neutral-800 mt-1 block">
+                            {report.totalOrders} <span className="text-[10px] font-semibold">Orders</span>
+                          </span>
+                          <span className="text-[9px] text-neutral-500 font-semibold block mt-1">
+                            {report.cancelledOrdersCount} cancelled
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Regional Performance Metrics Matrix Table */}
+                      <div className="space-y-3">
+                        <h5 className="text-[10px] font-black uppercase tracking-wider text-neutral-400 font-sans">
+                          Saudi Regional Performance Matrix
+                        </h5>
+                        <div className="border border-neutral-200 rounded-xl overflow-hidden bg-white">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-neutral-50 border-b border-neutral-200 text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
+                                  <th className="px-4 py-3">Delivery Area / City</th>
+                                  <th className="px-4 py-3 text-right">Orders</th>
+                                  <th className="px-4 py-3 text-right">Gross Sales</th>
+                                  <th className="px-4 py-3 text-right">Product Cost</th>
+                                  <th className="px-4 py-3 text-right">Net Profit</th>
+                                  <th className="px-4 py-3 text-right">Margin (%)</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-neutral-200 text-xs">
+                                {report.areaStats.length === 0 ? (
+                                  <tr>
+                                    <td colSpan={6} className="px-4 py-8 text-center text-neutral-400 font-semibold">
+                                      No order activity recorded for this month.
+                                    </td>
+                                  </tr>
+                                ) : (
+                                  report.areaStats.map((area) => {
+                                    const profitMargin = area.sales > 0 
+                                      ? Math.round((area.profit / area.sales) * 100) 
+                                      : 0;
+                                    return (
+                                      <tr key={area.areaName} className="hover:bg-neutral-50/60 font-medium text-neutral-800 transition">
+                                        <td className="px-4 py-3 font-bold text-neutral-900">{area.areaName}</td>
+                                        <td className="px-4 py-3 text-right font-mono">{area.orderCount}</td>
+                                        <td className="px-4 py-3 text-right font-mono">{area.sales} SAR</td>
+                                        <td className="px-4 py-3 text-right font-mono text-neutral-500">{area.cost} SAR</td>
+                                        <td className={`px-4 py-3 text-right font-mono font-bold ${area.profit > 0 ? "text-emerald-600" : "text-neutral-700"}`}>
+                                          {area.profit} SAR
+                                        </td>
+                                        <td className="px-4 py-3 text-right font-mono">
+                                          <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold ${profitMargin > 20 ? "bg-emerald-50 text-emerald-700" : "bg-neutral-50 text-neutral-600"}`}>
+                                            {profitMargin}%
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </>
           )}
