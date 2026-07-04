@@ -187,21 +187,29 @@ export const cartStore = {
 };
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>(cartStore.getItems());
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    setItems([...cartStore.getItems()]);
     const unsubscribe = cartStore.subscribe(() => {
       setItems([...cartStore.getItems()]);
     });
     return unsubscribe;
   }, []);
 
+  const subtotal = isMounted
+    ? items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    : 0;
+
   return {
     items,
-    subtotal: cartStore.getSubtotal(),
+    subtotal,
     addItem: cartStore.addItem,
     removeItem: cartStore.removeItem,
     updateQuantity: cartStore.updateQuantity,
     clearCart: cartStore.clearCart
   };
 }
+

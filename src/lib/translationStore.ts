@@ -418,7 +418,7 @@ export const languageStore = {
   getLanguage(): Language {
     return currentLanguage;
   },
-  
+
   setLanguage(lang: Language) {
     if (currentLanguage !== lang) {
       currentLanguage = lang;

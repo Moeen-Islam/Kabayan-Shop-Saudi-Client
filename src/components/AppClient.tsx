@@ -129,21 +129,15 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
     };
   };
 
-  const cached = getCachedStorefrontData();
-
-  // Core API State (Initialized from local storage cache for 0ms loads)
-  const [products, setProducts] = useState<Product[]>(cached.products || []);
-  const [categories, setCategories] = useState<Category[]>(cached.categories || []);
-  const [areas, setAreas] = useState<DeliveryArea[]>(cached.areas || []);
+  // Core API State (Initialized with initialDb fallback to ensure identical server-side and client-side initial render)
+  const [products, setProducts] = useState<Product[]>(initialDb.products as Product[]);
+  const [categories, setCategories] = useState<Category[]>(initialDb.categories as Category[]);
+  const [areas, setAreas] = useState<DeliveryArea[]>(initialDb.areas as DeliveryArea[]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [settings, setSettings] = useState<ShopSettings>(cached.settings || {
-    shopName: "Kabayan Shop Saudi",
-    whatsappContact: "966501234567",
-    currency: "SAR",
-    bannerImages: []
-  });
+  const [settings, setSettings] = useState<ShopSettings>(initialDb.settings as ShopSettings);
 
-  const [loading, setLoading] = useState(!cached.hasCache);
+  const [loading, setLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Filter & Search State
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || "");
@@ -291,6 +285,27 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   };
 
   useEffect(() => {
+    // Read from cache synchronously on mount to immediately show cached data
+    try {
+      const cachedProds = safeStorage.getItem("kabayan_cached_products");
+      const cachedCats = safeStorage.getItem("kabayan_cached_categories");
+      const cachedAreas = safeStorage.getItem("kabayan_cached_areas");
+      const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
+
+      if (cachedProds && cachedCats && cachedAreas && cachedSettings) {
+        setProducts(JSON.parse(cachedProds));
+        setCategories(JSON.parse(cachedCats));
+        setAreas(JSON.parse(cachedAreas));
+        setSettings(JSON.parse(cachedSettings));
+      }
+    } catch (err) {
+      console.error("Failed to parse cached storefront files on mount:", err);
+    }
+
+    if (typeof window !== "undefined") {
+      setIsMobile(window.innerWidth < 640);
+    }
+
     // Silent pre-warming ping to separate Express server
     fetch(API_URL.replace("/api", "")).catch(() => {});
 
@@ -752,7 +767,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   {settings.bannerImages.map((image, idx) => (
                     <img
                       key={idx}
-                      src={getOptimizedImageUrl(image, typeof window !== "undefined" && window.innerWidth < 640 ? 600 : 1200)}
+                      src={getOptimizedImageUrl(image, isMobile ? 600 : 1200)}
                       alt={`Shop Luxury Banner ${idx + 1}`}
                       referrerPolicy="no-referrer"
                       fetchPriority={idx === 0 ? "high" : "low"}
