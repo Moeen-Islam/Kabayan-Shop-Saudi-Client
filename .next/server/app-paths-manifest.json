@@ -3,8 +3,8 @@
   "/admin/page": "app/admin/page.js",
   "/cart/page": "app/cart/page.js",
   "/page": "app/page.js",
+  "/collections/page": "app/collections/page.js",
   "/product/[slug]/page": "app/product/[slug]/page.js",
-  "/collections/[category]/page": "app/collections/[category]/page.js",
   "/product/page": "app/product/page.js",
-  "/collections/page": "app/collections/page.js"
+  "/collections/[category]/page": "app/collections/[category]/page.js"
 }

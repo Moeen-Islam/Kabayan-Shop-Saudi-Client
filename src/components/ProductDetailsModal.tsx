@@ -241,6 +241,42 @@ export default function ProductDetailsModal({
     }
   }, [chooseCustomColors, product, quantity]);
 
+  // Sync selectedSizes and selectedSizes2 arrays when quantity, base sizes, or isSameSizeAll toggle changes
+  useEffect(() => {
+    if (!product) return;
+    const defaultSize = selectedSize || (product.sizes && product.sizes[0]) || "Free Size";
+    const defaultSize2 = selectedSize2 || (product.sizes2 && product.sizes2[0]) || "";
+    
+    if (isSameSizeAll) {
+      setSelectedSizes(Array.from({ length: quantity }, () => defaultSize));
+      setSelectedSizes2(Array.from({ length: quantity }, () => defaultSize2));
+    } else {
+      setSelectedSizes((prev) => {
+        const next = [...prev];
+        if (next.length < quantity) {
+          while (next.length < quantity) {
+            next.push(defaultSize);
+          }
+        } else if (next.length > quantity) {
+          next.splice(quantity);
+        }
+        return next;
+      });
+
+      setSelectedSizes2((prev) => {
+        const next = [...prev];
+        if (next.length < quantity) {
+          while (next.length < quantity) {
+            next.push(defaultSize2);
+          }
+        } else if (next.length > quantity) {
+          next.splice(quantity);
+        }
+        return next;
+      });
+    }
+  }, [quantity, product, selectedSize, selectedSize2, isSameSizeAll]);
+
   // Keep selectedPackage and quantity in sync when quantity changes manually
   useEffect(() => {
     if (!product || !product.packageTypes || product.packageTypes.length === 0) return;
@@ -268,10 +304,27 @@ export default function ProductDetailsModal({
   const hasOffer = product.offerPrice !== undefined && product.offerPrice < product.price;
   const defaultBasePrice = hasOffer ? product.offerPrice! : product.price;
 
-  // Use custom size price if defined for the selected size
-  const basePrice = (product.sizePrices && selectedSize && product.sizePrices[selectedSize] !== undefined)
-    ? product.sizePrices[selectedSize]
-    : defaultBasePrice;
+  // Helper to fetch size-specific prices
+  const getSizePrice = (sizeName: string) => {
+    return (product.sizePrices && sizeName && product.sizePrices[sizeName] !== undefined)
+      ? product.sizePrices[sizeName]
+      : defaultBasePrice;
+  };
+
+  // Base price for reference/cart display
+  const basePrice = getSizePrice(selectedSize);
+
+  // Sum up base prices for all individual items depending on their sizes
+  let totalBasePrice = 0;
+  if (quantity > 1 && !isSameSizeAll) {
+    for (let i = 0; i < quantity; i++) {
+      const size = selectedSizes[i] || selectedSize || (product.sizes && product.sizes[0]) || "Free Size";
+      totalBasePrice += getSizePrice(size);
+    }
+  } else {
+    const size = selectedSize || (product.sizes && product.sizes[0]) || "Free Size";
+    totalBasePrice = getSizePrice(size) * quantity;
+  }
   
   let activePrice = 0;
   let multiplier = 1;
@@ -288,11 +341,11 @@ export default function ProductDetailsModal({
     }
   } else {
     discount = pkgInfo.discount;
-    activePrice = Math.round(basePrice * multiplier * discount);
+    activePrice = Math.round(totalBasePrice * discount);
   }
 
-  // Calculate the unit price (total combo price divided by number of pieces) so that in cart: price * quantity = activePrice
-  const unitPrice = multiplier > 0 ? Math.round((activePrice / multiplier) * 100) / 100 : basePrice;
+  // Calculate unitPrice so that unitPrice * quantity equals activePrice in cart
+  const unitPrice = quantity > 0 ? Math.round((activePrice / quantity) * 100) / 100 : basePrice;
 
   // Handle Zoom logic
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

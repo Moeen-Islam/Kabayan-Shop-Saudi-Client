@@ -3,8 +3,8 @@
   "/admin/page": "/admin",
   "/cart/page": "/cart",
   "/page": "/",
+  "/collections/page": "/collections",
   "/product/[slug]/page": "/product/[slug]",
-  "/collections/[category]/page": "/collections/[category]",
   "/product/page": "/product",
-  "/collections/page": "/collections"
+  "/collections/[category]/page": "/collections/[category]"
 }
