@@ -420,7 +420,8 @@ export default function AdminPanel({
     metaKeywords: "",
     messengerPageId: "",
     adminEmail: "",
-    adminPassword: ""
+    adminPassword: "",
+    fbAccessToken: ""
   });
 
   // Verify previous session
@@ -437,32 +438,50 @@ export default function AdminPanel({
     setLocalCoupons(coupons);
   }, [coupons]);
 
+  const fetchAdminSettings = async (tokenStr: string) => {
+    try {
+      const response = await fetch(API_URL + "/admin/settings", {
+        headers: { "Authorization": "Bearer " + tokenStr }
+      });
+      if (response.ok) {
+        const fullSettings = await response.json();
+        setShopSettingsForm({
+          shopName: fullSettings.shopName || "",
+          whatsappContact: fullSettings.whatsappContact || "",
+          currency: fullSettings.currency || "SAR",
+          bannerImageInput: "",
+          bannerImages: fullSettings.bannerImages || [],
+          aboutUs: fullSettings.aboutUs || "",
+          contactEmail: fullSettings.contactEmail || "",
+          contactAddress: fullSettings.contactAddress || "",
+          metaPixelId: fullSettings.metaPixelId || "",
+          metaTitle: fullSettings.metaTitle || "",
+          metaDescription: fullSettings.metaDescription || "",
+          metaKeywords: fullSettings.metaKeywords || "",
+          messengerPageId: fullSettings.messengerPageId || "",
+          adminEmail: fullSettings.adminEmail || "",
+          adminPassword: "",
+          fbAccessToken: fullSettings.fbAccessToken || ""
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch admin settings:", err);
+    }
+  };
+
   // Fetch Admin Data
   useEffect(() => {
     if (isLoggedIn) {
       fetchDashboardStats();
       fetchOrders();
       fetchCoupons();
-      // Initialize settings form
-      setShopSettingsForm({
-        shopName: settings.shopName || "",
-        whatsappContact: settings.whatsappContact || "",
-        currency: settings.currency || "SAR",
-        bannerImageInput: "",
-        bannerImages: settings.bannerImages || [],
-        aboutUs: settings.aboutUs || "",
-        contactEmail: settings.contactEmail || "",
-        contactAddress: settings.contactAddress || "",
-        metaPixelId: settings.metaPixelId || "",
-        metaTitle: settings.metaTitle || "",
-        metaDescription: settings.metaDescription || "",
-        metaKeywords: settings.metaKeywords || "",
-        messengerPageId: settings.messengerPageId || "",
-        adminEmail: settings.adminEmail || "",
-        adminPassword: settings.adminPassword || ""
-      });
+      
+      const token = adminToken || localStorage.getItem("kabayan_admin_token");
+      if (token) {
+        fetchAdminSettings(token);
+      }
     }
-  }, [isLoggedIn, settings]);
+  }, [isLoggedIn, settings, adminToken]);
 
   // Handle Login
   const handleLogin = async (e: React.FormEvent) => {
@@ -1235,7 +1254,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           adminPassword: shopSettingsForm.adminPassword,
           metaTitle: shopSettingsForm.metaTitle,
           metaDescription: shopSettingsForm.metaDescription,
-          metaKeywords: shopSettingsForm.metaKeywords
+          metaKeywords: shopSettingsForm.metaKeywords,
+          fbAccessToken: shopSettingsForm.fbAccessToken
         })
       });
       if (response.ok) {
@@ -3476,6 +3496,22 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 />
                 <span className="text-[10px] text-neutral-400 mt-1 block">
                   Track events like PageView, AddToCart, and Purchase automatically on Meta Ads Manager.
+                </span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  Meta (Facebook) Conversions API Access Token
+                </label>
+                <input
+                  type="text"
+                  value={shopSettingsForm.fbAccessToken}
+                  onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, fbAccessToken: e.target.value })}
+                  placeholder="Enter EAAS... Access Token"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs font-mono"
+                />
+                <span className="text-[10px] text-neutral-400 mt-1 block">
+                  Access Token to securely send server-side events directly to Meta's servers.
                 </span>
               </div>
 

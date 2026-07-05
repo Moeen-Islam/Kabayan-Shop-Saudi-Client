@@ -359,14 +359,14 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
       const data = await response.json();
       
-      // Track Purchase in Meta Pixel
+      // Track Purchase in Meta Pixel with eventID for CAPI deduplication
       trackPixelEvent("Purchase", {
         content_ids: items.map(item => item.productId),
         content_type: "product",
         value: data.finalBill || subtotal,
         currency: "SAR",
         num_items: items.reduce((acc, item) => acc + item.quantity, 0)
-      });
+      }, { eventID: data.order.id });
 
       clearCart(); // Wipe client cart
 

@@ -168,8 +168,27 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   const [showWakingUpText, setShowWakingUpText] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
 
+  // Refs for tracking active fetch requests and retry timers to prevent overlapping loops
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const retryTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Fetch all core resources with automated retry loops
   const fetchAllData = async (retryCount = 0, page = 1, isLoadMore = false) => {
+    // Clear any pending retry timer
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+
+    // Cancel any ongoing fetch request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create a new AbortController for this fetch
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       setConnectionError(false);
 
@@ -179,7 +198,8 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       if (selectedCategory) params.append("category", selectedCategory);
       if (searchQuery) params.append("search", searchQuery);
 
-      const isInitialRequest = page === 1 && !isLoadMore;
+      // Only fetch full init resources if they are not already loaded in local state
+      const isInitialRequest = page === 1 && !isLoadMore && (categories.length === 0 || areas.length === 0);
 
       let productsData;
       let categoriesData = categories;
@@ -196,7 +216,9 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         if (cachedAreas) setAreas(JSON.parse(cachedAreas));
         if (cachedSettings) setSettings(JSON.parse(cachedSettings));
 
-        const initRes = await fetch(`${API_URL}/storefront/init?${params.toString()}`);
+        const initRes = await fetch(`${API_URL}/storefront/init?${params.toString()}`, {
+          signal: controller.signal
+        });
         if (!initRes.ok) {
           throw new Error("Failed to load storefront data resources");
         }
@@ -217,7 +239,9 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
           nextImg.src = getOptimizedImageUrl(settingsData.bannerImages[1], window.innerWidth < 640 ? 600 : 1200);
         }
       } else {
-        const prodRes = await fetch(`${API_URL}/products?${params.toString()}`);
+        const prodRes = await fetch(`${API_URL}/products?${params.toString()}`, {
+          signal: controller.signal
+        });
         if (!prodRes.ok) {
           throw new Error("Failed to load product page");
         }
@@ -252,12 +276,16 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       }
 
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        // Ignored, as it was aborted intentionally by a new fetch call
+        return;
+      }
       console.error(`Storefront fetch attempt ${retryCount + 1} failed:`, error);
       
       // Auto-retry up to 5 times
       if (retryCount < 5) {
-        setTimeout(() => {
+        retryTimerRef.current = setTimeout(() => {
           fetchAllData(retryCount + 1, page, isLoadMore);
         }, 3000);
       } else {
@@ -590,6 +618,15 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
     } else {
       setIsFirstRender(false);
     }
+    return () => {
+      // Abort active fetch and clear retry timer when category/search transitions occur
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+      }
+    };
   }, [selectedCategory, searchQuery]);
 
   // Reset window scroll position to top when a product details card opens or changes

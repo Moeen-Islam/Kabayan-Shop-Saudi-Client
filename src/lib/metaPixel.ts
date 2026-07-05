@@ -47,14 +47,19 @@ export const initMetaPixel = (pixelId: string) => {
   }
 };
 
-export const trackPixelEvent = (eventName: string, data?: any) => {
+export const trackPixelEvent = (eventName: string, data?: any, options?: { eventID?: string }) => {
   if (typeof window === "undefined" || !window.fbq || !isInitialized) {
     return;
   }
 
   try {
-    window.fbq("track", eventName, data);
-    console.log(`[Meta Pixel] Event tracked: ${eventName}`, data);
+    if (options && options.eventID) {
+      window.fbq("track", eventName, data, { eventID: options.eventID });
+      console.log(`[Meta Pixel] Event tracked: ${eventName} (Event ID: ${options.eventID})`, data);
+    } else {
+      window.fbq("track", eventName, data);
+      console.log(`[Meta Pixel] Event tracked: ${eventName}`, data);
+    }
   } catch (err) {
     console.error(`[Meta Pixel] Failed to track event ${eventName}:`, err);
   }
