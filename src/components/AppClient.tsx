@@ -174,7 +174,8 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   const retryTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch all core resources with automated retry loops
-  const fetchAllData = async (retryCount = 0, page = 1, isLoadMore = false) => {
+  // Fetch all core resources with automated retry loops
+  const fetchAllData = async (retryCount = 0, page = 1, isLoadMore = false, forceRefreshInit = false) => {
     // Clear any pending retry timer
     if (retryTimerRef.current) {
       clearTimeout(retryTimerRef.current);
@@ -199,8 +200,8 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       if (selectedCategory) params.append("category", selectedCategory);
       if (searchQuery) params.append("search", searchQuery);
 
-      // Only fetch full init resources if they are not already loaded in local state
-      const isInitialRequest = page === 1 && !isLoadMore && (categories.length === 0 || areas.length === 0);
+      // Only fetch full init resources if they are not already loaded in local state, or if forced
+      const isInitialRequest = forceRefreshInit || (page === 1 && !isLoadMore && (categories.length === 0 || areas.length === 0));
 
       let productsData;
       let categoriesData = categories;
@@ -288,7 +289,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       // Auto-retry up to 5 times
       if (retryCount < 5) {
         retryTimerRef.current = setTimeout(() => {
-          fetchAllData(retryCount + 1, page, isLoadMore);
+          fetchAllData(retryCount + 1, page, isLoadMore, forceRefreshInit);
         }, 3000);
       } else {
         if (products.length > 0) {
@@ -768,7 +769,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
               areas={areas}
               coupons={coupons}
               settings={settings}
-              onRefreshAll={fetchAllData}
+              onRefreshAll={() => fetchAllData(0, 1, false, true)}
             />
           </Suspense>
         ) : selectedProduct ? (
