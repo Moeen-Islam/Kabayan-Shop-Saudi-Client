@@ -179,6 +179,7 @@ export default function ProductDetailsModal({
   const [selectedSizes2, setSelectedSizes2] = useState<string[]>([]);
   const [isSameSizeAll, setIsSameSizeAll] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState("");
+  const [packageError, setPackageError] = useState(false);
   const [chooseCustomColors, setChooseCustomColors] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -201,7 +202,8 @@ export default function ProductDetailsModal({
     setSelectedSizes([initialSize]);
     setSelectedSizes2([initialSize2]);
     setIsSameSizeAll(true);
-    setSelectedPackage((product.packageTypes && product.packageTypes[0]) || "Single Piece");
+    setSelectedPackage("");
+    setPackageError(false);
     setQuantity(1);
     setIsZoomed(false);
     setChooseCustomColors(false);
@@ -242,6 +244,7 @@ export default function ProductDetailsModal({
   // Keep selectedPackage and quantity in sync when quantity changes manually
   useEffect(() => {
     if (!product || !product.packageTypes || product.packageTypes.length === 0) return;
+    if (selectedPackage === "") return;
 
     // Look for a package where the multiplier matches quantity exactly
     const matched = product.packageTypes.find((pkg) => {
@@ -307,6 +310,11 @@ export default function ProductDetailsModal({
   const handleAddToCart = () => {
     if (product.stock === 0 || addingState !== "idle") return;
     
+    if (product.packageTypes && product.packageTypes.length > 0 && selectedPackage === "") {
+      setPackageError(true);
+      return;
+    }
+    
     setAddingState("adding");
 
     // Perform the item addition after a minor delay to show the "Adding..." animation state
@@ -367,6 +375,11 @@ export default function ProductDetailsModal({
   // Buy Now handler
   const handleBuyNow = () => {
     if (product.stock === 0) return;
+
+    if (product.packageTypes && product.packageTypes.length > 0 && selectedPackage === "") {
+      setPackageError(true);
+      return;
+    }
 
     let finalSize = "";
     if (quantity > 1 && !isSameSizeAll) {
@@ -601,6 +614,11 @@ export default function ProductDetailsModal({
                   <div>
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
                       {t("select_package_option")}
+                      {packageError && (
+                        <span className="text-red-500 font-bold text-[10px] uppercase tracking-widest animate-pulse ml-2">
+                          ⚠️ Please select an option first
+                        </span>
+                      )}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {product.packageTypes.map((pkg) => {
@@ -617,6 +635,7 @@ export default function ProductDetailsModal({
                             type="button"
                             onClick={() => {
                               setSelectedPackage(pkg);
+                              setPackageError(false);
                               const { multiplier: m } = getPackageMultiplierAndDiscount(pkg);
                               if (m > 0) {
                                 setQuantity(m);
