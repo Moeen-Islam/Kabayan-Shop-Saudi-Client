@@ -328,7 +328,7 @@ export default function ProductDetailsModal({
 
       const finalColor = product.isGroupOrder
         ? (chooseCustomColors ? (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor) : "Mix Color")
-        : (multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
+        : ((multiplier > 1 && product.isDefaultMixedColor) ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
 
       cartStore.addItem({
         productId: product.id,
@@ -385,7 +385,7 @@ export default function ProductDetailsModal({
 
     const finalColor = product.isGroupOrder
       ? (chooseCustomColors ? (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor) : "Mix Color")
-      : (multiplier > 1 ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
+      : ((multiplier > 1 && product.isDefaultMixedColor) ? "Mix Colors" : (selectedColors.length > 0 ? selectedColors.join(", ") : selectedColor));
 
     cartStore.addItem({
       productId: product.id,
@@ -660,7 +660,7 @@ export default function ProductDetailsModal({
                 {/* 2. Color Selection */}
                 {product.colors && product.colors.length > 0 && (
                   (product.isGroupOrder && chooseCustomColors) ||
-                  (!product.isGroupOrder && multiplier === 1)
+                  (!product.isGroupOrder && (multiplier === 1 || !product.isDefaultMixedColor))
                 ) && (
                   <div className="space-y-3">
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block">

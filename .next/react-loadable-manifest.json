@@ -15,7 +15,7 @@
     "id": 8399,
     "files": [
       "static/chunks/6edf0643.cff15dee501a82ef.js",
-      "static/chunks/399.72466be8007d862b.js"
+      "static/chunks/399.77b712106f81fdf0.js"
     ]
   },
   "components\\AppClient.tsx -> ./CheckoutModal": {
@@ -28,7 +28,7 @@
   "components\\AppClient.tsx -> ./ProductDetailsModal": {
     "id": 794,
     "files": [
-      "static/chunks/794.0e3be32bac77450a.js"
+      "static/chunks/794.bb374154a1bc8a99.js"
     ]
   }
 }
