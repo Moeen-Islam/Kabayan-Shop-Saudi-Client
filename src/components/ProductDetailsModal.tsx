@@ -179,7 +179,6 @@ export default function ProductDetailsModal({
   const [selectedSizes2, setSelectedSizes2] = useState<string[]>([]);
   const [isSameSizeAll, setIsSameSizeAll] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState("");
-  const [packageError, setPackageError] = useState(false);
   const [chooseCustomColors, setChooseCustomColors] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -203,7 +202,6 @@ export default function ProductDetailsModal({
     setSelectedSizes2([initialSize2]);
     setIsSameSizeAll(true);
     setSelectedPackage("");
-    setPackageError(false);
     setQuantity(1);
     setIsZoomed(false);
     setChooseCustomColors(false);
@@ -363,11 +361,6 @@ export default function ProductDetailsModal({
   const handleAddToCart = () => {
     if (product.stock === 0 || addingState !== "idle") return;
     
-    if (product.packageTypes && product.packageTypes.length > 0 && selectedPackage === "") {
-      setPackageError(true);
-      return;
-    }
-    
     setAddingState("adding");
 
     // Perform the item addition after a minor delay to show the "Adding..." animation state
@@ -399,7 +392,7 @@ export default function ProductDetailsModal({
         price: unitPrice,
         selectedColor: finalColor,
         selectedSize: finalSize,
-        selectedPackageType: selectedPackage,
+        selectedPackageType: selectedPackage || (product.packageTypes && product.packageTypes[0]) || "Single Piece",
         basePrice,
         packageTypes: product.packageTypes,
         packagePrices: product.packagePrices
@@ -429,11 +422,6 @@ export default function ProductDetailsModal({
   const handleBuyNow = () => {
     if (product.stock === 0) return;
 
-    if (product.packageTypes && product.packageTypes.length > 0 && selectedPackage === "") {
-      setPackageError(true);
-      return;
-    }
-
     let finalSize = "";
     if (quantity > 1 && !isSameSizeAll) {
       if (product.hasDualSizes) {
@@ -461,7 +449,7 @@ export default function ProductDetailsModal({
       price: unitPrice,
       selectedColor: finalColor,
       selectedSize: finalSize,
-      selectedPackageType: selectedPackage,
+      selectedPackageType: selectedPackage || (product.packageTypes && product.packageTypes[0]) || "Single Piece",
       basePrice,
       packageTypes: product.packageTypes,
       packagePrices: product.packagePrices
@@ -667,11 +655,6 @@ export default function ProductDetailsModal({
                   <div>
                     <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2">
                       {t("select_package_option")}
-                      {packageError && (
-                        <span className="text-red-500 font-bold text-[10px] uppercase tracking-widest animate-pulse ml-2">
-                          ⚠️ Please select an option first
-                        </span>
-                      )}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {product.packageTypes.map((pkg) => {
@@ -687,11 +670,15 @@ export default function ProductDetailsModal({
                             key={pkg}
                             type="button"
                             onClick={() => {
-                              setSelectedPackage(pkg);
-                              setPackageError(false);
-                              const { multiplier: m } = getPackageMultiplierAndDiscount(pkg);
-                              if (m > 0) {
-                                setQuantity(m);
+                              if (selectedPackage === pkg) {
+                                setSelectedPackage("");
+                                setQuantity(1);
+                              } else {
+                                setSelectedPackage(pkg);
+                                const { multiplier: m } = getPackageMultiplierAndDiscount(pkg);
+                                if (m > 0) {
+                                  setQuantity(m);
+                                }
                               }
                             }}
                             className={`px-3 py-2 rounded-lg text-xs font-semibold border transition flex flex-col items-start min-w-[120px] ${
