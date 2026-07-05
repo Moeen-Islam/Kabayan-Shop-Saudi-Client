@@ -547,7 +547,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         setSelectedProduct(null);
         setTimeout(() => {
           const element = document.getElementById("all-products-section");
-          if (element) {
+          if (element && window.scrollY < 300) {
             element.scrollIntoView({ behavior: "smooth" });
           }
         }, 500);
@@ -579,7 +579,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         setIsAdminMode(false);
         setTimeout(() => {
           const element = document.getElementById("all-products-section");
-          if (element) {
+          if (element && window.scrollY < 300) {
             const headerOffset = 130;
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + (window.scrollY || window.pageYOffset) - headerOffset;
