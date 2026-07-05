@@ -942,9 +942,17 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                 </div>
               </div>
 
+              {showWakingUpText && (
+                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-800 rounded-xl p-3 text-center mb-6 max-w-md mx-auto animate-pulse flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest">
+                    ⚡ Server is waking up (takes up to 25s for first request)...
+                  </span>
+                </div>
+              )}
+
               {/* Product Catalog Grid */}
-              {/* Product Catalog Grid */}
-              {loading ? (
+              {loading && products.length === 0 ? (
                 <div className="space-y-8">
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                     {[...Array(8)].map((_, idx) => (
@@ -981,7 +989,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   </button>
                 </div>
               ) : (
-                <div className="space-y-8">
+                <div className={`space-y-8 transition-opacity duration-300 ${loading ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                     {sortedProducts.map((product) => (
                       <div key={product.id} className="relative group">
