@@ -167,6 +167,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   // Waking up server status states
   const [showWakingUpText, setShowWakingUpText] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
+  const [isRealSettings, setIsRealSettings] = useState(false);
 
   // Refs for tracking active fetch requests and retry timers to prevent overlapping loops
   const abortControllerRef = React.useRef<AbortController | null>(null);
@@ -232,6 +233,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         setCategories(categoriesData);
         setAreas(areasData);
         setSettings(settingsData);
+        setIsRealSettings(true);
 
         // Preload the next hero image in the background for instant transitions
         if (settingsData.bannerImages && settingsData.bannerImages.length > 1) {
@@ -325,6 +327,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         setCategories(JSON.parse(cachedCats));
         setAreas(JSON.parse(cachedAreas));
         setSettings(JSON.parse(cachedSettings));
+        setIsRealSettings(true);
       }
     } catch (err) {
       console.error("Failed to parse cached storefront files on mount:", err);
@@ -367,7 +370,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
   // Initialize Meta Pixel & SEO tags dynamically
   useEffect(() => {
-    if (settings) {
+    if (settings && isRealSettings) {
       if (settings.metaPixelId) {
         initMetaPixel(settings.metaPixelId);
       }
@@ -400,7 +403,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         metaKeyEl.setAttribute('content', settings.metaKeywords);
       }
     }
-  }, [settings]);
+  }, [settings, isRealSettings]);
 
 
   // Slide rotation interval
