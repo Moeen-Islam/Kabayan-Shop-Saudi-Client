@@ -2,9 +2,9 @@
   "/_not-found/page": "/_not-found",
   "/admin/page": "/admin",
   "/cart/page": "/cart",
-  "/product/page": "/product",
-  "/collections/[category]/page": "/collections/[category]",
   "/collections/page": "/collections",
+  "/page": "/",
+  "/collections/[category]/page": "/collections/[category]",
   "/product/[slug]/page": "/product/[slug]",
-  "/page": "/"
+  "/product/page": "/product"
 }
