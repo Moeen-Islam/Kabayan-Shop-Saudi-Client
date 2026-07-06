@@ -9,10 +9,10 @@ import { useLanguage } from "../lib/translationStore";
 import { trackPixelEvent } from "../lib/metaPixel";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
 
-const API_URL = (() => {
+const getApiUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-    return envUrl + "/api";
+    return envUrl.endsWith("/api") ? envUrl : envUrl + "/api";
   }
   const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
@@ -22,8 +22,9 @@ const API_URL = (() => {
     }
     return "/api";
   }
-  return (envUrl || "http://localhost:5000") + "/api";
-})();
+  const base = envUrl || "http://localhost:5000";
+  return base.endsWith("/api") ? base : base + "/api";
+};
 
 // Fix default marker icon issue in Leaflet + Vite
 let customMarkerIconCache: L.DivIcon | null = null;
@@ -280,7 +281,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     setCouponSuccess("");
 
     try {
-      const response = await fetch(`${API_URL}/coupons/validate/${couponCode.trim().toUpperCase()}`);
+      const response = await fetch(`${getApiUrl()}/coupons/validate/${couponCode.trim().toUpperCase()}`);
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || "Invalid coupon");
@@ -346,7 +347,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
         }))
       };
 
-      const response = await fetch(API_URL + "/orders", {
+      const response = await fetch(getApiUrl() + "/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

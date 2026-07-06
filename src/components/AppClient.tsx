@@ -23,6 +23,16 @@ const AdminPanel = dynamic(() => import("./AdminPanel"), { ssr: false });
 const ProductDetailsModal = dynamic(() => import("./ProductDetailsModal"), { ssr: false });
 const CheckoutModal = dynamic(() => import("./CheckoutModal"), { ssr: false });
 
+function shuffleArray<T>(array: T[]): T[] {
+  if (!array || !Array.isArray(array)) return [];
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 const FallbackLoading = () => (
   <div className="w-full py-24 flex items-center justify-center bg-transparent">
     <div className="text-center space-y-4">
@@ -34,10 +44,10 @@ const FallbackLoading = () => (
   </div>
 );
 
-const API_URL = (() => {
-  const envUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL;
+const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-    return envUrl + "/api";
+    return envUrl.endsWith("/api") ? envUrl : envUrl + "/api";
   }
   const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
@@ -47,8 +57,9 @@ const API_URL = (() => {
     }
     return "/api";
   }
-  return (envUrl || "http://localhost:5000") + "/api";
-})();
+  const base = envUrl || "http://localhost:5000";
+  return base.endsWith("/api") ? base : base + "/api";
+};
 
 interface AppClientProps {
   initialRoute?: string;
@@ -218,7 +229,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         if (cachedAreas) setAreas(JSON.parse(cachedAreas));
         if (cachedSettings) setSettings(JSON.parse(cachedSettings));
 
-        const initRes = await fetch(`${API_URL}/storefront/init?${params.toString()}`, {
+        const initRes = await fetch(`${getApiUrl()}/storefront/init?${params.toString()}`, {
           signal: controller.signal
         });
         if (!initRes.ok) {
@@ -242,7 +253,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
           nextImg.src = getOptimizedImageUrl(settingsData.bannerImages[1], window.innerWidth < 640 ? 600 : 1200);
         }
       } else {
-        const prodRes = await fetch(`${API_URL}/products?${params.toString()}`, {
+        const prodRes = await fetch(`${getApiUrl()}/products?${params.toString()}`, {
           signal: controller.signal
         });
         if (!prodRes.ok) {
@@ -256,10 +267,10 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
         setProducts(prev => {
           const ids = new Set(prev.map(p => p.id));
           const fresh = productsData.products.filter((p: Product) => !ids.has(p.id));
-          return [...prev, ...fresh];
+          return [...prev, ...shuffleArray(fresh)];
         });
       } else {
-        setProducts(productsData.products);
+        setProducts(shuffleArray(productsData.products));
       }
 
       setCurrentPage(productsData.page);
@@ -305,7 +316,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   // Fetch full unpaginated product list for admin panel
   const fetchAdminProducts = async () => {
     try {
-      const response = await fetch(API_URL + "/products?admin=true");
+      const response = await fetch(getApiUrl() + "/products?admin=true");
       if (response.ok) {
         const fullProducts = await response.json();
         setProducts(fullProducts);
@@ -317,6 +328,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
   useEffect(() => {
     // Read from cache synchronously on mount to immediately show cached data
+    let hasLoadedCache = false;
     try {
       const cachedProds = safeStorage.getItem("kabayan_cached_products");
       const cachedCats = safeStorage.getItem("kabayan_cached_categories");
@@ -324,14 +336,19 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       const cachedSettings = safeStorage.getItem("kabayan_cached_settings");
 
       if (cachedProds && cachedCats && cachedAreas && cachedSettings) {
-        setProducts(JSON.parse(cachedProds));
+        setProducts(shuffleArray(JSON.parse(cachedProds)));
         setCategories(JSON.parse(cachedCats));
         setAreas(JSON.parse(cachedAreas));
         setSettings(JSON.parse(cachedSettings));
         setIsRealSettings(true);
+        hasLoadedCache = true;
       }
     } catch (err) {
       console.error("Failed to parse cached storefront files on mount:", err);
+    }
+
+    if (!hasLoadedCache) {
+      setProducts(prev => shuffleArray(prev));
     }
 
     if (typeof window !== "undefined") {
@@ -339,7 +356,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
     }
 
     // Silent pre-warming ping to separate Express server
-    fetch(API_URL.replace("/api", "")).catch(() => {});
+    fetch(getApiUrl().replace("/api", "")).catch(() => {});
 
     const path = typeof window !== "undefined" ? window.location.pathname : initialRoute;
     if (path === "/admin") {
@@ -558,7 +575,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
           setSelectedProduct(prod);
         } else {
           // Fetch from server if not loaded yet
-          fetch(`${API_URL}/products/slug/${slug}`)
+          fetch(`${getApiUrl()}/products/slug/${slug}`)
             .then(res => {
               if (!res.ok) throw new Error("Product not found");
               return res.json();

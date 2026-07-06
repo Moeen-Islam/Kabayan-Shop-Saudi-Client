@@ -12,10 +12,10 @@ import { Product, Category, Order, DeliveryArea, Coupon, ShopSettings, Dashboard
 import { safeStorage } from "../lib/safeStorage";
 import ExcelJS from "exceljs";
 
-const API_URL = (() => {
+const getApiUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-    return envUrl + "/api";
+    return envUrl.endsWith("/api") ? envUrl : envUrl + "/api";
   }
   const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
@@ -25,8 +25,21 @@ const API_URL = (() => {
     }
     return "/api";
   }
-  return (envUrl || "http://localhost:5000") + "/api";
-})();
+  const base = envUrl || "http://localhost:5000";
+  return base.endsWith("/api") ? base : base + "/api";
+};
+
+const API_URL = {
+  toString() {
+    return getApiUrl();
+  },
+  valueOf() {
+    return getApiUrl();
+  },
+  replace(searchValue: string | RegExp, replaceValue: string) {
+    return getApiUrl().replace(searchValue, replaceValue);
+  }
+} as unknown as string;
 const localStorage = safeStorage;
 
 interface AdminPanelProps {

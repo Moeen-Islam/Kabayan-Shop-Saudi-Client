@@ -8,10 +8,10 @@ import { trackPixelEvent } from "../lib/metaPixel";
 import { getOptimizedImageUrl } from "../lib/imageOptimizer";
 import { useLanguage } from "../lib/translationStore";
 
-const API_URL = (() => {
+const getApiUrl = () => {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
   if (envUrl && !envUrl.includes("localhost") && !envUrl.includes("127.0.0.1")) {
-    return envUrl + "/api";
+    return envUrl.endsWith("/api") ? envUrl : envUrl + "/api";
   }
   const hostname = typeof window !== "undefined" ? window.location.hostname : "localhost";
   if (hostname !== "localhost" && hostname !== "127.0.0.1") {
@@ -21,8 +21,9 @@ const API_URL = (() => {
     }
     return "/api";
   }
-  return (envUrl || "http://localhost:5000") + "/api";
-})();
+  const base = envUrl || "http://localhost:5000";
+  return base.endsWith("/api") ? base : base + "/api";
+};
 export function getPackageMultiplierAndDiscount(pkgName: string): { multiplier: number; discount: number } {
   const name = (pkgName || "").toLowerCase();
   let count = 1;
@@ -146,8 +147,9 @@ export default function ProductDetailsModal({
     const isLightweight = !propProduct.description || !propProduct.sizes || propProduct.sizes.length === 0;
 
     if (isLightweight) {
+      setFullProduct(null);
       setIsLoadingDetails(true);
-      fetch(`${API_URL}/products/slug/${propProduct.slug}`)
+      fetch(`${getApiUrl()}/products/slug/${propProduct.slug}`)
         .then(res => {
           if (!res.ok) throw new Error("Failed to load details");
           return res.json();
@@ -507,7 +509,15 @@ export default function ProductDetailsModal({
         </div>
 
         {/* Modal Content - Scrollable */}
-        <div className={isFullPage ? "p-6 space-y-8" : "overflow-y-auto p-6 flex-grow"}>
+        {isLoadingDetails ? (
+          <div className="p-12 flex flex-col items-center justify-center min-h-[350px] gap-3 bg-white flex-grow">
+            <div className="w-12 h-12 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+            <span className="text-xs text-neutral-400 font-bold uppercase tracking-widest animate-pulse font-mono">
+              {t("loading") || "Loading details..."}
+            </span>
+          </div>
+        ) : (
+          <div className={isFullPage ? "p-6 space-y-8" : "overflow-y-auto p-6 flex-grow"}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* Left Column: Image Slider and Zoom */}
@@ -1133,7 +1143,8 @@ export default function ProductDetailsModal({
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

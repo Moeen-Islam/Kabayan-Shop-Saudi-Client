@@ -15,20 +15,20 @@
     "id": 8399,
     "files": [
       "static/chunks/6edf0643.cff15dee501a82ef.js",
-      "static/chunks/399.77b712106f81fdf0.js"
+      "static/chunks/399.43dbcc45b473ef27.js"
     ]
   },
   "components\\AppClient.tsx -> ./CheckoutModal": {
     "id": 2873,
     "files": [
       "static/chunks/d0deef33.cac6acee3fffe7af.js",
-      "static/chunks/873.da36d3d8e26dacdd.js"
+      "static/chunks/873.9983e75f34df9ae5.js"
     ]
   },
   "components\\AppClient.tsx -> ./ProductDetailsModal": {
     "id": 794,
     "files": [
-      "static/chunks/794.f71dfb2c6e50d5fd.js"
+      "static/chunks/794.39b4e6896d28c9f2.js"
     ]
   }
 }
