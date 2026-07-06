@@ -120,11 +120,13 @@ export const cartStore = {
                         name.match(/^(\d+)\s*$/);
           if (match && match[1]) {
             count = parseInt(match[1], 10);
-          } else if (name.includes("pair") || name.includes("terno") || name.includes("double")) {
+          } else if (name.includes("couple") || name.includes("pair") || name.includes("terno") || name.includes("double") || name.includes("two") || name.includes("2")) {
             count = 2;
-          } else if (name.includes("triple")) {
+          } else if (name.includes("triple") || name.includes("three") || name.includes("3")) {
             count = 3;
-          } else if (name.includes("dozen")) {
+          } else if (name.includes("quadruple") || name.includes("four") || name.includes("4")) {
+            count = 4;
+          } else if (name.includes("dozen") || name.includes("12")) {
             count = 12;
           }
           return count === newQty;
@@ -145,9 +147,18 @@ export const cartStore = {
             const name = matchedPkg.toLowerCase();
             let count = 1;
             const match = name.match(/(?:pack|combo|set|pieces|pcs)\s*(?:of)?\s*(\d+)/i) || 
-                          name.match(/(\d+)\s*(?:pcs|pc|piece|pieces|pack|combo|set)/i);
+                          name.match(/(\d+)\s*(?:pcs|pc|piece|pieces|pack|combo|set)/i) ||
+                          name.match(/^(\d+)\s*$/);
             if (match && match[1]) {
               count = parseInt(match[1], 10);
+            } else if (name.includes("couple") || name.includes("pair") || name.includes("terno") || name.includes("double") || name.includes("two") || name.includes("2")) {
+              count = 2;
+            } else if (name.includes("triple") || name.includes("three") || name.includes("3")) {
+              count = 3;
+            } else if (name.includes("quadruple") || name.includes("four") || name.includes("4")) {
+              count = 4;
+            } else if (name.includes("dozen") || name.includes("12")) {
+              count = 12;
             }
             let disc = 1.0;
             if (count === 2) disc = 0.90;
