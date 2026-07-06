@@ -169,7 +169,7 @@ export const cartStore = {
 
             pkgPrice = Math.round(item.basePrice * count * disc);
           }
-          item.price = Math.round((pkgPrice / newQty) * 100) / 100;
+          item.price = pkgPrice / newQty;
         } else {
           // Fallback dynamic progressive discount
           let disc = 1.0;
@@ -179,7 +179,7 @@ export const cartStore = {
           else if (newQty >= 6 && newQty <= 11) disc = 0.75;
           else if (newQty >= 12) disc = 0.70;
 
-          item.price = Math.round(item.basePrice * disc * 100) / 100;
+          item.price = item.basePrice * disc;
         }
       }
 
@@ -193,7 +193,7 @@ export const cartStore = {
   },
 
   getSubtotal() {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return Math.round(cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100;
   }
 };
 
@@ -211,7 +211,7 @@ export function useCart() {
   }, []);
 
   const subtotal = isMounted
-    ? items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    ? Math.round(items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100
     : 0;
 
   return {

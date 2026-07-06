@@ -345,7 +345,7 @@ export default function ProductDetailsModal({
   }
 
   // Calculate unitPrice so that unitPrice * quantity equals activePrice in cart
-  const unitPrice = quantity > 0 ? Math.round((activePrice / quantity) * 100) / 100 : basePrice;
+  const unitPrice = quantity > 0 ? activePrice / quantity : basePrice;
 
   // Handle Zoom logic
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

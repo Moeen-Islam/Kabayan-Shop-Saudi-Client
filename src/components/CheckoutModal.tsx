@@ -431,7 +431,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       msg += `• *${item.quantity}x* ${item.productName}\n`;
       msg += `  Size: ${item.selectedSize} | Color: ${item.selectedColor}\n`;
       msg += `  Package: ${item.selectedPackageType}\n`;
-      msg += `  Price: ${item.price} SAR each (Total: ${item.price * item.quantity} SAR)\n\n`;
+      msg += `  Price: ${Number(item.price.toFixed(2))} SAR each (Total: ${Number((item.price * item.quantity).toFixed(2))} SAR)\n\n`;
     });
 
     msg += `💳 *BILLING SUMMARY:*\n`;
@@ -519,7 +519,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                     </div>
                   </div>
                   <div className="text-right font-semibold text-neutral-800 shrink-0 font-mono">
-                    {item.quantity} x {item.price} SAR
+                    {item.quantity} x {Number(item.price.toFixed(2))} SAR
                   </div>
                 </div>
               ))}
@@ -886,7 +886,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className="font-bold text-neutral-900 block font-mono">{item.price * item.quantity} SAR</span>
+                      <span className="font-bold text-neutral-900 block font-mono">{Number((item.price * item.quantity).toFixed(2))} SAR</span>
                       <div className="flex items-center gap-1 border border-neutral-200 rounded bg-white p-0.5">
                         <button
                           type="button"
@@ -1017,11 +1017,11 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                         <div>
                           <span>{lang === "ar" ? "الحد الأدنى للطلب:" : lang === "fil" ? "Minimum Order:" : "Minimum Order:"}</span>{" "}
                           {lang === "ar" ? (
-                            <>تحتاج إلى <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} ريال</span> إضافي لإتمام هذا الطلب (الحد الأدنى: {activeArea.minOrderValue} ريال).</>
+                            <>تحتاج إلى <span className="font-extrabold font-mono">{Number((activeArea.minOrderValue - subtotal).toFixed(2))} ريال</span> إضافي لإتمام هذا الطلب (الحد الأدنى: {activeArea.minOrderValue} ريال).</>
                           ) : lang === "fil" ? (
-                            <>Kailangan mo ng <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> pa para makapag-order (Min: {activeArea.minOrderValue} SAR).</>
+                            <>Kailangan mo ng <span className="font-extrabold font-mono">{Number((activeArea.minOrderValue - subtotal).toFixed(2))} SAR</span> pa para makapag-order (Min: {activeArea.minOrderValue} SAR).</>
                           ) : (
-                            <>You need <span className="font-extrabold font-mono">{activeArea.minOrderValue - subtotal} SAR</span> more to place this order (Min: {activeArea.minOrderValue} SAR).</>
+                            <>You need <span className="font-extrabold font-mono">{Number((activeArea.minOrderValue - subtotal).toFixed(2))} SAR</span> more to place this order (Min: {activeArea.minOrderValue} SAR).</>
                           )}
                         </div>
                       </div>
@@ -1034,11 +1034,11 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                         <div>
                           <span className="text-neutral-800">{lang === "ar" ? "توصيل مجاني:" : lang === "fil" ? "Libreng Deliber:" : "Free Delivery:"}</span>{" "}
                           {lang === "ar" ? (
-                            <>أضف <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} ريال</span> إضافي للحصول على <span className="text-green-600 font-black">توصيل مجاني</span>!</>
+                            <>أضف <span className="font-extrabold font-mono text-black">{Number((activeArea.freeDeliveryAbove - subtotal).toFixed(2))} ريال</span> إضافي للحصول على <span className="text-green-600 font-black">توصيل مجاني</span>!</>
                           ) : lang === "fil" ? (
-                            <>Magdagdag ng <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> pa para makakuha ng <span className="text-green-600 font-black">Libreng Deliber</span>!</>
+                            <>Magdagdag ng <span className="font-extrabold font-mono text-black">{Number((activeArea.freeDeliveryAbove - subtotal).toFixed(2))} SAR</span> pa para makakuha ng <span className="text-green-600 font-black">Libreng Deliber</span>!</>
                           ) : (
-                            <>Add <span className="font-extrabold font-mono text-black">{activeArea.freeDeliveryAbove - subtotal} SAR</span> more to get <span className="text-green-600 font-black">Free Delivery</span>!</>
+                            <>Add <span className="font-extrabold font-mono text-black">{Number((activeArea.freeDeliveryAbove - subtotal).toFixed(2))} SAR</span> more to get <span className="text-green-600 font-black">Free Delivery</span>!</>
                           )}
                         </div>
                       </div>

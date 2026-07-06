@@ -152,7 +152,7 @@ export default function CartDrawer({ onClose, onOpenCheckout, onSelectProductByI
                     {/* Cost Details */}
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-bold text-neutral-900 font-sans">
-                        {item.price * item.quantity} SAR
+                        {Number((item.price * item.quantity).toFixed(2))} SAR
                       </span>
                       <button
                         type="button"
