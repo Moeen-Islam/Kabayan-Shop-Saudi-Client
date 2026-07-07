@@ -4,7 +4,7 @@
   "/page": "/",
   "/product/page": "/product",
   "/product/[slug]/page": "/product/[slug]",
-  "/admin/page": "/admin",
   "/collections/page": "/collections",
+  "/admin/page": "/admin",
   "/cart/page": "/cart"
 }

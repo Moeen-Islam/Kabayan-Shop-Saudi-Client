@@ -4,7 +4,7 @@
   "/page": "app/page.js",
   "/product/page": "app/product/page.js",
   "/product/[slug]/page": "app/product/[slug]/page.js",
-  "/admin/page": "app/admin/page.js",
   "/collections/page": "app/collections/page.js",
+  "/admin/page": "app/admin/page.js",
   "/cart/page": "app/cart/page.js"
 }

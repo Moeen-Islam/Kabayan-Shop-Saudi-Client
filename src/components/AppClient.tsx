@@ -179,6 +179,22 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   const [showWakingUpText, setShowWakingUpText] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
   const [isRealSettings, setIsRealSettings] = useState(false);
+  const [showSizePopup, setShowSizePopup] = useState(false);
+
+  // Show sizing popup helper after 7 seconds delay
+  useEffect(() => {
+    try {
+      const closed = safeStorage.getItem("kabayan_size_popup_closed");
+      if (!closed) {
+        const timer = setTimeout(() => {
+          setShowSizePopup(true);
+        }, 7000);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   // Refs for tracking active fetch requests and retry timers to prevent overlapping loops
   const abortControllerRef = React.useRef<AbortController | null>(null);
@@ -864,17 +880,15 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                         {t("hero_description")}
                       </p>
 
-                      {/* Premium Benefits Grid */}
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 border-t border-white/10 max-w-md">
+                      {/* Premium Benefits List */}
+                      <div className="flex flex-col gap-2 pt-3 border-t border-white/10 max-w-md">
                         {[
-                          "Cash On Delivery Available",
-                          "Secure Shopping",
-                          "Fast Delivery Across KSA",
-                          "Easy Exchange"
-                        ].map((benefit, i) => (
-                          <div key={i} className="flex items-center gap-1.5 text-neutral-200">
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span className="text-[10px] sm:text-xs font-semibold tracking-wide whitespace-nowrap">{benefit}</span>
+                          t("hero_bullet_1"),
+                          t("hero_bullet_2"),
+                          t("hero_bullet_3")
+                        ].map((bullet, i) => (
+                          <div key={i} className="flex items-center gap-2 text-neutral-200">
+                            <span className="text-xs sm:text-sm font-semibold tracking-wide">{bullet}</span>
                           </div>
                         ))}
                       </div>
@@ -1466,7 +1480,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
           {/* Floating Messenger Icon Bubble */}
           <button
             onClick={() => setIsMessengerChatOpen(!isMessengerChatOpen)}
-            className="fixed bottom-18 right-6 z-40 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 group cursor-pointer animate-none"
+            className="fixed bottom-20 right-6 z-40 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 group cursor-pointer animate-none"
             title="Chat with us on Facebook Messenger"
             id="messenger-float-btn"
           >
@@ -1481,7 +1495,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
           {/* Chatbot Window */}
           {isMessengerChatOpen && (
-            <div className="fixed bottom-42 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden animate-none font-sans">
+            <div className="fixed bottom-48 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-neutral-200 overflow-hidden animate-none font-sans">
               {/* Header */}
               <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white p-4 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-2">
@@ -1547,7 +1561,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       {/* F. FLOATING CART ACTION BUTTON */}
       <button
         onClick={handleOpenCart}
-        className="fixed bottom-30 right-6 z-40 flex items-center justify-center bg-amber-400 hover:bg-amber-500 text-neutral-900 p-2.5 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 group cursor-pointer border border-amber-300/40"
+        className="fixed bottom-34 right-6 z-40 flex items-center justify-center bg-amber-400 hover:bg-amber-500 text-neutral-900 p-2.5 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 group cursor-pointer border border-amber-300/40"
         title="View shopping cart"
         id="cart-float-btn"
       >
@@ -1561,6 +1575,50 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
           View Cart
         </span>
       </button>
+
+      {/* G. FLOATING SIZE HELP POPUP */}
+      {showSizePopup && (
+        <div className="fixed bottom-48 sm:bottom-6 right-6 sm:right-22 z-50 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-neutral-200 p-5 flex flex-col gap-2.5 animate-in fade-in slide-in-from-bottom-5 duration-300 font-sans text-left">
+          <button
+            onClick={() => {
+              setShowSizePopup(false);
+              try {
+                safeStorage.setItem("kabayan_size_popup_closed", "true");
+              } catch (e) {}
+            }}
+            className="absolute top-3.5 right-3.5 text-neutral-400 hover:text-neutral-700 transition cursor-pointer"
+            aria-label="Close popup"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          
+          <div className="flex items-center gap-1.5">
+            <span className="text-base leading-none">👋</span>
+            <h4 className="font-extrabold text-neutral-900 text-[11px] uppercase tracking-wide">
+              Need help choosing your size?
+            </h4>
+          </div>
+          
+          <p className="text-[11px] text-neutral-500 leading-normal font-medium">
+            Chat with us on WhatsApp. We can help you pick the perfect fit!
+          </p>
+          
+          <a
+            href={`https://wa.me/${settings?.whatsappContact || "8801765865757"}?text=Hello%20Kabayan%20Shop%20Saudi!%20I%20need%20some%20help%20choosing%20my%20size.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              setShowSizePopup(false);
+              try {
+                safeStorage.setItem("kabayan_size_popup_closed", "true");
+              } catch (e) {}
+            }}
+            className="w-full text-center bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-[10px] uppercase tracking-widest py-2.5 rounded-xl transition shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <span>Start Chat</span>
+          </a>
+        </div>
+      )}
 
     </div>
   );
