@@ -838,16 +838,47 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   {/* Text overlays */}
                   <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent flex items-center px-4 sm:px-12 md:px-20">
                     <div className="max-w-xl space-y-3 sm:space-y-4">
-                      <span className="inline-flex items-center gap-1.5 bg-amber-400 text-black text-[9px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-sm animate-pulse shadow-md">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>{t("eid_sale")}</span>
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 bg-amber-400 text-black text-[9px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-sm animate-pulse shadow-md">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>{t("eid_sale")}</span>
+                        </span>
+                        
+                        {/* Trust Rating Badge */}
+                        <div className="inline-flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-sm border border-white/10">
+                          <div className="flex text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className="w-3 h-3 fill-current animate-pulse" />
+                            ))}
+                          </div>
+                          <span className="text-[9px] sm:text-[10px] font-black text-white uppercase tracking-wider">
+                            1000+ Happy Customers
+                          </span>
+                        </div>
+                      </div>
+
                       <h2 className="text-2xl sm:text-3.5xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase font-sans">
                         {t("embrace_elegance")}
                       </h2>
                       <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light font-sans max-w-md">
                         {t("hero_description")}
                       </p>
+
+                      {/* Premium Benefits Grid */}
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 pt-3 border-t border-white/10 max-w-md">
+                        {[
+                          "Cash On Delivery Available",
+                          "Secure Shopping",
+                          "Fast Delivery Across KSA",
+                          "Easy Exchange"
+                        ].map((benefit, i) => (
+                          <div key={i} className="flex items-center gap-1.5 text-neutral-200">
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span className="text-[10px] sm:text-xs font-semibold tracking-wide whitespace-nowrap">{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+
                       <div className="flex flex-wrap items-center gap-2.5 pt-1.5">
                         <button
                           onClick={() => handleGoToProduct()}
