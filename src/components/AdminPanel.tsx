@@ -454,8 +454,9 @@ export default function AdminPanel({
 
   const fetchAdminSettings = async (tokenStr: string) => {
     try {
+      const authHeader = tokenStr.startsWith("Bearer ") ? tokenStr : "Bearer " + tokenStr;
       const response = await fetch(API_URL + "/admin/settings", {
-        headers: { "Authorization": "Bearer " + tokenStr }
+        headers: { "Authorization": authHeader }
       });
       if (response.ok) {
         const fullSettings = await response.json();
