@@ -207,6 +207,16 @@ export default function ProductDetailsModal({
     setQuantity(1);
     setIsZoomed(false);
     setChooseCustomColors(false);
+
+    // Track ViewContent in Meta Pixel
+    trackPixelEvent("ViewContent", {
+      content_name: product.name,
+      content_category: product.category,
+      content_ids: [product.id],
+      content_type: "product",
+      value: product.offerPrice !== undefined ? product.offerPrice : product.price,
+      currency: "SAR"
+    });
   }, [product]);
 
   useEffect(() => {

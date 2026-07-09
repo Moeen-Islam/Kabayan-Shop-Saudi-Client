@@ -304,6 +304,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     const finalWhatsapp = `${selectedCountryCode}${phoneNumber.trim()}`;
 
     if (!fullName.trim() || !phoneNumber.trim() || !selectedAreaId) {
+      console.warn("[Checkout] Field validation failed: missing fullName, phoneNumber, or area ID. DO NOT send Purchase event.");
       setToast({
         show: true,
         message: "Please fill in all required fields marked with *",
@@ -314,6 +315,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     }
 
     if (!latitude || !longitude) {
+      console.warn("[Checkout] Field validation failed: missing GPS coordinates. DO NOT send Purchase event.");
       setToast({
         show: true,
         message: "EXACT HOUSE LOCATION IS REQUIRED! Please pin your location on the map to confirm coordinates.",
@@ -324,6 +326,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
     }
 
     setIsSubmitting(true);
+    console.log("[Checkout] Initiating order submission request to backend API...");
 
     try {
       const payload = {
@@ -355,19 +358,60 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
 
       if (!response.ok) {
         const errData = await response.json();
+        console.warn(`[Checkout] Order creation failed at backend: ${errData.error || response.statusText}. DO NOT send Purchase event.`);
         throw new Error(errData.error || "Failed to submit order");
       }
 
       const data = await response.json();
-      
-      // Track Purchase in Meta Pixel with eventID for CAPI deduplication
-      trackPixelEvent("Purchase", {
-        content_ids: items.map(item => item.productId),
-        content_type: "product",
-        value: data.finalBill || subtotal,
-        currency: "SAR",
-        num_items: items.reduce((acc, item) => acc + item.quantity, 0)
-      }, { eventID: data.order.id });
+      console.log(`[Checkout] Order created successfully. Order ID: ${data.order.id}`);
+
+      const orderId = data.order.id;
+      const trackedPurchasesKey = "kabayan_tracked_purchases";
+      let isAlreadyTracked = false;
+      try {
+        const tracked = localStorage.getItem(trackedPurchasesKey);
+        if (tracked) {
+          const trackedList = JSON.parse(tracked);
+          if (Array.isArray(trackedList) && trackedList.includes(orderId)) {
+            isAlreadyTracked = true;
+          }
+        }
+      } catch (e) {
+        console.error("[Meta Pixel] Failed to read tracked purchases from localStorage", e);
+      }
+
+      if (!isAlreadyTracked) {
+        console.log(`[Checkout] Dispatching browser Pixel Purchase event for order: ${orderId} with value ${data.order.grandTotal}`);
+        // Track Purchase in Meta Pixel with eventID for CAPI deduplication
+        trackPixelEvent("Purchase", {
+          content_ids: items.map(item => item.productId),
+          content_type: "product",
+          contents: items.map(item => ({
+            id: item.productId,
+            quantity: item.quantity,
+            item_price: item.price
+          })),
+          value: data.order.grandTotal,
+          currency: "SAR",
+          num_items: items.reduce((acc, item) => acc + item.quantity, 0)
+        }, { eventID: orderId });
+
+        try {
+          const tracked = localStorage.getItem(trackedPurchasesKey);
+          const trackedList = tracked ? JSON.parse(tracked) : [];
+          if (Array.isArray(trackedList)) {
+            if (!trackedList.includes(orderId)) {
+              trackedList.push(orderId);
+              localStorage.setItem(trackedPurchasesKey, JSON.stringify(trackedList));
+            }
+          }
+          console.log(`[Checkout] Order ID ${orderId} successfully persisted to localStorage tracked list.`);
+        } catch (e) {
+          console.error("[Meta Pixel] Failed to save tracked purchase to localStorage", e);
+        }
+      } else {
+        console.log(`[Checkout] Purchase event for order ${orderId} has already been tracked. Skipping browser Pixel event.`);
+      }
 
       clearCart(); // Wipe client cart
 
@@ -384,6 +428,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
       // Display the order summary receipt screen without auto-triggering WhatsApp
       setPlacedOrder(data.order);
     } catch (err: any) {
+      console.error(`[Checkout] Error during checkout/order placement: ${err.message}. DO NOT send Purchase event.`);
       setToast({
         show: true,
         message: err.message || "Something went wrong while placing your order. Please try again.",
