@@ -3112,7 +3112,7 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 {!isAddingArea && !editingArea && (
                   <button
                     onClick={() => {
-                      setAreaForm({ name: "", charge: "", freeDeliveryAbove: "" });
+                      setAreaForm({ name: "", charge: "", driverCharge: "", deliveryTime: "", freeDeliveryAbove: "", minOrderValue: "" });
                       setIsAddingArea(true);
                     }}
                     className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1"

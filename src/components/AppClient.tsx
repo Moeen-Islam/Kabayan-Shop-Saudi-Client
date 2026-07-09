@@ -230,7 +230,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       // Only fetch full init resources if they are not already loaded in local state, or if forced
       const isInitialRequest = forceRefreshInit || (page === 1 && !isLoadMore && (categories.length === 0 || areas.length === 0));
 
-      let productsData;
+      let productsData: any;
       let categoriesData = categories;
       let areasData = areas;
       let settingsData = settings;
@@ -280,13 +280,13 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
       // If loading next page, append; otherwise overwrite
       if (isLoadMore) {
-        setProducts(prev => {
+        setProducts((prev: Product[]) => {
           const ids = new Set(prev.map(p => p.id));
-          const fresh = productsData.products.filter((p: Product) => !ids.has(p.id));
+          const fresh = (productsData.products as Product[]).filter((p: Product) => !ids.has(p.id));
           return [...prev, ...shuffleArray(fresh)];
         });
       } else {
-        setProducts(shuffleArray(productsData.products));
+        setProducts(shuffleArray(productsData.products as Product[]));
       }
 
       setCurrentPage(productsData.page);
@@ -697,6 +697,11 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
   // Sort (Trending products pinned to the top first, then sorted by selection)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
+    // 1. Trending products always first
+    if (a.isTrending && !b.isTrending) return -1;
+    if (!a.isTrending && b.isTrending) return 1;
+
+    // 2. Both are trending or both are non-trending, sort by selection
     if (sortBy === "price-low") {
       const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
       const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
@@ -708,9 +713,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
       return bPrice - aPrice;
     }
 
-    // Default newest: Trending first, then newest
-    if (a.isTrending && !b.isTrending) return -1;
-    if (!a.isTrending && b.isTrending) return 1;
+    // Default newest: newest first
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
