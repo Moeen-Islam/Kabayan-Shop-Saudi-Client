@@ -138,16 +138,26 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   const { items, subtotal, clearCart, updateQuantity, removeItem } = useCart();
   const { t, lang } = useLanguage();
 
-  // Track InitiateCheckout on mount
+  // Track InitiateCheckout when cart items are loaded (prevents stale zero values)
+  const hasTrackedCheckoutRef = React.useRef(false);
   useEffect(() => {
-    trackPixelEvent("InitiateCheckout", {
-      content_ids: items.map(item => item.productId),
-      content_type: "product",
-      value: subtotal,
-      currency: "SAR",
-      num_items: items.reduce((acc, item) => acc + item.quantity, 0)
-    });
-  }, []);
+    if (items.length > 0 && !hasTrackedCheckoutRef.current) {
+      hasTrackedCheckoutRef.current = true;
+      trackPixelEvent("InitiateCheckout", {
+        content_ids: items.map(item => item.productId),
+        content_type: "product",
+        contents: items.map(item => ({
+          id: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          item_price: item.price
+        })),
+        value: subtotal,
+        currency: "SAR",
+        num_items: items.reduce((acc, item) => acc + item.quantity, 0)
+      });
+    }
+  }, [items, subtotal]);
 
   // Form fields
   const [fullName, setFullName] = useState("");
@@ -385,9 +395,17 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
         }))
       };
 
+      let extId = "";
+      try {
+        extId = localStorage.getItem("kabayan_external_id") || "";
+      } catch (e) {}
+
       const response = await fetch(getApiUrl() + "/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-external-id": extId
+        },
         body: JSON.stringify(payload)
       });
 
