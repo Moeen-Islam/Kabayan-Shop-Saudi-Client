@@ -435,7 +435,8 @@ export default function AdminPanel({
     messengerPageId: "",
     adminEmail: "",
     adminPassword: "",
-    fbAccessToken: ""
+    fbAccessToken: "",
+    fbTestEventCode: ""
   });
 
   // Verify previous session
@@ -476,7 +477,8 @@ export default function AdminPanel({
           messengerPageId: fullSettings.messengerPageId || "",
           adminEmail: fullSettings.adminEmail || "",
           adminPassword: "",
-          fbAccessToken: fullSettings.fbAccessToken || ""
+          fbAccessToken: fullSettings.fbAccessToken || "",
+          fbTestEventCode: fullSettings.fbTestEventCode || ""
         });
       }
     } catch (err) {
@@ -1272,7 +1274,8 @@ Thank you for shopping with Kabayan Shop! ❤️`;
           metaTitle: shopSettingsForm.metaTitle,
           metaDescription: shopSettingsForm.metaDescription,
           metaKeywords: shopSettingsForm.metaKeywords,
-          fbAccessToken: shopSettingsForm.fbAccessToken
+          fbAccessToken: shopSettingsForm.fbAccessToken,
+          fbTestEventCode: shopSettingsForm.fbTestEventCode
         })
       });
       if (response.ok) {
@@ -3552,6 +3555,22 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 />
                 <span className="text-[10px] text-neutral-400 mt-1 block">
                   Access Token to securely send server-side events directly to Meta's servers.
+                </span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  Meta Conversions API Test Event Code (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={shopSettingsForm.fbTestEventCode}
+                  onChange={(e) => setShopSettingsForm({ ...shopSettingsForm, fbTestEventCode: e.target.value })}
+                  placeholder="e.g. TEST57099"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-xs font-mono"
+                />
+                <span className="text-[10px] text-neutral-400 mt-1 block">
+                  Paste the test code from your Meta Event Manager 'Test events' tab to view server events in real-time.
                 </span>
               </div>
 
