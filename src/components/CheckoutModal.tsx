@@ -424,6 +424,7 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
           contents: items.map(item => ({
             id: item.productId,
             quantity: item.quantity,
+            price: item.price,
             item_price: item.price
           })),
           value: data.order.grandTotal,
