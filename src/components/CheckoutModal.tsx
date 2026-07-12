@@ -160,6 +160,41 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
   const [notes, setNotes] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"Cash On Delivery" | "STC Pay on Delivery" | "Card Payment">("Cash On Delivery");
 
+  // Load saved name and phone from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedName = localStorage.getItem("kabayan_customer_name");
+      if (savedName) setFullName(savedName);
+      
+      const savedPhone = localStorage.getItem("kabayan_customer_phone");
+      if (savedPhone) {
+        // If saved phone starts with +966 or 966, strip it to populate the local field
+        let localPhone = savedPhone;
+        if (localPhone.startsWith("+966")) {
+          localPhone = localPhone.substring(4);
+        } else if (localPhone.startsWith("966")) {
+          localPhone = localPhone.substring(3);
+        }
+        setPhoneNumber(localPhone);
+      }
+    }
+  }, []);
+
+  // Sync to localStorage when fields change
+  useEffect(() => {
+    if (typeof window !== "undefined" && fullName) {
+      localStorage.setItem("kabayan_customer_name", fullName);
+    }
+  }, [fullName]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && phoneNumber) {
+      const selectedCountryCode = countryCode === "custom" ? customCode.trim() : countryCode;
+      const finalWhatsapp = `${selectedCountryCode}${phoneNumber.trim()}`;
+      localStorage.setItem("kabayan_customer_phone", finalWhatsapp);
+    }
+  }, [phoneNumber, countryCode, customCode]);
+
   // Geolocation states
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);

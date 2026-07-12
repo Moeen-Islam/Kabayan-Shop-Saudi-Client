@@ -39,13 +39,58 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSettings();
+  const pixelId = settings?.metaPixelId;
+
   return (
     <html lang="en">
+      <head>
+        {pixelId && (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+
+                  var extId = localStorage.getItem("kabayan_external_id");
+                  if (!extId) {
+                    extId = "ext-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem("kabayan_external_id", extId);
+                  }
+                  var initData = { external_id: extId };
+                  var phone = localStorage.getItem("kabayan_customer_phone");
+                  if (phone) initData.ph = phone.replace(/\\D/g, "");
+                  var name = localStorage.getItem("kabayan_customer_name");
+                  if (name) initData.fn = name.trim().split(/\\s+/)[0] || "";
+
+                  fbq('init', '${pixelId}', initData);
+                  fbq('track', 'PageView');
+                `,
+              }}
+            />
+            <noscript>
+              <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+              />
+            </noscript>
+          </>
+        )}
+      </head>
       <body className="antialiased selection:bg-amber-400 selection:text-black">
         {children}
       </body>
