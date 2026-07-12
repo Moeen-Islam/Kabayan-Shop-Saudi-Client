@@ -70,11 +70,18 @@ export const initMetaPixel = (pixelId: string) => {
     })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
     /* eslint-enable */
 
-    const extId = getOrCreateExternalId();
-    const initData: any = { external_id: extId };
-    const phone = localStorage.getItem("kabayan_customer_phone");
+    let extId = "";
+    let phone = "";
+    let name = "";
+    try {
+      extId = getOrCreateExternalId();
+      phone = localStorage.getItem("kabayan_customer_phone") || "";
+      name = localStorage.getItem("kabayan_customer_name") || "";
+    } catch (e) {}
+
+    const initData: any = {};
+    if (extId) initData.external_id = extId;
     if (phone) initData.ph = phone.replace(/\D/g, "");
-    const name = localStorage.getItem("kabayan_customer_name");
     if (name) initData.fn = name.trim().split(/\s+/)[0] || "";
 
     window.fbq("init", pixelId, initData);
@@ -100,7 +107,7 @@ export const trackPixelEvent = async (eventName: string, data?: any, options?: {
       isInitialized = true;
     }
     try {
-      window.fbq("track", eventName, data, { eventID });
+      window.fbq("track", eventName, data || {}, { eventID });
       console.log(`[Meta Pixel] Browser event tracked: ${eventName} (Event ID: ${eventID})`, data);
     } catch (err) {
       console.error(`[Meta Pixel] Failed to track browser event ${eventName}:`, err);
@@ -116,9 +123,14 @@ export const trackPixelEvent = async (eventName: string, data?: any, options?: {
   }
 
   try {
-    const extId = getOrCreateExternalId();
-    const phone = localStorage.getItem("kabayan_customer_phone") || "";
-    const name = localStorage.getItem("kabayan_customer_name") || "";
+    let extId = "";
+    let phone = "";
+    let name = "";
+    try {
+      extId = getOrCreateExternalId();
+      phone = localStorage.getItem("kabayan_customer_phone") || "";
+      name = localStorage.getItem("kabayan_customer_name") || "";
+    } catch (e) {}
 
     const userData = {
       whatsapp: phone,

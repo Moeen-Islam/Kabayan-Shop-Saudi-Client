@@ -64,15 +64,22 @@ export default async function RootLayout({
                   s.parentNode.insertBefore(t,s)}(window, document,'script',
                   'https://connect.facebook.net/en_US/fbevents.js');
 
-                  var extId = localStorage.getItem("kabayan_external_id");
-                  if (!extId) {
-                    extId = "ext-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                    localStorage.setItem("kabayan_external_id", extId);
-                  }
-                  var initData = { external_id: extId };
-                  var phone = localStorage.getItem("kabayan_customer_phone");
+                  var extId = "";
+                  var phone = "";
+                  var name = "";
+                  try {
+                    extId = localStorage.getItem("kabayan_external_id");
+                    if (!extId) {
+                      extId = "ext-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                      localStorage.setItem("kabayan_external_id", extId);
+                    }
+                    phone = localStorage.getItem("kabayan_customer_phone") || "";
+                    name = localStorage.getItem("kabayan_customer_name") || "";
+                  } catch (e) {}
+
+                  var initData = {};
+                  if (extId) initData.external_id = extId;
                   if (phone) initData.ph = phone.replace(/\\D/g, "");
-                  var name = localStorage.getItem("kabayan_customer_name");
                   if (name) initData.fn = name.trim().split(/\\s+/)[0] || "";
 
                   fbq('init', '${pixelId}', initData);
