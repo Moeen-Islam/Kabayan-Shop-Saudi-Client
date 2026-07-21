@@ -839,8 +839,8 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
             {/* A. Dynamic Promo Banner Hero Section */}
             {settings.bannerImages && settings.bannerImages.length > 0 && (
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-                <section className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/8] bg-black overflow-hidden shadow-lg rounded-2xl min-h-[320px] sm:min-h-0">
+              <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6">
+                <section className="relative w-full rounded-2xl bg-black overflow-hidden shadow-xl min-h-[380px] sm:min-h-[360px] md:min-h-0 sm:aspect-[16/9] md:aspect-[21/8] flex items-center">
                   {settings.bannerImages.map((image, idx) => (
                     <img
                       key={idx}
@@ -848,67 +848,66 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                       alt={`Shop Luxury Banner ${idx + 1}`}
                       referrerPolicy="no-referrer"
                       fetchPriority={idx === 0 ? "high" : "low"}
-                      className={`absolute inset-0 w-full h-full object-cover object-center brightness-50 transition-opacity duration-1000 ${
+                      className={`absolute inset-0 w-full h-full object-cover object-center brightness-45 sm:brightness-50 transition-opacity duration-1000 ${
                         idx === currentHeroIdx ? "opacity-100" : "opacity-0"
                       }`}
                     />
                   ))}
 
                   {/* Text overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent flex items-center px-4 sm:px-12 md:px-20">
-                    <div className="max-w-xl space-y-3 sm:space-y-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 bg-amber-400 text-black text-[9px] sm:text-[11px] font-black uppercase tracking-widest px-2.5 py-1 rounded-sm animate-pulse shadow-md">
-                          <Sparkles className="w-3.5 h-3.5" />
+                  <div className="relative z-10 w-full bg-gradient-to-r from-black/90 via-black/70 sm:via-black/50 to-transparent flex items-center px-4 py-5 sm:px-12 md:px-20">
+                    <div className="max-w-xl space-y-2.5 sm:space-y-4">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-amber-400 text-black text-[9px] sm:text-[11px] font-black uppercase tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-sm animate-pulse shadow-md">
+                          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           <span>{t("eid_sale")}</span>
                         </span>
                         
                         {/* Trust Rating Badge */}
-                        <div className="inline-flex items-center gap-1.5 bg-black/45 backdrop-blur-md px-2.5 py-1 rounded-sm border border-white/10">
+                        <div className="inline-flex items-center gap-1 sm:gap-1.5 bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-sm border border-white/10">
                           <div className="flex text-amber-400">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="w-3 h-3 fill-current animate-pulse" />
+                              <Star key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current animate-pulse" />
                             ))}
                           </div>
-                          <span className="text-[9px] sm:text-[10px] font-black text-white uppercase tracking-wider">
+                          <span className="text-[8.5px] sm:text-[10px] font-black text-white uppercase tracking-wider">
                             1000+ Happy Customers
                           </span>
                         </div>
                       </div>
 
-                      <h2 className="text-2xl sm:text-3.5xl md:text-5xl font-black text-white tracking-tight leading-tight uppercase font-sans">
+                      <h2 className="text-lg sm:text-3xl md:text-5xl font-black text-white tracking-tight leading-snug sm:leading-tight uppercase font-sans">
                         {t("embrace_elegance")}
                       </h2>
-                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light font-sans max-w-md">
+                      <p className="text-[11px] sm:text-xs md:text-sm text-neutral-300 leading-relaxed font-normal font-sans max-w-md">
                         {t("hero_description")}
                       </p>
 
                       {/* Premium Benefits List */}
-                      <div className="flex flex-col gap-2 pt-3 border-t border-white/10 max-w-md">
+                      <div className="flex flex-col gap-1.5 pt-2 sm:pt-3 border-t border-white/15 max-w-md">
                         {[
                           t("hero_bullet_1"),
                           t("hero_bullet_2"),
                           t("hero_bullet_3")
                         ].map((bullet, i) => (
                           <div key={i} className="flex items-center gap-2 text-neutral-200">
-                            <span className="text-xs sm:text-sm font-semibold tracking-wide">{bullet}</span>
+                            <span className="text-[11px] sm:text-xs md:text-sm font-medium tracking-wide">{bullet}</span>
                           </div>
                         ))}
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2.5 pt-1.5">
+                      <div className="pt-1 sm:pt-1.5">
                         <button
                           onClick={() => handleGoToProduct()}
-                          className="relative overflow-hidden bg-amber-500 hover:bg-amber-400 text-black font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-full transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 flex items-center gap-2 group cursor-pointer border border-amber-400/20 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)]"
+                          className="relative overflow-hidden bg-amber-500 hover:bg-amber-400 text-black font-black text-[11px] sm:text-xs uppercase tracking-widest px-6 py-2.5 sm:px-8 sm:py-3.5 rounded-full transition-all duration-300 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 flex items-center gap-2 group cursor-pointer border border-amber-400/20 shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:shadow-[0_0_25px_rgba(245,158,11,0.7)]"
                         >
-                          <Sparkles className="w-4 h-4 text-black shrink-0 animate-pulse" />
+                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black shrink-0 animate-pulse" />
                           <span>{t("explore_products")}</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                       </div>
                     </div>
                   </div>
-
 
                 </section>
               </div>
