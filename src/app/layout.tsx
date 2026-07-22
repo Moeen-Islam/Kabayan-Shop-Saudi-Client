@@ -61,6 +61,18 @@ export default async function RootLayout({
             `
           }}
         />
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYXDJ6NQTS" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-ZYXDJ6NQTS');
+            `
+          }}
+        />
         {pixelId && (
           <>
             <script
