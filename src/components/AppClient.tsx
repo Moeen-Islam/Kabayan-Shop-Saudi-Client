@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import Header from "./Header";
 import ProductCard from "./ProductCard";
-import CartDrawer from "./CartDrawer";
 import { Product, Category, DeliveryArea, Coupon, ShopSettings } from "../types";
 import { useCart } from "../lib/cartStore";
 import { safeStorage } from "../lib/safeStorage";
@@ -25,6 +24,7 @@ const ProductDetailsModal = dynamic(() => import("./ProductDetailsModal"), { ssr
 const CheckoutModal = dynamic(() => import("./CheckoutModal"), { ssr: false });
 const Testimonials = dynamic(() => import("./Testimonials"), { ssr: false });
 const Footer = dynamic(() => import("./Footer"), { ssr: false });
+const CartDrawer = dynamic(() => import("./CartDrawer"), { ssr: false });
 
 function shuffleArray<T>(array: T[]): T[] {
   if (!array || !Array.isArray(array)) return [];
