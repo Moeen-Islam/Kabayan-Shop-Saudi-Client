@@ -213,7 +213,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
               );
             })}
           </div>
-          <span className="text-[10px] text-neutral-400 font-semibold">({(product.rating || 4.9).toFixed(1)}/5)</span>
+          <span className="text-[10px] text-neutral-500 font-semibold">({(product.rating || 4.9).toFixed(1)}/5)</span>
         </div>
 
         {/* Color Swatch Selection inside Card */}
@@ -231,7 +231,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
                     e.stopPropagation();
                     setSelectedColor(color);
                   }}
-                  className={`w-5 h-5 rounded-full border transition-all flex items-center justify-center shrink-0 overflow-hidden ${
+                  className={`relative w-5 h-5 rounded-full border transition-all flex items-center justify-center shrink-0 overflow-hidden after:absolute after:inset-[-14px] after:content-[''] after:cursor-pointer ${
                     isActive
                       ? "ring-2 ring-amber-500 border-white scale-110 shadow-sm"
                       : "border-neutral-300 hover:border-neutral-400"
@@ -259,7 +259,7 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
                 <span className="text-base font-bold text-black tracking-tight">
                   {product.offerPrice} <span className="text-xs font-semibold">SAR</span>
                 </span>
-                <span className="text-xs text-neutral-400 line-through">
+                <span className="text-xs text-neutral-500 line-through">
                   {product.price} SAR
                 </span>
               </div>

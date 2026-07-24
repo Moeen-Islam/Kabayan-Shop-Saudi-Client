@@ -66,6 +66,14 @@ export default function AdminPanel({
   const [loginError, setLoginError] = useState("");
   const [adminToken, setAdminToken] = useState("");
 
+  // Forgot Password / Reset State
+  const [loginView, setLoginView] = useState<"login" | "forgot" | "reset">("login");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [resetError, setResetError] = useState("");
+  const [resetStatus, setResetStatus] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+
   // Tabs: "overview", "orders", "products", "shipping-coupons", "settings"
   const [activeTab, setActiveTab] = useState(() => {
     try {
@@ -501,6 +509,7 @@ export default function AdminPanel({
   }, [isLoggedIn, settings, adminToken]);
 
   // Handle Login
+  const [loginToast, setLoginToast] = useState("");
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError("");
@@ -520,6 +529,61 @@ export default function AdminPanel({
       setIsLoggedIn(true);
     } catch (err: any) {
       setLoginError(err.message || "Invalid credentials");
+    }
+  };
+
+  // Request 6-digit OTP code
+  const handleRequestResetCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetStatus("");
+    setResetLoading(true);
+    try {
+      const response = await fetch(getApiUrl() + "/admin/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: adminEmail })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send verification code");
+      }
+      setResetStatus(data.message || "Verification code sent to admin email.");
+      setLoginView("reset");
+    } catch (err: any) {
+      setResetError(err.message || "Something went wrong. Please check email.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  // Verify code & Reset password
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError("");
+    setResetStatus("");
+    setResetLoading(true);
+    try {
+      const response = await fetch(getApiUrl() + "/admin/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: adminEmail,
+          code: resetCode,
+          newPassword: newPassword
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reset password");
+      }
+      showToast("Password reset successfully! Please log in.", "success");
+      setAdminPassword(""); // Clear password field
+      setLoginView("login");
+    } catch (err: any) {
+      setResetError(err.message || "Invalid or expired code.");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -1369,6 +1433,143 @@ Thank you for shopping with Kabayan Shop! ❤️`;
 
   // Admin Login Screen UI
   if (!isLoggedIn) {
+    if (loginView === "forgot") {
+      return (
+        <div className="min-h-[80vh] flex items-center justify-center p-4 bg-neutral-50">
+          <div className="bg-white border border-neutral-200 shadow-xl rounded-2xl p-6 sm:p-10 w-full max-w-md animate-scale-in">
+            <div className="text-center mb-8">
+              <div className="bg-neutral-900 text-amber-400 p-4 rounded-full inline-block mb-3.5 shadow-md">
+                <Key className="w-8 h-8 animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-black text-neutral-900 tracking-wider">RESET PASSWORD</h2>
+              <p className="text-xs text-neutral-400 mt-1 uppercase tracking-widest font-mono">
+                Enter admin email to receive code
+              </p>
+            </div>
+
+            <form onSubmit={handleRequestResetCode} className="space-y-5">
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  Admin Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => setAdminEmail(e.target.value)}
+                  placeholder="admin@kabayanshopksa.com"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm bg-neutral-50 focus:outline-none focus:border-neutral-900"
+                />
+              </div>
+
+              {resetError && (
+                <p className="text-xs font-bold text-red-600">
+                  ⚠️ {resetError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="w-full bg-neutral-950 hover:bg-black text-amber-400 font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-lg transition shadow-md shadow-black/10 flex items-center justify-center gap-2"
+              >
+                {resetLoading ? "Sending Code..." : "Send Verification Code"}
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setLoginView("login")}
+                  className="text-xs font-bold text-neutral-500 hover:text-neutral-700 transition"
+                >
+                  ← Back to Login
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    if (loginView === "reset") {
+      return (
+        <div className="min-h-[80vh] flex items-center justify-center p-4 bg-neutral-50">
+          <div className="bg-white border border-neutral-200 shadow-xl rounded-2xl p-6 sm:p-10 w-full max-w-md animate-scale-in">
+            <div className="text-center mb-8">
+              <div className="bg-neutral-900 text-amber-400 p-4 rounded-full inline-block mb-3.5 shadow-md">
+                <Key className="w-8 h-8 animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-black text-neutral-900 tracking-wider">RESET PASSWORD</h2>
+              <p className="text-xs text-neutral-400 mt-1 uppercase tracking-widest font-mono">
+                Enter code & new password
+              </p>
+            </div>
+
+            <form onSubmit={handleResetPassword} className="space-y-5">
+              {resetStatus && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-lg text-xs font-medium text-center">
+                  {resetStatus}
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  6-Digit Code
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="123456"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm bg-neutral-50 focus:outline-none focus:border-neutral-900 text-center font-mono tracking-widest text-lg"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-neutral-700 block mb-1">
+                  New Security Password
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm bg-neutral-50 focus:outline-none focus:border-neutral-900"
+                />
+              </div>
+
+              {resetError && (
+                <p className="text-xs font-bold text-red-600">
+                  ⚠️ {resetError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="w-full bg-neutral-950 hover:bg-black text-amber-400 font-extrabold text-xs uppercase tracking-widest py-3.5 rounded-lg transition shadow-md shadow-black/10"
+              >
+                {resetLoading ? "Resetting Password..." : "Reset Password & Login"}
+              </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setLoginView("forgot")}
+                  className="text-xs font-bold text-neutral-500 hover:text-neutral-700 transition"
+                >
+                  ← Request a new code
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-4 bg-neutral-50">
         <div className="bg-white border border-neutral-200 shadow-xl rounded-2xl p-6 sm:p-10 w-full max-w-md animate-scale-in">
@@ -1409,6 +1610,19 @@ Thank you for shopping with Kabayan Shop! ❤️`;
                 placeholder="••••••••"
                 className="w-full px-4 py-2.5 border border-neutral-300 rounded-lg text-sm bg-neutral-50 focus:outline-none focus:border-neutral-900"
               />
+              <div className="flex justify-end mt-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetError("");
+                    setResetStatus("");
+                    setLoginView("forgot");
+                  }}
+                  className="text-[11px] font-bold text-amber-600 hover:text-amber-700 transition"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
 
             {loginError && (

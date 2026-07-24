@@ -54,7 +54,7 @@ export default function Testimonials() {
             </div>
             <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
               <span className="text-xs font-bold text-neutral-900">{testimonial.name}</span>
-              <span className="text-[10px] font-bold text-neutral-400 font-mono uppercase">{testimonial.city}</span>
+              <span className="text-[10px] font-bold text-neutral-500 font-mono uppercase">{testimonial.city}</span>
             </div>
           </div>
         ))}

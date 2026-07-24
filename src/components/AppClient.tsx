@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -694,31 +694,29 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
   };
 
   // Filter & Sort Products (Category and Search filter are executed server-side)
-  const filteredProducts = products.filter((prod) => {
-    return prod.status === "active";
-  });
+  const sortedProducts = useMemo(() => {
+    const active = products.filter((prod) => prod.status === "active");
+    return [...active].sort((a, b) => {
+      // 1. Trending products always first
+      if (a.isTrending && !b.isTrending) return -1;
+      if (!a.isTrending && b.isTrending) return 1;
 
-  // Sort (Trending products pinned to the top first, then sorted by selection)
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    // 1. Trending products always first
-    if (a.isTrending && !b.isTrending) return -1;
-    if (!a.isTrending && b.isTrending) return 1;
+      // 2. Both are trending or both are non-trending, sort by selection
+      if (sortBy === "price-low") {
+        const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
+        const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
+        return aPrice - bPrice;
+      }
+      if (sortBy === "price-high") {
+        const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
+        const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
+        return bPrice - aPrice;
+      }
 
-    // 2. Both are trending or both are non-trending, sort by selection
-    if (sortBy === "price-low") {
-      const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
-      const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
-      return aPrice - bPrice;
-    }
-    if (sortBy === "price-high") {
-      const aPrice = a.offerPrice !== undefined ? a.offerPrice : a.price;
-      const bPrice = b.offerPrice !== undefined ? b.offerPrice : b.price;
-      return bPrice - aPrice;
-    }
-
-    // Default newest: newest first
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+      // Default newest: newest first
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [products, sortBy]);
 
   if (loading && products.length === 0 && categories.length === 0) {
     return (
@@ -942,7 +940,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
               {/* Product Filter Section placed down with the products */}
               {categories.length > 0 && (
                 <div className="flex flex-col gap-2 border-b border-neutral-100 pb-4">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-mono">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 font-mono">
                     {t("filter_by_collection")}
                   </span>
                   <div className="flex flex-wrap items-center gap-2 pb-1">
@@ -990,17 +988,18 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                       {sortedProducts.length} {t("items")}
                     </span>
                   </h3>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     {t("explore_sub")}
                   </p>
                 </div>
 
                 {/* Sort dropdown */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-neutral-400 font-bold uppercase tracking-wider font-sans shrink-0">
+                  <label htmlFor="product-sort-select" className="text-xs text-neutral-500 font-bold uppercase tracking-wider font-sans shrink-0">
                     {t("sort_by")}
-                  </span>
+                  </label>
                   <select
+                    id="product-sort-select"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
                     className="bg-white border border-neutral-200 rounded-lg px-3 py-1.5 text-xs font-bold text-neutral-800 focus:outline-none"
@@ -1114,7 +1113,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold uppercase tracking-wider">{t("cod_title")}</h4>
-                    <p className="text-xs text-neutral-400 leading-snug">
+                    <p className="text-xs text-neutral-500 leading-snug">
                       {t("cod_desc")}
                     </p>
                   </div>
@@ -1126,7 +1125,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold uppercase tracking-wider">{t("live_gps_title")}</h4>
-                    <p className="text-xs text-neutral-400 leading-snug">
+                    <p className="text-xs text-neutral-500 leading-snug">
                       {t("live_gps_desc")}
                     </p>
                   </div>
@@ -1138,7 +1137,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-bold uppercase tracking-wider">{t("wa_synced_title")}</h4>
-                    <p className="text-xs text-neutral-400 leading-snug">
+                    <p className="text-xs text-neutral-500 leading-snug">
                       {t("wa_synced_desc")}
                     </p>
                   </div>
@@ -1177,21 +1176,21 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                       <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
                       <div className="text-left">
                         <div className="text-[11px] font-bold text-neutral-900 font-mono">12,000+</div>
-                        <div className="text-[9px] text-neutral-400 font-medium uppercase font-sans tracking-wider">{t("fb_followers")}</div>
+                        <div className="text-[9px] text-neutral-600 font-semibold uppercase font-sans tracking-wider">{t("fb_followers")}</div>
                       </div>
                     </div>
                     <div className="bg-white/80 backdrop-blur-xs p-3 rounded-xl border border-blue-50 flex items-center gap-2">
                       <ThumbsUp className="w-4 h-4 text-blue-600 shrink-0" />
                       <div className="text-left">
                         <div className="text-[11px] font-bold text-neutral-900 font-mono">100%</div>
-                        <div className="text-[9px] text-neutral-400 font-medium uppercase font-sans tracking-wider">Happy Buyers</div>
+                        <div className="text-[9px] text-neutral-600 font-semibold uppercase font-sans tracking-wider">Happy Buyers</div>
                       </div>
                     </div>
                     <div className="bg-white/80 backdrop-blur-xs p-3 rounded-xl border border-blue-50 flex items-center gap-2 col-span-2 sm:col-span-1">
                       <Star className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
                       <div className="text-left">
                         <div className="text-[11px] font-bold text-neutral-900 font-mono">4.9 / 5.0</div>
-                        <div className="text-[9px] text-neutral-400 font-medium uppercase font-sans tracking-wider">Page Rating</div>
+                        <div className="text-[9px] text-neutral-600 font-semibold uppercase font-sans tracking-wider">Page Rating</div>
                       </div>
                     </div>
                   </div>
@@ -1257,7 +1256,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                   </div>
                   <div className="text-center">
                     <h4 className="text-sm font-extrabold text-neutral-900 tracking-wide">Kabayan Shop Saudi</h4>
-                    <p className="text-[10px] text-neutral-400 font-mono mt-0.5">facebook.com/kabayanshopSaudi1</p>
+                    <p className="text-[10px] text-neutral-500 font-mono mt-0.5">facebook.com/kabayanshopSaudi1</p>
                   </div>
                   <a
                     href="https://www.facebook.com/kabayanshopSaudi1"
@@ -1268,7 +1267,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
                     <span>{t("fb_view_page")}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
-                  <p className="text-[9px] text-neutral-400 text-center font-medium">
+                  <p className="text-[9px] text-neutral-500 text-center font-medium">
                     {t("fb_reviews")}
                   </p>
                 </div>

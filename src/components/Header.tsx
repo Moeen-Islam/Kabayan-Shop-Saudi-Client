@@ -243,7 +243,7 @@ export default function Header({
               <button
                 id="desk-cart-btn"
                 onClick={onOpenCart}
-                className="flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs transition duration-300 font-black border border-amber-500 select-none bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 cursor-pointer animate-pulse-subtle"
+                className="flex items-center justify-center gap-1.5 rounded-full min-h-12 px-4 text-xs transition duration-300 font-black border border-amber-500 select-none bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 cursor-pointer animate-pulse-subtle"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>{t("my_cart")}</span>
@@ -272,10 +272,10 @@ export default function Header({
                 const nextLang: Record<Language, Language> = { en: "ar", ar: "fil", fil: "en" };
                 setLang(nextLang[lang]);
               }}
-              className="flex items-center gap-1 bg-neutral-100 border border-neutral-200 rounded-full px-2 py-1 text-[10px] text-neutral-800 font-bold transition mr-1"
+              className="flex items-center justify-center gap-1 bg-neutral-100 border border-neutral-200 rounded-full min-w-12 min-h-12 text-xs text-neutral-800 font-bold transition mr-1 px-3"
               title="Change Language"
             >
-              <Languages className="w-3 h-3 text-amber-600" />
+              <Languages className="w-3.5 h-3.5 text-amber-600" />
               <span>{lang === "en" ? "EN" : lang === "ar" ? "AR" : "PH"}</span>
             </button>
 
@@ -283,11 +283,11 @@ export default function Header({
               <button
                 id="mob-cart-btn"
                 onClick={onOpenCart}
-                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-black transition duration-300 border border-amber-500 select-none bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 cursor-pointer animate-pulse-subtle"
+                className="flex items-center justify-center gap-1.5 rounded-full min-h-12 px-4 text-xs font-black transition duration-300 border border-amber-500 select-none bg-amber-500 hover:bg-amber-600 text-black shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 cursor-pointer animate-pulse-subtle"
                 aria-label="View Cart"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
-                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full ml-0.5 transition duration-300 bg-black text-amber-400">
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full ml-0.5 transition duration-300 bg-black text-amber-400">
                   {totalItemsCount}
                 </span>
               </button>
@@ -295,7 +295,7 @@ export default function Header({
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-neutral-700 hover:text-amber-600 transition"
+              className="w-12 h-12 flex items-center justify-center text-neutral-700 hover:text-amber-600 transition shrink-0"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
