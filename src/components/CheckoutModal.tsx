@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { X, MapPin, Send, MessageSquare, Sparkles, ShoppingBag, CheckCircle, Ticket, Compass, ArrowLeft, RefreshCw, Navigation, ShieldAlert } from "lucide-react";
 import { useCart } from "../lib/cartStore";
 import { DeliveryArea, Coupon, Order, ShopSettings } from "../types";
@@ -947,17 +948,19 @@ export default function CheckoutModal({ areas, settings, onClose, onOrderSuccess
                       className="w-10 h-13 rounded border border-neutral-200/80 overflow-hidden shrink-0 cursor-pointer hover:border-amber-400 hover:opacity-90 transition duration-150 flex items-center justify-center relative bg-white"
                       title="Click to edit options"
                     >
-                      <img
-                        src={getOptimizedImageUrl(item.productImage, 100)}
+                      <Image
+                        src={item.productImage}
                         alt=""
-                        referrerPolicy="no-referrer"
+                        fill
+                        sizes="40px"
                         className="absolute inset-0 w-full h-full object-cover blur-sm opacity-40 scale-110 pointer-events-none"
                       />
-                      <img
-                        src={getOptimizedImageUrl(item.productImage, 100)}
+                      <Image
+                        src={item.productImage}
                         alt={item.productName}
-                        referrerPolicy="no-referrer"
-                        className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                        fill
+                        sizes="40px"
+                        className="relative z-10 w-full h-full object-contain pointer-events-none"
                       />
                     </div>
                     <div className="flex-grow min-w-0">

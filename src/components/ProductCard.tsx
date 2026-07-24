@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Star, ShoppingCart, Percent, AlertCircle } from "lucide-react";
 import { Product } from "../types";
 import { useLanguage } from "../lib/translationStore";
@@ -138,19 +139,21 @@ export default function ProductCard({ product, onSelect }: ProductCardProps) {
       {/* Product Image Stage */}
       <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden flex items-center justify-center">
         {/* Soft blurred background for filling empty gaps elegantly */}
-        <img
-          src={displayImage}
+        <Image
+          src={rawImage}
           alt=""
+          fill
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 250px"
           loading="lazy"
-          referrerPolicy="no-referrer"
           className="absolute inset-0 w-full h-full object-cover blur-lg opacity-40 scale-110 select-none pointer-events-none"
         />
-        <img
-          src={displayImage}
+        <Image
+          src={rawImage}
           alt={product.name}
+          fill
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 250px"
           loading="lazy"
-          referrerPolicy="no-referrer"
-          className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition-transform duration-500"
+          className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Promo and Info Badges */}

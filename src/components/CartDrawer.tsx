@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Heart, Minus, Plus, ArrowLeft } from "lucide-react";
 import { useCart } from "../lib/cartStore";
 import { useLanguage } from "../lib/translationStore";
@@ -80,17 +81,19 @@ export default function CartDrawer({ onClose, onOpenCheckout, onSelectProductByI
                   className="w-20 h-26 bg-neutral-50 rounded-lg overflow-hidden border border-neutral-100 shrink-0 cursor-pointer hover:border-amber-400 hover:opacity-90 transition duration-150 flex items-center justify-center relative"
                   title="Click to edit options"
                 >
-                  <img
-                    src={getOptimizedImageUrl(item.productImage, 200)}
+                  <Image
+                    src={item.productImage}
                     alt=""
-                    referrerPolicy="no-referrer"
+                    fill
+                    sizes="80px"
                     className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none"
                   />
-                  <img
-                    src={getOptimizedImageUrl(item.productImage, 200)}
+                  <Image
+                    src={item.productImage}
                     alt={item.productName}
-                    referrerPolicy="no-referrer"
-                    className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                    fill
+                    sizes="80px"
+                    className="relative z-10 w-full h-full object-contain pointer-events-none"
                   />
                 </div>
 

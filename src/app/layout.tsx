@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Script from "next/script";
 import "../index.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 async function getSettings() {
   try {
@@ -50,66 +57,63 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(c,l,a,r,i,t,y){
-                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-              })(window, document, "clarity", "script", "xqa6t7q435");
-            `
-          }}
-        />
+        <Script id="microsoft-clarity" strategy="lazyOnload">
+          {`
+            (function(c,l,a,r,i,t,y){
+                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "xqa6t7q435");
+          `}
+        </Script>
         {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYXDJ6NQTS" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-ZYXDJ6NQTS');
-            `
-          }}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZYXDJ6NQTS"
+          strategy="lazyOnload"
         />
+        <Script id="google-analytics" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-ZYXDJ6NQTS');
+          `}
+        </Script>
         {pixelId && (
           <>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  !function(f,b,e,v,n,t,s)
-                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                  n.queue=[];t=b.createElement(e);t.async=!0;
-                  t.src=v;s=b.getElementsByTagName(e)[0];
-                  s.parentNode.insertBefore(t,s)}(window, document,'script',
-                  'https://connect.facebook.net/en_US/fbevents.js');
+            <Script id="meta-pixel" strategy="afterInteractive">
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
 
-                  var extId = "";
-                  var phone = "";
-                  var name = "";
-                  try {
-                    extId = localStorage.getItem("kabayan_external_id");
-                    if (!extId) {
-                      extId = "ext-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                      localStorage.setItem("kabayan_external_id", extId);
-                    }
-                    phone = localStorage.getItem("kabayan_customer_phone") || "";
-                    name = localStorage.getItem("kabayan_customer_name") || "";
-                  } catch (e) {}
+                var extId = "";
+                var phone = "";
+                var name = "";
+                try {
+                  extId = localStorage.getItem("kabayan_external_id");
+                  if (!extId) {
+                    extId = "ext-" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                    localStorage.setItem("kabayan_external_id", extId);
+                  }
+                  phone = localStorage.getItem("kabayan_customer_phone") || "";
+                  name = localStorage.getItem("kabayan_customer_name") || "";
+                } catch (e) {}
 
-                  var initData = {};
-                  if (extId) initData.external_id = extId;
-                  if (phone) initData.ph = phone.replace(/\\D/g, "");
-                  if (name) initData.fn = name.trim().split(/\\s+/)[0] || "";
+                var initData = {};
+                if (extId) initData.external_id = extId;
+                if (phone) initData.ph = phone.replace(/\\D/g, "");
+                if (name) initData.fn = name.trim().split(/\\s+/)[0] || "";
 
-                  fbq('init', '${pixelId}', initData);
-                  fbq('track', 'PageView');
-                `,
-              }}
-            />
+                fbq('init', '${pixelId}', initData);
+                fbq('track', 'PageView');
+              `}
+            </Script>
             <noscript>
               <img
                 height="1"
@@ -121,7 +125,7 @@ export default async function RootLayout({
           </>
         )}
       </head>
-      <body className="antialiased selection:bg-amber-400 selection:text-black">
+      <body className={`${inter.className} antialiased selection:bg-amber-400 selection:text-black`}>
         {children}
       </body>
     </html>

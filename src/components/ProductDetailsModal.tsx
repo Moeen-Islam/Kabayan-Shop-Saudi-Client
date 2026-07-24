@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { X, Check, ShoppingCart, ArrowRight, Minus, Plus, RefreshCw, ZoomIn, ChevronRight } from "lucide-react";
 import { Product } from "../types";
 import { cartStore } from "../lib/cartStore";
@@ -546,17 +547,19 @@ export default function ProductDetailsModal({
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center relative bg-neutral-50">
-                    <img
-                      src={getOptimizedImageUrl(activeImage, window.innerWidth < 640 ? 500 : 800)}
+                    <Image
+                      src={activeImage}
                       alt=""
-                      referrerPolicy="no-referrer"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 500px"
                       className="absolute inset-0 w-full h-full object-cover blur-lg opacity-40 scale-110 select-none pointer-events-none"
                     />
-                    <img
-                      src={getOptimizedImageUrl(activeImage, window.innerWidth < 640 ? 500 : 800)}
+                    <Image
+                      src={activeImage}
                       alt={product.name}
-                      referrerPolicy="no-referrer"
-                      className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                      fill
+                      sizes="(max-width: 640px) 100vw, 500px"
+                      className="relative z-10 w-full h-full object-contain pointer-events-none"
                     />
                   </div>
                 )}
@@ -579,17 +582,19 @@ export default function ProductDetailsModal({
                         activeImage === img ? "border-amber-400 scale-95" : "border-transparent hover:border-neutral-300"
                       }`}
                     >
-                      <img
-                        src={getOptimizedImageUrl(img, 150)}
+                      <Image
+                        src={img}
                         alt=""
-                        referrerPolicy="no-referrer"
+                        fill
+                        sizes="80px"
                         className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110 pointer-events-none"
                       />
-                      <img
-                        src={getOptimizedImageUrl(img, 150)}
+                      <Image
+                        src={img}
                         alt={`${product.name} gallery ${idx}`}
-                        referrerPolicy="no-referrer"
-                        className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain pointer-events-none"
+                        fill
+                        sizes="80px"
+                        className="relative z-10 w-full h-full object-contain pointer-events-none"
                       />
                     </button>
                   ))}
@@ -1128,12 +1133,13 @@ export default function ProductDetailsModal({
                       onClick={() => onSelectRelated(rel)}
                       className="group cursor-pointer flex gap-3 bg-neutral-50 p-3 rounded-xl border border-neutral-100 hover:border-amber-400/30 transition-all duration-300"
                     >
-                      <div className="w-16 h-20 bg-neutral-100 rounded-lg overflow-hidden shrink-0">
-                        <img
+                      <div className="relative w-16 h-20 bg-neutral-100 rounded-lg overflow-hidden shrink-0">
+                        <Image
                           src={rel.images[0]}
                           alt={rel.name}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover object-top"
+                          fill
+                          sizes="64px"
+                          className="object-cover object-top"
                         />
                       </div>
                       <div className="flex flex-col justify-center">

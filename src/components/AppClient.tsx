@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +23,8 @@ import { initialDb } from "../lib/initialDb";
 const AdminPanel = dynamic(() => import("./AdminPanel"), { ssr: false });
 const ProductDetailsModal = dynamic(() => import("./ProductDetailsModal"), { ssr: false });
 const CheckoutModal = dynamic(() => import("./CheckoutModal"), { ssr: false });
+const Testimonials = dynamic(() => import("./Testimonials"), { ssr: false });
+const Footer = dynamic(() => import("./Footer"), { ssr: false });
 
 function shuffleArray<T>(array: T[]): T[] {
   if (!array || !Array.isArray(array)) return [];
@@ -265,7 +268,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
         // Preload the next hero image in the background for instant transitions
         if (settingsData.bannerImages && settingsData.bannerImages.length > 1) {
-          const nextImg = new Image();
+          const nextImg = new window.Image();
           nextImg.src = getOptimizedImageUrl(settingsData.bannerImages[1], window.innerWidth < 640 ? 600 : 1200);
         }
       } else {
@@ -842,12 +845,14 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
               <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6">
                 <section className="relative w-full rounded-2xl bg-black overflow-hidden shadow-xl min-h-[380px] sm:min-h-[360px] md:min-h-0 sm:aspect-[16/9] md:aspect-[21/8] flex items-center">
                   {settings.bannerImages.map((image, idx) => (
-                    <img
+                    <Image
                       key={idx}
-                      src={getOptimizedImageUrl(image, isMobile ? 600 : 1200)}
+                      src={image}
                       alt={`Shop Luxury Banner ${idx + 1}`}
-                      referrerPolicy="no-referrer"
+                      fill
+                      priority={idx === 0}
                       fetchPriority={idx === 0 ? "high" : "low"}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1200px"
                       className={`absolute inset-0 w-full h-full object-cover object-center brightness-45 sm:brightness-50 transition-opacity duration-1000 ${
                         idx === currentHeroIdx ? "opacity-100" : "opacity-0"
                       }`}
@@ -1142,56 +1147,7 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
             </section>
 
             {/* E. Customer Reviews Testimonial Section */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-              <div className="text-center space-y-2">
-                <span className="text-xs font-bold uppercase tracking-[0.25em] text-amber-600 block">
-                  {t("trusted_by_thousands")}
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight uppercase">
-                  {t("what_customers_say")}
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    name: "Mariam Al-Harbi",
-                    city: "Riyadh, KSA",
-                    review: "The black georgette abaya with gold embroidery is absolutely stunning! High-density linen fabric, perfect length, and the package arrived in Riyadh in just 2 days. Sharing my live location was so easy!",
-                    rating: 5
-                  },
-                  {
-                    name: "Amelia Cruz",
-                    city: "Jeddah, KSA",
-                    review: "Outstanding service! I ordered the 3pcs Cotton Tees Combo pack and a Linen Terno Set. The quality is premium and highly breathable. Will definitely purchase more modest garments for Eid!",
-                    rating: 5
-                  },
-                  {
-                    name: "Sarah G.",
-                    city: "Dammam, KSA",
-                    review: "I love that login is not required to buy. I just selected my city, shared my coordinates, and clicked 'Send order to WhatsApp'. The admin responded instantly and confirmed. Highly recommended!",
-                    rating: 5
-                  }
-                ].map((testimonial, idx) => (
-                  <div key={idx} className="bg-white p-6 rounded-2xl border border-neutral-200/70 shadow-sm space-y-3 flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <div className="flex text-amber-400">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-current" />
-                        ))}
-                      </div>
-                      <p className="text-xs sm:text-sm text-neutral-600 italic leading-relaxed">
-                        "{testimonial.review}"
-                      </p>
-                    </div>
-                    <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-neutral-900">{testimonial.name}</span>
-                      <span className="text-[10px] font-bold text-neutral-400 font-mono uppercase">{testimonial.city}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            <Testimonials />
 
             {/* F. Facebook Page Trust Section */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1325,87 +1281,11 @@ export default function AppClient({ initialRoute = "/", initialCategory = "", in
 
       {/* 3. Shop Footer */}
       {!isAdminMode && (
-        <footer className="bg-neutral-900 text-neutral-300 pt-16 pb-8 border-t border-neutral-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-
-            {/* Column 1: Store Intro */}
-            <div className="space-y-4">
-              <h4 className="text-white text-base font-black tracking-widest font-sans uppercase">
-                KABAYAN <span className="text-amber-400">SHOP</span>
-              </h4>
-              <p className="text-xs leading-relaxed text-neutral-400 font-light">
-                {settings.aboutUs || "Premium modesty apparel, dresses, terno sets and fine footwear in Riyadh and across Saudi Arabia."}
-              </p>
-              <div className="flex items-center gap-3 text-neutral-400 pt-1">
-                <a href="#wa" className="hover:text-amber-400 transition" title="WhatsApp Customer Line">
-                  <Phone className="w-4 h-4" />
-                </a>
-                <a href="#instagram" className="hover:text-amber-400 transition" title="Instagram Profile">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a href="#mail" className="hover:text-amber-400 transition" title="Email Contact">
-                  <Mail className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-
-            {/* Column 2: Quick Links */}
-            <div className="space-y-3 text-xs">
-              <h5 className="text-white font-bold uppercase tracking-wider font-mono">Collections</h5>
-              <ul className="space-y-1.5 text-neutral-400">
-                {categories.slice(0, 5).map((cat) => (
-                  <li key={cat.id}>
-                    <button
-                      onClick={() => setSelectedCategory(cat.slug)}
-                      className="hover:text-white transition uppercase text-[10px] font-semibold"
-                    >
-                      {getCategoryName(cat)}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 3: Policy Links */}
-            <div className="space-y-3 text-xs">
-              <h5 className="text-white font-bold uppercase tracking-wider font-mono">Legals</h5>
-              <ul className="space-y-1.5 text-neutral-400">
-                <li><a href="#privacy" className="hover:text-white transition uppercase text-[10px] font-semibold">Privacy Policy</a></li>
-                <li><a href="#terms" className="hover:text-white transition uppercase text-[10px] font-semibold">Terms & Conditions</a></li>
-                <li><a href="#shipping" className="hover:text-white transition uppercase text-[10px] font-semibold">Shipping Policy</a></li>
-              </ul>
-            </div>
-
-            {/* Column 4: Contact & Support */}
-            <div className="space-y-3 text-xs">
-              <h5 className="text-white font-bold uppercase tracking-wider font-mono">Contact Info</h5>
-              <ul className="space-y-2 text-neutral-400 leading-relaxed font-sans">
-                <li className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>{settings.contactAddress || "Olaya Dist, Riyadh, Kingdom of Saudi Arabia"}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>+{settings.whatsappContact || "8801765865757"}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>{settings.contactEmail || "moeenislam8089@gmail.com"}</span>
-                </li>
-              </ul>
-            </div>
-
-          </div>
-
-          {/* Copyright bottom bar */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] text-neutral-500 font-medium">
-            <span>© {new Date().getFullYear()} {settings.shopName || "Kabayan Shop Saudi"}. All Rights Reserved. Modest Fashion Saudi.</span>
-            <div className="flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4 text-green-600" />
-              <span>Cash on Delivery (COD) Verified Partner KSA</span>
-            </div>
-          </div>
-        </footer>
+        <Footer 
+          settings={settings} 
+          categories={categories} 
+          setSelectedCategory={setSelectedCategory} 
+        />
       )}
 
       {/* 4. CLIENT INTERACTION MODALS & DRAWERS */}
